@@ -172,3 +172,11 @@
 /obj/item/clothing/gloves/color/black/krav_maga/sec/Initialize(mapload)
 	. = ..()
 	AddElement(/datum/element/high_value_item)
+
+/obj/item/clothing/gloves/color/black/krav_maga/emp_act(severity)
+	. = ..()
+	if (prob(20))
+
+	if(ishuman(loc))
+		to_chat(user, span_danger("The [src] buzzes and activates!"))
+		return
