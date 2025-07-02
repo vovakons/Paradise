@@ -194,7 +194,7 @@
 			if(target.mind == objective.target)
 				objective.take_damage(damage, damage_type)
 
-/datum/martial_art/proc/teach(mob/living/carbon/human/human, make_temporary = FALSE)
+/datum/martial_art/proc/teach(mob/living/carbon/human/human, make_temporary = FALSE, silence = FALSE)
 	if(!human.mind)
 		return FALSE
 
@@ -224,7 +224,7 @@
 	owner_UID = human.UID()
 	return TRUE
 
-/datum/martial_art/proc/remove(mob/living/carbon/human/H)
+/datum/martial_art/proc/remove(mob/living/carbon/human/H, silence = FALSE)
 	var/datum/martial_art/MA = src
 	if(!H.mind)
 		return FALSE

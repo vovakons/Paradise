@@ -110,7 +110,7 @@
 	UpdateButtonIcon()
 
 
-/datum/action/proc/Trigger(left_click = TRUE)
+/datum/action/proc/Trigger(left_click = TRUE, silence = FALSE)
 	if(!IsAvailable())
 		return FALSE
 	return TRUE
@@ -237,7 +237,7 @@
 	LAZYREMOVE(I.actions, src)
 	return ..()
 
-/datum/action/item_action/Trigger(left_click = TRUE)
+/datum/action/item_action/Trigger(left_click = TRUE, silence = FALSE)
 	if(!..())
 		return FALSE
 	if(target && attack_self)
@@ -342,7 +342,7 @@
 /datum/action/item_action/toggle_backpack_light
 	name = "Переключить мигалку на рюкзаке"
 
-/datum/action/item_action/toggle_unfriendly_fire/Trigger(left_click = TRUE)
+/datum/action/item_action/toggle_unfriendly_fire/Trigger(left_click = TRUE, silence = FALSE)
 	if(..())
 		UpdateButtonIcon()
 
@@ -470,7 +470,7 @@
 	name = "Снять скотч"
 	attack_self = FALSE
 
-/datum/action/item_action/remove_tape/Trigger(left_click = TRUE)
+/datum/action/item_action/remove_tape/Trigger(left_click = TRUE, silence = FALSE)
 	if(..())
 		var/component = target.GetComponent(/datum/component/ducttape)
 		if(component)
@@ -544,7 +544,7 @@
 	name = "Переключить исследовательский анализатор"
 
 
-/datum/action/item_action/toggle_research_scanner/Trigger(left_click = TRUE)
+/datum/action/item_action/toggle_research_scanner/Trigger(left_click = TRUE, silence = FALSE)
 	if(!..())
 		return FALSE
 
@@ -598,7 +598,7 @@
 	name = "Использовать инструмент"
 	desc = "Использовать указанный инструмент."
 
-/datum/action/item_action/instrument/Trigger(left_click = TRUE)
+/datum/action/item_action/instrument/Trigger(left_click = TRUE, silence = FALSE)
 	if(istype(target, /obj/item/instrument))
 		var/obj/item/instrument/I = target
 		I.interact(usr)
@@ -627,7 +627,7 @@
 	desc = "Направляет импульс гравитации перед пользователем, придавая ему ускорение."
 	attack_self = FALSE
 
-/datum/action/item_action/gravity_jump/Trigger(left_click = TRUE)
+/datum/action/item_action/gravity_jump/Trigger(left_click = TRUE, silence = FALSE)
 	. = ..()
 	if(!.)
 		return FALSE
@@ -667,7 +667,7 @@
 /datum/action/item_action/voice_changer/voice
 	name = "Установить голос"
 
-/datum/action/item_action/voice_changer/voice/Trigger(left_click = TRUE)
+/datum/action/item_action/voice_changer/voice/Trigger(left_click = TRUE, silence = FALSE)
 	if(!IsAvailable())
 		return FALSE
 
@@ -730,7 +730,7 @@
 	S.action = null
 	return ..()
 
-/datum/action/spell_action/Trigger(left_click = TRUE)
+/datum/action/spell_action/Trigger(left_click = TRUE, silence = FALSE)
 	if(!IsAvailable(TRUE))
 		return FALSE
 
@@ -793,7 +793,7 @@
 	check_flags = 0
 	var/active = FALSE
 
-/datum/action/innate/Trigger(left_click = TRUE)
+/datum/action/innate/Trigger(left_click = TRUE, silence = FALSE)
 	if(!..())
 		return FALSE
 	if(!active)
@@ -836,7 +836,7 @@
 	check_flags = 0
 	var/procname
 
-/datum/action/generic/Trigger(left_click = TRUE)
+/datum/action/generic/Trigger(left_click = TRUE, silence = FALSE)
 	if(!..())
 		return FALSE
 	if(target && procname)
