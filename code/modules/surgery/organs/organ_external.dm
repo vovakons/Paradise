@@ -61,6 +61,8 @@
 	var/brute_mod = 1
 	/// Burn modifier allpied to received damage
 	var/burn_mod = 1
+	/// Global modifier applied to received damagae (ignore type), specific for organs
+	var/damage_mod = 1
 	/// Curent bodypart brute damage
 	var/brute_dam = 0
 	/// Curent bodypart burn damage
@@ -296,8 +298,8 @@
 		if(brute <= 0 && burn <= 0)
 			return FALSE
 
-		brute *= brute_mod
-		burn *= burn_mod
+		brute *= brute_mod * damage_mod
+		burn *= burn_mod * damage_mod
 		brute *= ((100 - clamp(blocked + (owner?.get_blocking_resistance(brute, BRUTE, src, sharp, used_weapon) || 0), 0, 100)) / 100)
 		burn *= ((100 - clamp(blocked + (owner?.get_blocking_resistance(burn, BURN, src, sharp, used_weapon) || 0), 0, 100)) / 100)
 		if(owner)

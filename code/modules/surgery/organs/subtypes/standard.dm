@@ -77,6 +77,7 @@
 	limb_zone = BODY_ZONE_L_ARM
 	max_damage = 50
 	min_broken_damage = 30
+	damage_mod = 0.9
 	w_class = WEIGHT_CLASS_NORMAL
 	limb_body_flag = ARM_LEFT
 	parent_organ_zone = BODY_ZONE_CHEST
@@ -127,6 +128,7 @@
 	limb_zone = BODY_ZONE_L_LEG
 	max_damage = 50
 	min_broken_damage = 30
+	damage_mod = 0.9
 	w_class = WEIGHT_CLASS_NORMAL
 	limb_body_flag = LEG_LEFT
 	icon_position = LEFT
@@ -223,6 +225,7 @@
 	limb_zone = BODY_ZONE_PRECISE_L_FOOT
 	max_damage = 30
 	min_broken_damage = 15
+	damage_mod = 0.8
 	w_class = WEIGHT_CLASS_SMALL
 	limb_body_flag = FOOT_LEFT
 	icon_position = LEFT
@@ -363,6 +366,7 @@
 	limb_zone = BODY_ZONE_PRECISE_L_HAND
 	max_damage = 30
 	min_broken_damage = 15
+	damage_mod = 0.8
 	w_class = WEIGHT_CLASS_SMALL
 	limb_body_flag = HAND_LEFT
 	parent_organ_zone = BODY_ZONE_L_ARM
@@ -467,6 +471,7 @@
 	icon_name = "head"
 	max_damage = 75
 	min_broken_damage = 35
+	damage_mod = 1.2
 	w_class = WEIGHT_CLASS_NORMAL
 	limb_body_flag = HEAD
 	parent_organ_zone = BODY_ZONE_CHEST
@@ -593,6 +598,7 @@
 	icon_name = "tail"
 	max_damage = 30
 	min_broken_damage = 15
+	damage_mod = 0.9
 	w_class = WEIGHT_CLASS_SMALL
 	limb_body_flag = TAIL
 	parent_organ_zone = BODY_ZONE_PRECISE_GROIN
@@ -702,6 +708,7 @@
 	limb_zone = BODY_ZONE_WING
 	max_damage = 30
 	min_broken_damage = 15
+	damage_mod = 0.8
 	w_class = WEIGHT_CLASS_SMALL
 	limb_body_flag = WING
 	parent_organ_zone = BODY_ZONE_CHEST
