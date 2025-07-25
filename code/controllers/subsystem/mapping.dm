@@ -140,9 +140,11 @@ SUBSYSTEM_DEF(mapping)
 	// Load all Z level templates
 	preloadTemplates()
 	// Load the station
-	loadStation()
-
-	if(!CONFIG_GET(flag/disable_lavaland))
+	var/datum/map/station = loadStation()
+	var/load_lavaland = !CONFIG_GET(flag/disable_lavaland)
+	if(station)
+		load_lavaland = load_lavaland && station.load_lavaland
+	if(load_lavaland)
 		loadLavaland()
 	if(!CONFIG_GET(flag/disable_taipan))
 		loadTaipan()
@@ -160,7 +162,7 @@ SUBSYSTEM_DEF(mapping)
 	// Setup the Z-level linkage
 	GLOB.space_manager.do_transition_setup()
 
-	if(!CONFIG_GET(flag/disable_lavaland))
+	if(load_lavaland)
 		// Spawn Lavaland ruins and rivers.
 		log_startup_progress("Populating lavaland...")
 		var/lavaland_setup_timer = start_watch()
@@ -381,13 +383,14 @@ SUBSYSTEM_DEF(mapping)
 
 	// Save station name in the DB
 	if(!SSdbcore.IsConnected())
-		return
+		return map_datum
 	var/datum/db_query/query_set_map = SSdbcore.NewQuery(
 		"UPDATE [format_table_name("round")] SET start_datetime=NOW(), map_name=:mapname, station_name=:stationname WHERE id=:round_id",
 		list("mapname" = map_datum.name, "stationname" = map_datum.station_name, "round_id" = GLOB.round_id)
 	)
 	query_set_map.Execute(async = FALSE) // This happens during a time of intense server lag, so should be non-async
 	qdel(query_set_map)
+	return map_datum
 
 /datum/controller/subsystem/mapping/proc/loadLavaland()
 	var/watch = start_watch()

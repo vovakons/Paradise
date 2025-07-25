@@ -17,3 +17,4 @@
 	var/starsys_name  = "Dull Star"
 	/// URL to the maps webmap
 	var/webmap_url
+	var/load_lavaland = TRUE

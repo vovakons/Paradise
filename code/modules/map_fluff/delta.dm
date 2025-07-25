@@ -14,3 +14,4 @@ Remapped by ThaumicNik, TrashDoxx, J4.BA, BeepBoop, mr_g, IceGreen, AlexRavenidz
 	company_short = "НТ"
 	starsys_name  = "Эпсилон Лукуста"
 	webmap_url = "https://webmap.affectedarc07.co.uk/maps/ss1984/deltastation/"
+	load_lavaland = FALSE
