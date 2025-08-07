@@ -117,6 +117,8 @@
 
 #define issyringe(A) istype(A, /obj/item/reagent_containers/syringe)
 
+#define istoy(A) istype(A, /obj/item/toy)
+
 #define isglassreagentcontainer(A) istype(A, /obj/item/reagent_containers/glass)
 
 GLOBAL_LIST_INIT(pointed_types, typecacheof(list(

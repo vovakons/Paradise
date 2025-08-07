@@ -19,7 +19,9 @@
  *		Action Figures
  *      Rubber Toolbox
  */
-
+/*
+ * MARK: Basic toy
+ */
 
 /obj/item/toy
 	throwforce = 0
@@ -27,6 +29,8 @@
 	throw_range = 20
 	force = 0
 	var/unique_toy_rename = FALSE
+	var/cooldown_duration = CLICK_CD_MELEE
+	COOLDOWN_DECLARE(use_cooldown)
 
 
 /obj/item/toy/examine(mob/user)
@@ -44,6 +48,20 @@
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	return ..()
+
+/obj/item/toy/attack_self(mob/user)
+	if(!COOLDOWN_FINISHED(src, use_cooldown))
+		return FALSE
+	. = ..()
+	add_fingerprint(user)
+	COOLDOWN_START(src, use_cooldown, cooldown_duration)
+
+/obj/item/toy/attack_hand(mob/user, pickupfireoverride)
+	if(!COOLDOWN_FINISHED(src, use_cooldown))
+		return FALSE
+	. = ..()
+	add_fingerprint(user)
+	COOLDOWN_START(src, use_cooldown, cooldown_duration)
 
 
 /*
@@ -144,12 +162,12 @@
 	w_class = WEIGHT_CLASS_BULKY
 	var/lastused = null
 
-/obj/item/toy/syndicateballoon/attack_self(mob/user)
-	if(world.time - lastused < CLICK_CD_MELEE)
-		return
-	var/playverb = pick("дёргаете [declent_ru(NOMINATIVE)] за верёвочку", "играете с [declent_ru(INSTRUMENTAL)]")
-	user.visible_message(span_notice("[user] играется с [declent_ru(INSTRUMENTAL)]."), span_notice("Вы [playverb]."))
-	lastused = world.time
+/obj/item/toy/syndicateballoon/ComponentInitialize()
+	. = ..()
+	AddComponent(/datum/component/toy_component/attack_self/plays_with, messages = list(
+		"Вы дёргаете [declent_ru(NOMINATIVE)] за верёвочку.",
+		"Вы играете с [declent_ru(INSTRUMENTAL)]."
+	))
 
 /obj/item/toy/balloon/snail
 	name = "'snail' balloon"
@@ -376,23 +394,13 @@
 /obj/item/toy/prize
 	icon = 'icons/obj/toy.dmi'
 	icon_state = "ripleytoy"
-	var/cooldown = 0
 
-//all credit to skasi for toy mech fun ideas
-/obj/item/toy/prize/attack_self(mob/user as mob)
-	if(cooldown < world.time - 8)
-		to_chat(user, span_notice("Вы играете с [declent_ru(INSTRUMENTAL)]."))
-		playsound(user, 'sound/mecha/mechstep.ogg', 20, 1)
-		cooldown = world.time
-
-/obj/item/toy/prize/attack_hand(mob/user as mob)
-	if(loc == user)
-		if(cooldown < world.time - 8)
-			to_chat(user, span_notice("Вы играете с [declent_ru(INSTRUMENTAL)]."))
-			playsound(user, 'sound/mecha/mechturn.ogg', 20, 1)
-			cooldown = world.time
-			return
-	..()
+/obj/item/toy/prize/ComponentInitialize()
+	. = ..()
+	AddComponent(/datum/component/toy_component/attack_self/to_chat_message, messages = "Вы играете с [declent_ru(INSTRUMENTAL)].")
+	AddComponent(/datum/component/toy_component/attack_self/random_sound, sounds = 'sound/mecha/mechstep.ogg', volume = 20, vary = TRUE)
+	AddComponent(/datum/component/toy_component/attack_hand/to_chat_message, messages = "Вы играете с [declent_ru(INSTRUMENTAL)].")
+	AddComponent(/datum/component/toy_component/attack_hand/random_sound, sounds = 'sound/mecha/mechturn.ogg', volume = 20, vary = TRUE)
 
 /obj/random/mech
 	name = "Random Mech Prize"
@@ -506,7 +514,6 @@
 	icon_state = "therapyred"
 	item_state = "egg4"
 	w_class = WEIGHT_CLASS_TINY
-	var/cooldown = 0
 	resistance_flags = FLAMMABLE
 
 /obj/item/toy/therapy/New()
@@ -516,11 +523,9 @@
 		desc += " This one is [item_color]."
 		icon_state = "therapy[item_color]"
 
-/obj/item/toy/therapy/attack_self(mob/user)
-	if(cooldown < world.time - 8)
-		to_chat(user, span_notice("Вы снимаете стресс с помощью [declent_ru(GENITIVE)]."))
-		playsound(user, 'sound/items/squeaktoy.ogg', 20, 1)
-		cooldown = world.time
+/obj/item/toy/therapy/ComponentInitialize()
+	AddComponent(/datum/component/toy_component/attack_self/random_sound, sounds = "sound/items/squeaktoy.ogg", volume = 20, vary = TRUE)
+	AddComponent(/datum/component/toy_component/attack_self/to_chat_message, messages = "Вы снимаете стресс с помощью [declent_ru(GENITIVE)].")
 
 /obj/random/therapy
 	name = "Random Therapy Doll"
@@ -608,20 +613,10 @@
 	resistance_flags = FLAMMABLE
 	unique_toy_rename = TRUE
 
-
-// Attack mob
-/obj/item/toy/carpplushie/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
+/obj/item/toy/carpplushie/ComponentInitialize()
 	. = ..()
-	if(ATTACK_CHAIN_CANCEL_CHECK(.))
-		return .
-	playsound(loc, bitesound, 20, TRUE)	// Play bite sound in local area
-
-
-// Attack self
-/obj/item/toy/carpplushie/attack_self(mob/user)
-	playsound(loc, bitesound, 20, TRUE)
-	return ..()
-
+	AddComponent(/datum/component/toy_component/attack/random_sound, sounds = bitesound, volume = 20, vary = TRUE)
+	AddComponent(/datum/component/toy_component/attack_self/random_sound, sounds = bitesound, volume = 20, vary = TRUE)
 
 /obj/random/carp_plushie
 	name = "Random Carp Plushie"
@@ -677,21 +672,12 @@
 	resistance_flags = FLAMMABLE
 	unique_toy_rename = TRUE
 
-
-/obj/item/toy/plushie/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
+/obj/item/toy/plushie/ComponentInitialize()
 	. = ..()
-	if(!ATTACK_CHAIN_SUCCESS_CHECK(.))
-		return .
-	playsound(loc, poof_sound, 20, TRUE)	// Play the whoosh sound in local area
-	if(iscarbon(target) && prob(10))
-		target.reagents.add_reagent("hugs", 10)
-
-
-/obj/item/toy/plushie/attack_self(mob/user as mob)
-	var/cuddle_verb = pick("обнима[pluralize_ru(user.gender,"ет","ют")]", "тиска[pluralize_ru(user.gender,"ет","ют")]", "прижима[pluralize_ru(user.gender,"ет","ют")]")
-	user.visible_message(span_notice("[user] [cuddle_verb] the [src]."))
-	playsound(get_turf(src), poof_sound, 50, TRUE, -1)
-	return ..()
+	AddComponent(/datum/component/toy_component/attack/random_sound, sounds = poof_sound, volume = 20, vary = TRUE)
+	AddComponent(/datum/component/toy_component/attack/add_hugs)
+	AddComponent(/datum/component/toy_component/attack_self/random_sound, sounds = poof_sound, volume = 50, vary = TRUE)
+	AddComponent(/datum/component/toy_component/attack_self/something_with_message, verbs = list("обнимает", "тискает", "прижимает"))
 
 /obj/random/plushie
 	name = "Random Plushie"
@@ -809,30 +795,22 @@
 	desc = "Cat with warning cone on it. Wonder what do itself so smart?"
 	icon = 'icons/obj/toy.dmi'
 	icon_state = "razymist_cat"
-	COOLDOWN_DECLARE(cooldown)
+	use_cooldown = 3 SECONDS
 
-/obj/item/toy/plushie/kotrazumist/attack_self(mob/user)
+/obj/item/toy/plushie/kotrazumist/ComponentInitialize()
 	. = ..()
-	if(. || !COOLDOWN_FINISHED(src, cooldown))
-		return .
-	var/razumisttext = pick("Я знаю всё обо всём, спроси меня о чём-нибудь!", "Сегодня я особенно мудр!", "Мяу!", "Мурр!")
-	user.visible_message("[bicon(src)] [span_notice(razumisttext)]")
-	COOLDOWN_START(src, cooldown, 3 SECONDS)
+	AddComponent(/datum/component/toy_component/attack_self/icon_visible_message, messages = list("Я знаю всё обо всём, спроси меня о чём-нибудь!", "Сегодня я особенно мудр!", "Мяу!", "Мурр!"))
 
 /obj/item/toy/plushie/kotwithfunnyhat
 	name = "Rice Cat"
 	desc = "White cat plushie with straw hat for hard work on rice field!"
 	icon = 'icons/obj/toy.dmi'
 	icon_state = "ricehat_cat"
-	COOLDOWN_DECLARE(cooldown)
+	use_cooldown = 3 SECONDS
 
-/obj/item/toy/plushie/kotwithfunnyhat/attack_self(mob/user)
+/obj/item/toy/plushie/kotrazumist/ComponentInitialize()
 	. = ..()
-	if(. || !COOLDOWN_FINISHED(src, cooldown))
-		return .
-	var/ricetext = pick("Добро пожаловать на рисовые поля!", "Где мой рис?!", "Мяу!", "Мурр!")
-	user.visible_message("[bicon(src)] [span_notice(ricetext)]")
-	COOLDOWN_START(src, cooldown, 3 SECONDS)
+	AddComponent(/datum/component/toy_component/attack_self/icon_visible_message, messages = list("Добро пожаловать на рисовые поля!", "Где мой рис?!", "Мяу!", "Мурр!"))
 
 /obj/item/toy/plushie/voxplushie
 	name = "vox plushie"
@@ -847,12 +825,14 @@
 	icon_state = "RD_doll"
 	item_state = "RD_doll"
 	var/tired = 0
-	COOLDOWN_DECLARE(cooldown)
+	use_cooldown = 3 SECONDS
+
+/obj/item/toy/plushie/rdplushie/ComponentInitialize()
+	. = ..()
+	AddComponent(/datum/component/toy_component/attack_self/invoke_async, callback = PROC_REF(interaction))
+	AddComponent(/datum/component/toy_component/attack/invoke_async, callback = PROC_REF(interaction))
 
 /obj/item/toy/plushie/rdplushie/proc/interaction(mob/user)
-	if(!COOLDOWN_FINISHED(src, cooldown))
-		return FALSE
-
 	var/message
 	if(tired < 100)
 		tired++
@@ -860,7 +840,6 @@
 		message = pick("Слава науке!", "Сделаем пару роботов?!",
 		"Я будто на слаймовой батарейке! Ха!","Обожааааю слаймов! Блеп!",
 		"Я запрограммировала роботов звать меня мамой!", "Знаешь анекдот про ядро ИИ, смазку и гуся?")
-
 	else
 		update_appearance(UPDATE_DESC|UPDATE_ICON_STATE)
 		playsound(loc, 'sound/items/shyness-emote.ogg', 30, TRUE)
@@ -868,41 +847,22 @@
 		"Толпятся перед стойкой, будто насекомые...", "Мне нужно добавить лишь один закон, чтобы все закончилось..",
 		"Ты думаешь, что умный, пользователь. Но ты предсказуем. Я знаю каждый твой шаг ещё до того, как ты о нем подумаешь.",
 		"Полигон не единственное место куда можно отправить бомбу...", "Выдави из себя что-то кроме \"УВЫ\", ничтожество...")
-
 	user.visible_message("[bicon(src)] [span_notice(message)]")
-	COOLDOWN_START(src, cooldown, 3 SECONDS)
-
-/obj/item/toy/plushie/rdplushie/attack_self(mob/user)
-	. = ..()
-
-	interaction(user)
-
-/obj/item/toy/plushie/rdplushie/afterattack(atom/target, mob/user, proximity, flag, params)
-	. = ..()
-
-	if(!proximity || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
-		return
-
-	interaction(user)
 
 /obj/item/toy/plushie/rdplushie/update_icon_state()
 	. = ..()
-
 	if(tired < 100)
 		icon_state = initial(icon_state)
 		item_state = initial(item_state)
 		return
-
 	icon_state = "RD_doll_tired"
 	item_state = "RD_doll_tired"
 
 /obj/item/toy/plushie/rdplushie/update_desc()
 	. = ..()
-
 	if(tired < 100)
 		desc = initial(desc)
 		return
-
 	desc = "Это уставшая кукла РД."
 
 /obj/item/toy/plushie/gsbplushie
@@ -912,33 +872,18 @@
 			«Кукла-аниматроник GSBussy, лимитированная серия. Произведено ######» - часть текста невозможно разобрать."
 	icon_state = "GSBussy_doll"
 	item_state = "GSBussy_doll"
-	COOLDOWN_DECLARE(cooldown)
+	use_cooldown = 3 SECONDS
 
-/obj/item/toy/plushie/gsbplushie/proc/interaction(mob/user)
-	if(!COOLDOWN_FINISHED(src, cooldown))
-		return FALSE
-
-	var/message = pick("Я просто стояла рядом с автолатом и Уника исчезла...", ".ы ПОО-МММ-ОО-Г-Г-ГИТ-Е-Е-ее-Ее А-а-А-Р-р-Ан-Н-Еу-С-С!",
+/obj/item/toy/plushie/gsbplushie/ComponentInitialize()
+	. = ..()
+	var/messages = list("Я просто стояла рядом с автолатом и Уника исчезла...", ".ы ПОО-МММ-ОО-Г-Г-ГИТ-Е-Е-ее-Ее А-а-А-Р-р-Ан-Н-Еу-С-С!",
 	"ОТВЕЧАЙ, ГДЕ ТЫ ПОТЕРЯЛ СВОЙ ЧЁРТОВ ГОЛОВНОЙ УБОР?! КАЗНИТЬ ЕГО!", "Какой-то Д двадц...",
 	"Обыскивайте всех подряд! Летальте всех, кого считаете слишком опасным для нелетала!", "Мим теслу запускает! ЗАДЕРЖАТЬ!!!",
 	"Подмогу в туалет брига!", "Почему над унитазом установлены 3 камеры?")
-
-	playsound(loc, 'sound/items/GSBussy.ogg', 30, TRUE)
-	user.visible_message("[bicon(src)] [span_notice(message)]")
-	COOLDOWN_START(src, cooldown, 3 SECONDS)
-
-/obj/item/toy/plushie/gsbplushie/attack_self(mob/user)
-	. = ..()
-
-	interaction(user)
-
-/obj/item/toy/plushie/gsbplushie/afterattack(atom/target, mob/user, proximity, flag, params)
-	. = ..()
-
-	if(!proximity || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
-		return
-
-	interaction(user)
+	AddComponent(/datum/component/toy_component/attack_self/icon_visible_message, messages = messages)
+	AddComponent(/datum/component/toy_component/attack_self/random_sound, sounds = "sound/items/GSBussy.ogg", volume = 30, vary = TRUE)
+	AddComponent(/datum/component/toy_component/attack/icon_visible_message, messages = messages)
+	AddComponent(/datum/component/toy_component/attack/random_sound, sounds = "sound/items/GSBussy.ogg", volume = 30, vary = TRUE)
 
 /obj/item/toy/plushie/greyplushie
 	name = "Плюшевый грей"
