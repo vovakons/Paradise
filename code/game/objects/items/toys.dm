@@ -667,6 +667,8 @@
 	desc = "An adorable, soft, and cuddly plushie."
 	icon = 'icons/obj/toy.dmi'
 	var/poof_sound = 'sound/weapons/thudswoosh.ogg'
+	var/poof_self_volume = 50
+	var/poof_attack_volume = 20
 	attack_verb = list("тыкнул", "ударил", "шлёпнул")
 	w_class = WEIGHT_CLASS_SMALL
 	resistance_flags = FLAMMABLE
@@ -674,9 +676,9 @@
 
 /obj/item/toy/plushie/ComponentInitialize()
 	. = ..()
-	AddComponent(/datum/component/toy_component/attack/random_sound, sounds = poof_sound, volume = 20, vary = TRUE)
+	AddComponent(/datum/component/toy_component/attack/random_sound, sounds = poof_sound, volume = poof_attack_volume, vary = TRUE)
 	AddComponent(/datum/component/toy_component/attack/add_hugs)
-	AddComponent(/datum/component/toy_component/attack_self/random_sound, sounds = poof_sound, volume = 50, vary = TRUE)
+	AddComponent(/datum/component/toy_component/attack_self/random_sound, sounds = poof_sound, volume = poof_self_volume, vary = TRUE)
 	AddComponent(/datum/component/toy_component/attack_self/something_with_message, verbs = list("обнимает", "тискает", "прижимает"))
 
 /obj/random/plushie
@@ -885,6 +887,7 @@
 	AddComponent(/datum/component/toy_component/attack/icon_visible_message, messages = messages)
 	AddComponent(/datum/component/toy_component/attack/random_sound, sounds = "sound/items/GSBussy.ogg", volume = 30, vary = TRUE)
 
+// need refactor unique feature
 /obj/item/toy/plushie/greyplushie
 	name = "Плюшевый грей"
 	desc = "Плюшевая кукла грея в толстовке. Кукла входит в серию \"Пришелец\" и имеет свитер, большую голову и мультяшные глаза. Любит мехов."
@@ -935,12 +938,12 @@
 		return
 	..()
 
+// need refactor unique feature
 /obj/item/toy/plushie/ipcplushie
 	name = "IPC plushie"
 	desc = "An adorable IPC plushie, straight from New Canaan. Arguably more durable than the real deal. Toaster functionality included."
 	icon_state = "plushie_ipc"
 	item_state = "plushie_ipc"
-
 
 /obj/item/toy/plushie/ipcplushie/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/reagent_containers/food/snacks/breadslice))
@@ -960,23 +963,13 @@
 	icon_state = "plushie_shard"
 	item_state = "plushie_shard"
 	attack_verb = list("аннигилировал", "поцарапал")
-	var/shardbite = 'sound/effects/supermatter.ogg'
-	var/cooldown = FALSE
+	poof_sound = list('sound/effects/supermatter.ogg', 'sound/effects/glass_step_sm.ogg')
+	poof_self_volume = 10
+	poof_attack_volume = 10
 
-/obj/item/toy/plushie/shardplushie/attack_self(mob/user)
-	if(cooldown)
-		return ..()
-
-	playsound(loc, pick('sound/effects/supermatter.ogg', 'sound/effects/glass_step_sm.ogg'), 10, 1)
-	user.visible_message("[bicon(src)] [span_danger("ДЕСТАБИЛИЗАЦИЯ!")]")
-	cooldown = TRUE
-	addtimer(VARSET_CALLBACK(src, cooldown, FALSE), 3 SECONDS)
-
-
-/obj/item/toy/plushie/shardplushie/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
+/obj/item/toy/plushie/shardplushie/ComponentInitialize()
 	. = ..()
-	if(ATTACK_CHAIN_SUCCESS_CHECK(.))
-		playsound(loc, pick('sound/effects/supermatter.ogg', 'sound/effects/glass_step_sm.ogg',), 10, TRUE)
+	AddComponent(/datum/component/toy_component/attack_self/icon_visible_message, messages = "ДЕСТАБИЛИЗАЦИЯ!")
 
 
 //New generation TG plushies
@@ -987,6 +980,7 @@
 	icon_state = "plushie_lizard"
 	item_state = "plushie_lizard"
 
+// need refactor unique feature
 /obj/item/toy/plushie/ashwalkerplushie
 	name = "ash walker plushie"
 	desc = "Wild looking ash walker plush toy."
@@ -1000,7 +994,6 @@
 	if(prob(50))
 		icon_state = "plushie_ashwalker2"
 
-
 /obj/item/toy/plushie/ashwalkerplushie/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	. = ..()
 	if(!ATTACK_CHAIN_SUCCESS_CHECK(.))
@@ -1011,7 +1004,6 @@
 		if(7 to 10)
 			playsound(loc, pick('sound/voice/unathi/roar.ogg', 'sound/voice/unathi/roar2.ogg', 'sound/voice/unathi/roar3.ogg',	\
 								'sound/voice/unathi/threat.ogg', 'sound/voice/unathi/threat2.ogg', 'sound/voice/unathi/whip_short.ogg'), 40, TRUE)
-
 
 /obj/item/toy/plushie/ashwalkerplushie/attack_self(mob/user)
 	if(cooldown)
@@ -1030,6 +1022,7 @@
 			user.visible_message("[bicon(src)] [span_notice("Пеплоходец выглядит расслабленным.")]")
 	cooldown = TRUE
 	addtimer(VARSET_CALLBACK(src, cooldown, FALSE), 3 SECONDS)
+
 
 /obj/item/toy/plushie/snakeplushie
 	name = "snake plushie"
@@ -1051,12 +1044,10 @@
 	var/cooldown = FALSE
 	var/mothbite = 'sound/voice/scream_moth.ogg'
 
-
 /obj/item/toy/plushie/nianplushie/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	. = ..()
 	if(ATTACK_CHAIN_SUCCESS_CHECK(.))
 		playsound(loc, mothbite, 10, TRUE)	// Play bite sound in local area
-
 
 /obj/item/toy/plushie/nianplushie/attack_self(mob/user)
 	if(cooldown)
@@ -1075,6 +1066,7 @@
 
 
 // Little cute Ninja plushie
+// need refactor unique feature
 /obj/item/toy/plushie/ninja
 	name = "space ninja plushie"
 	desc = "A protagonist of one of the most popular cartoon series on this side of galaxy. \"運命の忍者矢\""
@@ -1117,6 +1109,7 @@
 		plushie_color = null
 
 //New toys from another builds
+// need refactor
 /obj/item/toy/plushie/nianplushie/beeplushie
 	name = "bee plushie"
 	desc = "A cute toy that resembles an even cuter bee."
@@ -1342,7 +1335,7 @@
 	playsound(loc, 'sound/effects/adminhelp.ogg', 25)
 	return ATTACK_CHAIN_PROCEED_SUCCESS
 
-
+// need refactor unique feature
 /obj/item/toy/plushie/pig
 	name = "rubber piggy"
 	desc = "The people demand pigs!"
@@ -1487,7 +1480,11 @@
 	w_class = WEIGHT_CLASS_SMALL
 	gender = MALE
 
-/obj/item/toy/plushie/beaver/sounded //only adminspawn
+/*
+ * MARK: Sounded plushie
+ * Only adminspawn
+ */
+/obj/item/toy/plushie/beaver/sounded
 	desc = "Милая мягкая игрушка бобра. Держа его в руках, вы едва можете сдержаться от криков счастья. Эта выглядит ещё лучше, чем обычно!"
 	COOLDOWN_DECLARE(cooldown)
 
@@ -1540,7 +1537,6 @@
 	item_state = "flashtool"
 	w_class = WEIGHT_CLASS_TINY
 
-
 /obj/item/toy/flash/attack(mob/living/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
 	playsound(loc, 'sound/weapons/flash.ogg', 100, TRUE)
 	flick("[initial(icon_state)]2", src)
@@ -1549,7 +1545,7 @@
 
 
 /*
- * Toy big red button
+ * MARK: Toy big red button
  */
 /obj/item/toy/redbutton
 	name = "big red button"
@@ -1557,24 +1553,23 @@
 	icon = 'icons/obj/assemblies.dmi'
 	icon_state = "bigred"
 	w_class = WEIGHT_CLASS_SMALL
-	var/cooldown = 0
+	COOLDOWN_DECLARE(cooldown)
 
 /obj/item/toy/redbutton/attack_self(mob/user)
-	if(cooldown < world.time)
-		cooldown = (world.time + 300) // Sets cooldown at 30 seconds
-		user.visible_message(span_warning("[user] нажима[pluralize_ru(user.gender,"ет","ют")] большую красную кнопку."), span_notice("Вы нажимаете кнопку, раздаётся громкий звук!"), span_notice("Кнопка громко щёлкает."))
-		playsound(src, 'sound/effects/explosionfar.ogg', 50, FALSE, 0)
-		for(var/mob/M in range(10, src)) // Checks range
-			if(!M.stat && !istype(M, /mob/living/silicon/ai)) // Checks to make sure whoever's getting shaken is alive/not the AI
-				sleep(8) // Short delay to match up with the explosion sound
-				shake_camera(M, 2, 1) // Shakes player camera 2 squares for 1 second.
-
-	else
+	if(!COOLDOWN_FINISHED(src, cooldown))
 		to_chat(user, span_alert("Ничего не происходит."))
+		return
+	COOLDOWN_START(src, cooldown, 30 SECONDS)
+	user.visible_message(span_warning("[user] нажима[pluralize_ru(user.gender,"ет","ют")] большую красную кнопку."), span_notice("Вы нажимаете кнопку, раздаётся громкий звук!"), span_notice("Кнопка громко щёлкает."))
+	playsound(src, 'sound/effects/explosionfar.ogg', 50, FALSE, 0)
+	for(var/mob/mob in range(10, src)) // Checks range
+		if(!mob.stat && !istype(mob, /mob/living/silicon/ai)) // Checks to make sure whoever's getting shaken is alive/not the AI
+			sleep(8) // Short delay to match up with the explosion sound
+			shake_camera(mob, 2, 1) // Shakes player camera 2 squares for 1 second.
 
 
 /*
- * AI core prizes
+ * MARK: AI core prizes
  */
 /obj/item/toy/AI
 	name = "toy AI"
@@ -1582,19 +1577,19 @@
 	icon = 'icons/obj/toy.dmi'
 	icon_state = "AI"
 	w_class = WEIGHT_CLASS_SMALL
-	var/cooldown = 0
+	use_cooldown = 3 SECONDS
 
-/obj/item/toy/AI/attack_self(mob/user)
-	if(!cooldown) //for the sanity of everyone
-		var/message = generate_ion_law()
-		to_chat(user, span_notice("Вы нажимаете кнопку на [declent_ru(GENITIVE)]."))
-		playsound(user, 'sound/machines/click.ogg', 20, 1)
-		user.visible_message(span_danger("[bicon(src)] [message]"))
-		cooldown = 1
-		spawn(30) cooldown = 0
-		return
-	..()
+/obj/item/toy/AI/ComponentInitialize()
+	. = ..()
+	AddComponent(/datum/component/toy_component/attack_self/icon_visible_message, messages = list(
+		generate_ion_law(), generate_ion_law(), generate_ion_law()
+	))
+	AddComponent(/datum/component/toy_component/attack_self/random_sound, sounds = 'sound/machines/click.ogg', volume = 20, vary = TRUE)
+	AddComponent(/datum/component/toy_component/attack_self/to_chat_message, messages = "Вы нажимаете кнопку на [declent_ru(GENITIVE)].")
 
+/*
+ * MARK: Toy Codex Gigas
+ */
 /obj/item/toy/codex_gigas
 	name = "Toy Codex Gigas"
 	desc = "A tool to help you write fictional devils!"
@@ -1633,6 +1628,9 @@
 
 	return
 
+/*
+ * MARK: Superhero action figures
+ */
 /obj/item/toy/owl
 	name = "owl action figure"
 	desc = "An action figure modeled after 'The Owl', defender of justice."
@@ -1641,16 +1639,13 @@
 	w_class = WEIGHT_CLASS_SMALL
 	var/cooldown = 0
 
-/obj/item/toy/owl/attack_self(mob/user)
-	if(!cooldown) //for the sanity of everyone
-		var/message = pick("На этот раз тебе не уйти, Гриффин!", "Стой, преступник!", "Ух! Ух!", "Я – ночь!")
-		to_chat(user, span_notice("Вы дёргаете верёвочку на [declent_ru(PREPOSITIONAL)]."))
-		playsound(user, 'sound/creatures/hoot.ogg', 25, TRUE)
-		user.visible_message(span_danger("[bicon(src)] [message]"))
-		cooldown = 1
-		spawn(30) cooldown = 0
-		return
-	..()
+/obj/item/toy/owl/ComponentInitialize()
+	. = ..()
+	AddComponent(/datum/component/toy_component/attack_self/icon_visible_message, messages = list(
+		"На этот раз тебе не уйти, Гриффин!", "Стой, преступник!", "Ух! Ух!", "Я – ночь!"
+	))
+	AddComponent(/datum/component/toy_component/attack_self/random_sound, sounds = 'sound/creatures/hoot.ogg', volume = 25, vary = TRUE)
+	AddComponent(/datum/component/toy_component/attack_self/to_chat_message, messages = "Вы дёргаете верёвочку на [declent_ru(PREPOSITIONAL)].")
 
 /obj/item/toy/griffin
 	name = "griffin action figure"
@@ -1658,20 +1653,20 @@
 	icon = 'icons/obj/toy.dmi'
 	icon_state = "griffinprize"
 	w_class = WEIGHT_CLASS_SMALL
-	var/cooldown = 0
+	use_cooldown = 3 SECONDS
 
-/obj/item/toy/griffin/attack_self(mob/user)
-	if(!cooldown) //for the sanity of everyone
-		var/message = pick("Ты не остановишь меня, Сова!", "Мой план безупречен! Хранилище моё!", "Карррр!", "Меня никогда не поймаешь!")
-		to_chat(user, span_notice("Вы дёргаете верёвочку на [declent_ru(PREPOSITIONAL)]."))
-		playsound(user, 'sound/creatures/caw.ogg', 25, TRUE)
-		user.visible_message(span_danger("[bicon(src)] [message]"))
-		cooldown = 1
-		spawn(30) cooldown = 0
-		return
-	..()
+/obj/item/toy/griffin/ComponentInitialize()
+	. = ..()
+	AddComponent(/datum/component/toy_component/attack_self/icon_visible_message, messages = list(
+		"Ты не остановишь меня, Сова!", "Мой план безупречен! Хранилище моё!", "Карррр!", "Меня никогда не поймаешь!"
+	))
+	AddComponent(/datum/component/toy_component/attack_self/random_sound, sounds = 'sound/creatures/caw.ogg', volume = 25, vary = TRUE)
+	AddComponent(/datum/component/toy_component/attack_self/to_chat_message, messages = "Вы дёргаете верёвочку на [declent_ru(PREPOSITIONAL)].")
 
-// DND Character minis. Use the naming convention (type)character for the icon states.
+/*
+ * MARK: DND Character minis
+ * Use the naming convention (type)character for the icon states.
+ */
 /obj/item/toy/character
 	icon = 'icons/obj/toy.dmi'
 	w_class = WEIGHT_CLASS_SMALL
@@ -1720,6 +1715,9 @@
 	new /obj/item/toy/character/lich(src)
 
 
+/*
+ * MARK: Unique toys
+ */
 //Pet Rocks, just like from the 70's!
 
 /obj/item/toy/pet_rock
@@ -1763,18 +1761,15 @@
 	var/obj/stored_minature = null
 
 /obj/item/toy/minigibber/attack_self(mob/user)
-
 	if(stored_minature)
 		user.visible_message(span_danger("[capitalize(declent_ru(NOMINATIVE))] издаёт жуткий скрежет, уничтожая миниатюрную фигурку внутри!"))
 		QDEL_NULL(stored_minature)
 		playsound(user, 'sound/goonstation/effects/gib.ogg', 20, 1)
 		cooldown = world.time
-
 	if(cooldown < world.time - 8)
 		to_chat(user, span_notice("Вы нажимаете кнопку гиба на [declent_ru(PREPOSITIONAL)]."))
 		playsound(user, 'sound/goonstation/effects/gib.ogg', 20, 1)
 		cooldown = world.time
-
 
 /obj/item/toy/minigibber/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/toy/character))
@@ -1943,6 +1938,7 @@
 /obj/item/toy/russian_revolver/trick_revolver/post_shot(user)
 	to_chat(user, span_danger("[capitalize(declent_ru(NOMINATIVE))] действительно выглядел довольно сомнительно!"))
 	SEND_SOUND(user, sound('sound/misc/sadtrombone.ogg')) //HONK
+
 /*
  * Rubber Chainsaw
  */
@@ -1970,13 +1966,10 @@
 	icon_state = "toy_mouse"
 	w_class = WEIGHT_CLASS_SMALL
 	resistance_flags = FLAMMABLE
-	var/cooldown = 0
 
 /*
- * Action Figures
+ * MARK: Action Figures
  */
-
-
 /obj/random/figure
 	name = "Random Action Figure"
 	desc = "This is a random toy action figure"
@@ -1993,18 +1986,17 @@
 	icon = 'icons/obj/toy.dmi'
 	icon_state = "nuketoy"
 	w_class = WEIGHT_CLASS_SMALL
-	var/cooldown = 0
+	use_cooldown = 3 SECONDS
 	var/toysay = "Чё за хуйню вы натворили?"
 
 /obj/item/toy/figure/New()
 	..()
 	desc = "A \"Space Life\" brand [name]"
 
-/obj/item/toy/figure/attack_self(mob/user as mob)
-	if(cooldown < world.time)
-		cooldown = (world.time + 30) //3 second cooldown
-		user.visible_message(span_notice("[bicon(src)] [capitalize(declent_ru(NOMINATIVE))] говорит \"[toysay]\"."))
-		playsound(user, 'sound/machines/click.ogg', 20, 1)
+/obj/item/toy/figure/ComponentInitialize()
+	. = ..()
+	AddComponent(/datum/component/toy_component/attack_self/icon_visible_message, messages = "[capitalize(declent_ru(NOMINATIVE))] говорит \"[toysay]\".")
+	AddComponent(/datum/component/toy_component/attack_self/random_sound, sounds = "sound/machines/click.ogg", volume = 20, vary = TRUE)
 
 /obj/item/toy/figure/cmo
 	name = "Chief Medical Officer action figure"
@@ -2228,10 +2220,10 @@
 	icon_state = "magistrate"
 	toysay = "Казнить или не казнить - вот в чём вопрос."
 
-//////////////////////////////////////////////////////
-//				Magic 8-Ball / Conch				//
-//////////////////////////////////////////////////////
 
+/*
+ * MARK: Magic 8-Ball / Conch
+ */
 /obj/item/toy/eight_ball
 	name = "Magic 8-Ball"
 	desc = "Mystical! Magical! Ages 8+!"
@@ -2260,7 +2252,6 @@
 /*
  *Fake cuffs (honk honk)
  */
-
 /obj/item/restraints/handcuffs/toy
 	desc = "Toy handcuffs. Plastic and extremely cheaply made."
 	throwforce = 0
@@ -2268,9 +2259,8 @@
 	ignoresClumsy = TRUE
 
 /*
-* Office desk toys
+* MARK: Office desk toys
 */
-
 /obj/item/toy/desk
 	name = "desk toy master"
 	desc = "A object that does not exist. Parent Item"

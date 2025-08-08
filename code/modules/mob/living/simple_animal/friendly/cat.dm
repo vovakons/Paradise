@@ -182,9 +182,9 @@
 				stop_automated_movement = FALSE
 				break
 		for(var/obj/item/toy/cattoy/toy in view(1, src))
-			if(toy.cooldown < world.time)
+			if(COOLDOWN_FINISHED(toy, use_cooldown))
 				custom_emote(EMOTE_VISIBLE, "подбрасыва%(ет,ют)% игрушечную мышь своей лапой!")
-				toy.cooldown = world.time + 40 SECONDS
+				COOLDOWN_START(toy, use_cooldown, 40 SECONDS)
 
 
 /mob/living/simple_animal/pet/cat/handle_automated_movement()
