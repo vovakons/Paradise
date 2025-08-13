@@ -436,7 +436,7 @@
 		PREPOSITIONAL = "ключе-шифраторе ИИ"
 	)
 	icon_state = "cap_cypherkey"
-	channels = list(COMM_FREQ_NAME = 1, SEC_FREQ_NAME = 1, PRS_FREQ_NAME = 1, ENG_FREQ_NAME = 1, SCI_FREQ_NAME = 1, MED_FREQ_NAME = 1, SUP_FREQ_NAME = 1, SRV_FREQ_NAME = 1, AI_FREQ_NAME = 1, PROC_FREQ_NAME = 1)
+	channels = list(AI_FREQ_NAME = 1)
 
 /obj/item/encryptionkey/admin //totally shitspawn
 	name = "Admin Radio Encryption Key"

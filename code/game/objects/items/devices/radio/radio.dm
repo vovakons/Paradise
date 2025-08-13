@@ -265,7 +265,7 @@ GLOBAL_LIST_INIT(default_medbay_channels, list(
 	return has_access(req_accesses, TRUE, I ? I.GetAccess() : list())
 
 /mob/living/silicon/has_internal_radio_channel_access(mob/user, list/req_accesses)
-	return has_access(req_accesses, TRUE, get_all_accesses())
+	return has_access(req_accesses, TRUE, list())
 
 /mob/living/simple_animal/demon/pulse_demon/has_internal_radio_channel_access(mob/user, list/req_accesses)
 	return has_access(req_accesses, TRUE, get_all_accesses())
