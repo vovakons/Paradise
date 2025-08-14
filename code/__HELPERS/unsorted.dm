@@ -604,6 +604,11 @@ Returns 1 if the chain up to the area contains the given typepath
 	var/y_pos = null
 	var/z_pos = null
 
+/datum/coords/New(x = null, y = null, z = null)
+	src.x_pos = x
+	src.y_pos = y
+	src.z_pos = z
+
 /proc/DuplicateObject(obj/original, perfectcopy = FALSE , sameloc = FALSE, atom/newloc = null)
 	if(!original)
 		return null
@@ -1634,24 +1639,28 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 /proc/pixel_shift_dir(var/dir, var/amount_x = 32, var/amount_y = 32) //Returns a list with pixel_shift values that will shift an object's icon one tile in the direction passed.
 	amount_x = min(max(0, amount_x), 32) //No less than 0, no greater than 32.
 	amount_y = min(max(0, amount_x), 32)
-	var/list/shift = list("x" = 0, "y" = 0)
+	var/datum/coords/shift = new /datum/coords(x = 0, y = 0)
 	switch(dir)
 		if(NORTH)
-			shift["y"] = amount_y
+			shift.y_pos = amount_y
 		if(SOUTH)
-			shift["y"] = -amount_y
+			shift.y_pos = -amount_y
 		if(EAST)
-			shift["x"] = amount_x
+			shift.x_pos = amount_x
 		if(WEST)
-			shift["x"] = -amount_x
+			shift.x_pos = -amount_x
 		if(NORTHEAST)
-			shift = list("x" = amount_x, "y" = amount_y)
+			shift.x_pos = amount_x
+			shift.y_pos = amount_y
 		if(NORTHWEST)
-			shift = list("x" = -amount_x, "y" = amount_y)
+			shift.x_pos = -amount_x
+			shift.y_pos = amount_y
 		if(SOUTHEAST)
-			shift = list("x" = amount_x, "y" = -amount_y)
+			shift.x_pos = amount_x
+			shift.y_pos = -amount_y
 		if(SOUTHWEST)
-			shift = list("x" = -amount_x, "y" = -amount_y)
+			shift.x_pos = -amount_x
+			shift.y_pos = -amount_y
 
 	return shift
 

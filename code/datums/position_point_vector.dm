@@ -140,7 +140,7 @@
 
 
 /datum/point_precise/proc/return_coordinates() //[turf_x, turf_y, z]
-	return list(CEILING(x / ICON_SIZE_X, 1), CEILING(y / ICON_SIZE_Y, 1), z)
+	return new /datum/coords(CEILING(x / ICON_SIZE_X, 1), CEILING(y / ICON_SIZE_Y, 1), z)
 
 
 /datum/point_precise/proc/return_position()

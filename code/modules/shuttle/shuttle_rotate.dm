@@ -63,7 +63,7 @@ If ever any of these procs are useful for non-shuttles, rename it to proc/rotate
 /obj/structure/disposalpipe/shuttleRotate(rotation, params)
 	. = ..()
 	var/new_dpdir = 0
-	for(var/D in list(NORTH, SOUTH, EAST, WEST))
+	for(var/D in GLOB.cardinal)
 		if(dpdir & D)
 			new_dpdir = new_dpdir | angle2dir(rotation+dir2angle(D))
 	dpdir = new_dpdir

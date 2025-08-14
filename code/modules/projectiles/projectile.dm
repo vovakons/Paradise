@@ -199,7 +199,7 @@
 				new /obj/effect/temp_visual/dir_setting/bloodsplatter(target_loca, splatter_dir, blood_color)
 
 			if(prob(33))
-				var/list/shift = list("x" = 0, "y" = 0)
+				var/datum/coords/shift = new /datum/coords(x = 0, y = 0)
 				var/turf/step_over = get_step(target_loca, splatter_dir)
 
 				if(step_over)
@@ -207,7 +207,7 @@
 						shift = pixel_shift_dir(angle2dir_cardinal(splatter_dir)) //Pixel shift the blood there instead (so you can't see wallsplatter through walls).
 					else
 						target_loca = step_over
-					L.add_splatter_floor(target_loca, shift_x = shift["x"], shift_y = shift["y"])
+					L.add_splatter_floor(target_loca, shift_x = shift.x_pos, shift_y = shift.y_pos)
 					if(istype(H))
 						for(var/mob/living/carbon/human/M in step_over) //Bloody the mobs who're infront of the spray.
 							M.bloody_hands(H)
@@ -252,7 +252,7 @@
  * Checks whether the place we want to splatter blood is blocked (i.e. by windows).
  */
 /obj/projectile/proc/get_splatter_blockage(turf/step_over, atom/target, splatter_dir, target_loca)
-	var/turf/step_cardinal = !(splatter_dir in list(NORTH, SOUTH, EAST, WEST)) ? get_step(target_loca, get_cardinal_dir(target_loca, step_over)) : null
+	var/turf/step_cardinal = !(splatter_dir in GLOB.cardinal) ? get_step(target_loca, get_cardinal_dir(target_loca, step_over)) : null
 
 	if(step_over.density && !step_over.CanPass(target, get_dir(step_over, target))) //Preliminary simple check.
 		return TRUE
@@ -488,10 +488,10 @@
 
 
 /obj/projectile/proc/check_ricochet_flag(atom/A)
-	if((flag in list(ENERGY, LASER)) && (A.flags_ricochet & RICOCHET_SHINY))
+	if((flag == ENERGY || flag == LASER) && (A.flags_ricochet & RICOCHET_SHINY))
 		return TRUE
 
-	if((flag in list(BOMB, BULLET)) && (A.flags_ricochet & RICOCHET_HARD))
+	if((flag == BOMB || flag == BULLET) && (A.flags_ricochet & RICOCHET_HARD))
 		return TRUE
 
 	return FALSE
@@ -505,8 +505,8 @@
 
 /obj/projectile/proc/set_angle_centered(new_angle)
 	set_angle(new_angle)
-	var/list/coordinates = trajectory.return_coordinates()
-	trajectory.set_location(coordinates[1], coordinates[2], coordinates[3]) // Sets the trajectory to the center of the tile it bounced at
+	var/datum/coords/pos = trajectory.return_coordinates()
+	trajectory.set_location(pos.x_pos, pos.y_pos, pos.z_pos) // Sets the trajectory to the center of the tile it bounced at
 
 
 /obj/projectile/experience_pressure_difference()
