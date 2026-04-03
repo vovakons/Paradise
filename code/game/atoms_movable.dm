@@ -628,7 +628,7 @@
 						. = Move(get_step(src, SOUTH), SOUTH)
 
 			if(moving_diagonally == SECOND_DIAG_STEP)
-				if(!. && set_dir_on_move && !face_mouse)
+				if(!. && set_dir_on_move && !face_mouse && update_dir)
 					setDir(first_step_dir)
 				else if(!inertia_moving)
 					newtonian_move(direct)
@@ -681,7 +681,7 @@
 	move_speed = world.time - l_move_time
 	l_move_time = world.time
 
-	if(set_dir_on_move && !face_mouse)
+	if(set_dir_on_move && !face_mouse && update_dir)
 		setDir(direct)
 
 	// movement failed due to buckled mob(s)

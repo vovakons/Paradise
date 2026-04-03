@@ -18,6 +18,8 @@
 	var/space_speed = 1
 	/// Move speed in gravity (tiles per seconds)
 	var/gravity_speed = 0.25
+	/// Simple moving logic (move by direction NWES if true, and rotate by WE and move by NS for false)
+	var/simple_moving = TRUE
 
 	// Runtime variables
 	/// Living who control the pod
@@ -28,10 +30,16 @@
 	var/max_passengers = 0
 	/// Movement cooldown
 	COOLDOWN_DECLARE(spacepod_move_cooldown)
+	/// Facing direction
+	var/facing_direction = NORTH
+	/// Lock facing for simple direction
+	var/lock_facing_direction = FALSE
 
 	// Actions
 	/// Pilot eject action button
 	var/datum/action/innate/pod_action/pod_eject/eject_action = new
+	/// Direction lock action for pilot
+	var/datum/action/innate/pod_action/pod_direction_lock/direction_lock_action = new
 	/// Passengers eject action button
 	var/datum/action/innate/pod_action/pod_eject/passanger_eject = new
 
@@ -57,6 +65,7 @@
 /obj/pod/Destroy()
 	evacuate_all()
 	QDEL_NULL(eject_action)
+	QDEL_NULL(direction_lock_action)
 	QDEL_NULL(passanger_eject)
 	STOP_PROCESSING(SSobj, src)
 	return ..()
@@ -104,11 +113,13 @@
 /obj/pod/proc/enter_pilot(mob/living/user)
 	user.forceMove(src)
 	eject_action.Grant(user, src)
+	direction_lock_action.Grant(user, src)
 	pilot = user
 
 /obj/pod/proc/eject_pilot()
 	pilot.forceMove(get_turf(src))
 	eject_action.Remove(pilot)
+	direction_lock_action.Remove(pilot)
 	pilot = null
 
 /obj/pod/proc/enter_passenger(mob/passenger)
@@ -177,15 +188,57 @@
 			pilot.update_z(z) // after we moved
 		return
 
+	if(simple_moving)
+		move_forward(user, direction, uppdate_dir = !lock_facing_direction)
+		return
+
+	if(direction & NORTH)
+		move_forward(user, facing_direction, uppdate_dir = FALSE)
+		return
+
+	if(direction & SOUTH)
+		var/reverse_dir = REVERSE_DIR(facing_direction)
+		move_forward(user, reverse_dir, uppdate_dir = FALSE)
+		return
+
+	if(direction & WEST) //rotate left
+		change_facing(user, get_rotated_direction(facing_direction, FALSE))
+		return
+
+	if(direction & EAST) //rotate right
+		change_facing(user, get_rotated_direction(facing_direction, TRUE))
+
+
+/obj/pod/proc/move_forward(mob/user, direction, uppdate_dir = TRUE)
 	var/turf/next_step = get_step(src, direction)
 	if(!next_step)
 		COOLDOWN_START(src, spacepod_move_cooldown, MOVEMENT_RECHECK_COOLDOWN)
 		return FALSE
 	var/calculated_move_delay = 1.0 / (no_gravity(loc) ? space_speed : gravity_speed)
-	. = Move(next_step, direction)
+	. = Move(next_step, direction, update_dir = uppdate_dir)
 	if(ISDIAGONALDIR(direction) && loc == next_step)
 		calculated_move_delay *= sqrt(2)
 	set_glide_size(DELAY_TO_GLIDE_SIZE(calculated_move_delay))
 	COOLDOWN_START(src, spacepod_move_cooldown, calculated_move_delay)
+
+
+/obj/pod/proc/get_rotated_direction(direction, clockwise = TRUE)
+	if(direction & NORTH)
+		return clockwise ? EAST : WEST
+	if(direction & SOUTH)
+		return clockwise ? WEST : EAST
+	if(direction & EAST)
+		return clockwise ? SOUTH : NORTH
+	if(direction & WEST)
+		return clockwise ? NORTH : SOUTH
+	return direction
+
+
+/obj/pod/proc/change_facing(mob/user, direction)
+	facing_direction = direction
+	var/turf/location = get_turf(src)
+	Move(location, direction, update_dir = TRUE)
+	COOLDOWN_START(src, spacepod_move_cooldown, MOVEMENT_RECHECK_COOLDOWN)
+
 
 #undef MOVEMENT_RECHECK_COOLDOWN

@@ -19,3 +19,11 @@
 
 /datum/action/innate/pod_action/pod_eject/Activate()
 	pod.exit_pod(owner)
+
+
+/datum/action/innate/pod_action/pod_direction_lock
+	name = "Переключить движение боком"
+	button_icon_state = "strafe"
+
+/datum/action/innate/pod_action/pod_direction_lock/Activate()
+	pod.lock_facing_direction = !pod.lock_facing_direction
