@@ -15,9 +15,9 @@
 
 	// Configure variables
 	/// Move speed in space (without gravity) (tiles per seconds)
-	var/space_speed = 1.5
+	var/space_speed = 1
 	/// Move speed in gravity (tiles per seconds)
-	var/gravity_speed = 0.5
+	var/gravity_speed = 0.25
 
 	// Runtime variables
 	/// Living who control the pod
@@ -31,9 +31,9 @@
 
 	// Actions
 	/// Pilot eject action button
-	var/datum/action/innate/pod/pod_eject/eject_action = new
+	var/datum/action/innate/pod_action/pod_eject/eject_action = new
 	/// Passengers eject action button
-	var/datum/action/innate/pod/pod_eject/passanger_eject = new
+	var/datum/action/innate/pod_action/pod_eject/passanger_eject = new
 
 
 /obj/pod/get_ru_names()
@@ -95,15 +95,20 @@
 	// no available seat place
 	to_chat(user, span_notice("Вы слишком медлили. В следующий раз будьте быстрее."))
 
+/obj/pod/proc/exit_pod(mob/living/user)
+	if(user == pilot)
+		eject_pilot()
+	else if(user in passengers)
+		eject_passenger(user)
 
 /obj/pod/proc/enter_pilot(mob/living/user)
 	user.forceMove(src)
-	passanger_eject.Grant(user, src)
+	eject_action.Grant(user, src)
 	pilot = user
 
 /obj/pod/proc/eject_pilot()
 	pilot.forceMove(get_turf(src))
-	passanger_eject.Remove(pilot)
+	eject_action.Remove(pilot)
 	pilot = null
 
 /obj/pod/proc/enter_passenger(mob/passenger)
@@ -124,8 +129,32 @@
 			eject_passenger(passenger)
 
 
+//MARK: Input processing
+/obj/pod/MouseDrop_T(mob/living/dropping, mob/living/user, params)
+	if(user == pilot || (user in passengers) || user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
+		return FALSE
+
+	. = TRUE
+	if(isliving(dropping))
+		if(dropping != user && (dropping.stat == DEAD || dropping.incapacitated()))
+			if(length(passengers) >= max_passengers && !pilot)
+				to_chat(user, span_danger("<b>Этот человек не может управлять челноком!</b>"))
+				return .
+			if(length(passengers) < max_passengers)
+				visible_message(span_danger("[user.name] начина[PLUR_ET_YUT(user)] загрузку [dropping.declent_ru(GENITIVE)] в челнок!"))
+				if(do_after(user, 5 SECONDS, dropping))
+					enter_passenger(dropping)
+			return .
+
+		if(dropping == user)
+			move_inside(user)
+
+	// else if(isobj(dropping))
+		// load_cargo(user, dropping)
+
+
 // MARK: Movement
-/obj/spacepod/relaymove(mob/user, direction)
+/obj/pod/relaymove(mob/user, direction)
 	if(!COOLDOWN_FINISHED(src, spacepod_move_cooldown))
 		return FALSE
 
@@ -152,7 +181,7 @@
 	if(!next_step)
 		COOLDOWN_START(src, spacepod_move_cooldown, MOVEMENT_RECHECK_COOLDOWN)
 		return FALSE
-	var/calculated_move_delay = 1.0 / (!no_gravity(loc) ? space_speed : gravity_speed)
+	var/calculated_move_delay = 1.0 / (no_gravity(loc) ? space_speed : gravity_speed)
 	. = Move(next_step, direction)
 	if(ISDIAGONALDIR(direction) && loc == next_step)
 		calculated_move_delay *= sqrt(2)

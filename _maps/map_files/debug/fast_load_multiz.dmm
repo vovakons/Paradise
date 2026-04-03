@@ -91,10 +91,6 @@
 /obj/machinery/light,
 /turf/simulated/floor/mineral/titanium/yellow,
 /area/fastload)
-"pn" = (
-/obj/spacepod/sec,
-/turf/simulated/floor/mineral/titanium/blue,
-/area/fastload/blue)
 "pZ" = (
 /obj/machinery/tcomms/core/station,
 /turf/simulated/floor/mineral/titanium/purple,
@@ -136,9 +132,11 @@
 /turf/simulated/floor/mineral/titanium/purple,
 /area/fastload/purple)
 "ww" = (
-/obj/spacepod/sec,
-/turf/space,
-/area/space)
+/obj/structure/spacepoddoor{
+	luminosity = 3
+	},
+/turf/simulated/floor/mineral/titanium/blue,
+/area/fastload/blue)
 "xL" = (
 /obj/effect/decal/warning_stripes/arrow{
 	dir = 8
@@ -1978,7 +1976,7 @@ ay
 ay
 ay
 ay
-ww
+ay
 ay
 ay
 ay
@@ -2903,7 +2901,7 @@ ay
 ay
 jk
 HE
-pn
+HE
 HE
 HE
 HE
@@ -3038,9 +3036,9 @@ jk
 jk
 jk
 jk
-jk
-jk
-jk
+ww
+ww
+ww
 jk
 jk
 jk

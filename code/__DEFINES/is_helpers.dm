@@ -105,6 +105,8 @@
 
 #define isspacepod(A) (istype(A, /obj/spacepod))
 
+#define ispod(A) (istype(A, /obj/pod))
+
 #define iseffect(A) (istype(A, /obj/effect))
 
 #define isvehicle(A) (istype(A, /obj/vehicle))

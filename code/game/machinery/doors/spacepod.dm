@@ -20,7 +20,7 @@
 
 /obj/structure/spacepoddoor/CanAllowThrough(atom/movable/mover, border_dir)
 	. = ..()
-	if(!isspacepod(mover) && !checkpass(mover))
+	if(!(isspacepod(mover) || ispod(mover)) && !checkpass(mover)) //TODO vakons remove isspacepod later
 		return FALSE
 
 /obj/structure/spacepoddoor/invincible
