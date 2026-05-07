@@ -984,11 +984,17 @@ so that different stomachs can handle things in different ways VB*/
 	return ..()
 
 /mob/living/carbon/ExtinguishMob()
-	for(var/X in get_equipped_items())
-		var/obj/item/I = X
-		I.acid_level = 0 //washes off the acid on our clothes
-		I.extinguish() //extinguishes our clothes
+	for(var/obj/item/equipped_item in get_equipped_items(include_flags = INCLUDE_HELD))
+		equipped_item.acid_level = 0
+		equipped_item.extinguish() //ignite all equipped items
 	..()
+
+/mob/living/carbon/IgniteMob()
+	. = ..()
+	if(!.)
+		return
+	for(var/obj/item/equipped_item in get_equipped_items(include_flags = INCLUDE_HELD))
+		equipped_item.fire_act() //ignite all equipped items
 
 /mob/living/carbon/clean_blood(clean_hands = TRUE, clean_mask = TRUE, clean_feet = TRUE)
 	if(head)
