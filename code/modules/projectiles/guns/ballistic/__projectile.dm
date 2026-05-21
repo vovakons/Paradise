@@ -264,11 +264,4 @@
 			. = TRUE
 
 /obj/item/gun/projectile/get_ammo_counter_text()
-	var/current = 0
-	var/max = 1
-	if(magazine)
-		current += magazine.ammo_count(countempties = FALSE)
-		max = magazine.max_ammo
-	if(chambered && chambered.BB)
-		current += 1
-	return "[current]/[max]"
+	return "[get_ammo(TRUE, FALSE)]"

@@ -181,6 +181,9 @@
 #define ui_ghost_minigames "SOUTH:6+2,CENTER+2"
 #define ui_ghost_respawn_pai "SOUTH:6+3,CENTER+2"
 
+//Modules
+#define ui_ammo_counter "EAST-3:24,SOUTH+1:4"
+
 //HUD styles. Please ensure HUD_VERSIONS is the same as the maximum index. Index order defines how they are cycled in F12.
 #define HUD_STYLE_STANDARD 1
 #define HUD_STYLE_REDUCED 2

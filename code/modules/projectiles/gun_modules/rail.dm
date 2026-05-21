@@ -283,6 +283,16 @@
 	class = GUN_MODULE_CLASS_PISTOL_RAIL | GUN_MODULE_CLASS_SHOTGUN_RAIL | GUN_MODULE_CLASS_RIFLE_RAIL | GUN_MODULE_CLASS_SNIPER_RAIL
 	origin_tech = "combat=2;magnets=2"
 	custom_price = PAYCHECK_LOWER
+	var/atom/movable/screen/ammo_counter/counter_element = null
+	var/mutable_appearance/counter_label
+
+/obj/item/gun_module/rail/hud/ammo_counter/Initialize(mapload)
+	. = ..()
+	counter_element = new()
+
+/obj/item/gun_module/rail/hud/ammo_counter/Destroy()
+	. = ..()
+	QDEL_NULL(counter_element)
 
 /obj/item/gun_module/rail/hud/ammo_counter/get_ru_names()
 	return list(
@@ -298,8 +308,8 @@
 	if(granted)
 		return
 	granted = TRUE
-	update_ammo_count(gun)
-	RegisterSignal(gun, COMSIG_GUN_AFTER_PROCESS_FIRE, PROC_REF(update_ammo_count))
+	update_ammo_count(gun, user)
+	RegisterSignal(gun, COMSIG_GUN_AFTER_PROCESS_FIRE, PROC_REF(process_fire))
 	RegisterSignal(gun, COMSIG_GUN_RELOAD, PROC_REF(update_ammo_count))
 	RegisterSignal(gun, COMSIG_GUN_UNLOAD, PROC_REF(update_ammo_count))
 
@@ -309,20 +319,32 @@
 		return
 	granted = FALSE
 	UnregisterSignal(gun, list(COMSIG_GUN_AFTER_PROCESS_FIRE, COMSIG_GUN_RELOAD, COMSIG_GUN_UNLOAD))
-	update_counter_maptext(gun, null)
+	update_counter_maptext(user, gun, null)
 
-/obj/item/gun_module/rail/hud/ammo_counter/proc/update_ammo_count(obj/item/gun/target_gun)
+/obj/item/gun_module/rail/hud/ammo_counter/proc/process_fire(obj/item/gun/target_gun, target, mob/user)
+	SIGNAL_HANDLER
+	update_ammo_count(target_gun, user)
+
+/obj/item/gun_module/rail/hud/ammo_counter/proc/update_ammo_count(obj/item/gun/target_gun, mob/user)
 	SIGNAL_HANDLER
 	var/ammo_count_text = target_gun.get_ammo_counter_text()
-	update_counter_maptext(target_gun, ammo_count_text)
+	update_counter_maptext(user, target_gun, ammo_count_text)
 
-/obj/item/gun_module/rail/hud/ammo_counter/proc/update_counter_maptext(obj/item/gun/target_gun, text)
-	if(target_gun.ammo_counter_overlay)
-		target_gun.ammo_counter_overlay = null
+/obj/item/gun_module/rail/hud/ammo_counter/proc/update_counter_maptext(mob/user, obj/item/gun/target_gun, text)
+	if(counter_label)
+		counter_element.cut_overlay(counter_label)
+		counter_label = null
+
 	if(text)
-		target_gun.ammo_counter_overlay = new
-		target_gun.ammo_counter_overlay.maptext = MAPTEXT("<span style='text-align: center; font-size: 5pt'>[text]</span>")
-		target_gun.ammo_counter_overlay.transform = target_gun.ammo_counter_overlay.transform.Translate(4, -1)
-		//target_gun.add_overlay(target_gun.ammo_counter_overlay)
+		counter_label = new()
+		counter_label.maptext = MAPTEXT("<span style='text-align: center; font-size: 5pt'>[text]</span>")
+		counter_label.transform = counter_label.transform.Translate(2, 8)
+		counter_element.add_overlay(counter_label)
+		user.client.screen |= counter_element
+	else if(user && user.client)
+		user.client.screen -= counter_element
 
-	target_gun.update_appearance(UPDATE_OVERLAYS)
+/atom/movable/screen/ammo_counter
+	name = "Количество выстрелов"
+	icon_state = "ammo_counter"
+	screen_loc = ui_ammo_counter
