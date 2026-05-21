@@ -95,6 +95,7 @@
 	var/list/starting_attachment_types = null
 	///Image list of attachments overlays.
 	var/list/image/attachment_overlays = list()
+	var/mutable_appearance/ammo_counter_overlay = null
 	///List of offsets to make attachment overlays not look wonky.
 	var/list/attachable_offset = list(
 		ATTACHMENT_SLOT_MUZZLE = list(ATTACHMENT_OFFSET_X = 0, ATTACHMENT_OFFSET_Y = 0),
@@ -242,6 +243,8 @@
 		if(!overlay)
 			continue
 		. += overlay
+	if(ammo_counter_overlay)
+		. += ammo_counter_overlay
 
 /obj/item/gun/proc/add_attachment_overlay(obj/item/gun_module/module)
 	var/image/overlay = module.create_overlay()
@@ -1173,6 +1176,9 @@
 	if(gun_firemode == removed_firemode)
 		gun_firemode = gun_firemode_list[1]
 		toggle_firemode(gun_firemode)
+
+/obj/item/gun/proc/get_ammo_counter_text()
+	return null
 
 /obj/item/gun/vv_edit_var(var_name, var_value)
 	if(var_name == NAMEOF(src, fire_delay))

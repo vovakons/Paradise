@@ -154,6 +154,12 @@
 /// Sent from obj/item/gun_module/on_detach(): (user, obj/item/gun, obj/item/gun_module)
 #define COMSIG_GUN_MODULE_DETACH "gun_module_detach"
 
+/// Sent from obj/item/projectile/reload(): (user)
+#define COMSIG_GUN_RELOAD "gun_reload"
+
+/// Sent from obj/item/projectile/unload(): (user)
+#define COMSIG_GUN_UNLOAD "gun_unload"
+
 // /obj/item/grenade signals
 ///called in /obj/item/gun/process_fire (user, target, params, zone_override)
 #define COMSIG_GRENADE_PRIME "grenade_prime"

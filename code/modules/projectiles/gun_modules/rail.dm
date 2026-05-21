@@ -268,3 +268,61 @@
 		INSTRUMENTAL = "коллиматором с охранным ИЛС",
 		PREPOSITIONAL = "коллиматоре с охранным ИЛС",
 	)
+
+
+/**
+ * MARK: Ammo counter
+ */
+/obj/item/gun_module/rail/hud/ammo_counter
+	name = "ammo counter"
+	desc = "Дисплей подсчета боеприпасов оружия."
+	icon_state = "counter"
+	item_state = "counter"
+	overlay_state = "counter_o"
+	overlay_offset = list("x" = -5, "y" = 0)
+	class = GUN_MODULE_CLASS_PISTOL_RAIL | GUN_MODULE_CLASS_SHOTGUN_RAIL | GUN_MODULE_CLASS_RIFLE_RAIL | GUN_MODULE_CLASS_SNIPER_RAIL
+	origin_tech = "combat=2;magnets=2"
+	custom_price = PAYCHECK_LOWER
+
+/obj/item/gun_module/rail/hud/ammo_counter/get_ru_names()
+	return list(
+		NOMINATIVE = "дисплей подсчета боеприпасов",
+		GENITIVE = "дисплея подсчета боеприпасов",
+		DATIVE = "дисплею подсчета боеприпасов",
+		ACCUSATIVE = "дисплей подсчета боеприпасов",
+		INSTRUMENTAL = "дисплеем подсчета боеприпасов",
+		PREPOSITIONAL = "дисплее подсчета боеприпасов",
+	)
+
+/obj/item/gun_module/rail/hud/ammo_counter/grant_hud(mob/user)
+	if(granted)
+		return
+	granted = TRUE
+	update_ammo_count(gun)
+	RegisterSignal(gun, COMSIG_GUN_AFTER_PROCESS_FIRE, PROC_REF(update_ammo_count))
+	RegisterSignal(gun, COMSIG_GUN_RELOAD, PROC_REF(update_ammo_count))
+	RegisterSignal(gun, COMSIG_GUN_UNLOAD, PROC_REF(update_ammo_count))
+
+
+/obj/item/gun_module/rail/hud/ammo_counter/remove_hud(mob/user)
+	if(!granted)
+		return
+	granted = FALSE
+	UnregisterSignal(gun, list(COMSIG_GUN_AFTER_PROCESS_FIRE, COMSIG_GUN_RELOAD, COMSIG_GUN_UNLOAD))
+	update_counter_maptext(gun, null)
+
+/obj/item/gun_module/rail/hud/ammo_counter/proc/update_ammo_count(obj/item/gun/target_gun)
+	SIGNAL_HANDLER
+	var/ammo_count_text = target_gun.get_ammo_counter_text()
+	update_counter_maptext(target_gun, ammo_count_text)
+
+/obj/item/gun_module/rail/hud/ammo_counter/proc/update_counter_maptext(obj/item/gun/target_gun, text)
+	if(target_gun.ammo_counter_overlay)
+		target_gun.ammo_counter_overlay = null
+	if(text)
+		target_gun.ammo_counter_overlay = new
+		target_gun.ammo_counter_overlay.maptext = MAPTEXT("<span style='text-align: center; font-size: 5pt'>[text]</span>")
+		target_gun.ammo_counter_overlay.transform = target_gun.ammo_counter_overlay.transform.Translate(4, -1)
+		//target_gun.add_overlay(target_gun.ammo_counter_overlay)
+
+	target_gun.update_appearance(UPDATE_OVERLAYS)

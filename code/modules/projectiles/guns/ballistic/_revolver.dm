@@ -136,3 +136,11 @@
 
 	playsound(user, fire_sound, 120, FALSE)
 	update_icon()
+
+/obj/item/gun/projectile/revolver/get_ammo_counter_text()
+	var/current = 0
+	var/max = 1
+	if(magazine)
+		current += magazine.ammo_count(countempties = FALSE)
+		max = magazine.max_ammo
+	return "[current]/[max]"

@@ -124,6 +124,7 @@
 	magazine.update_icon()
 	update_icon()
 	balloon_alert(user, "заряжено")
+	SEND_SIGNAL(src, COMSIG_GUN_RELOAD, user)
 
 /obj/item/gun/projectile/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/ammo_box/magazine))
@@ -163,6 +164,7 @@
 
 	update_icon()
 	chamber_round(FALSE)
+	SEND_SIGNAL(src, COMSIG_GUN_RELOAD, user)
 
 /obj/item/gun/projectile/attack_self(mob/living/user)
 	add_fingerprint(user)
@@ -196,6 +198,7 @@
 	else
 		balloon_alert(user, "уже разряжено!")
 	update_icon()
+	SEND_SIGNAL(src, COMSIG_GUN_UNLOAD, user)
 
 /obj/item/gun/projectile/examine(mob/user)
 	. = ..()
@@ -259,3 +262,13 @@
 		if(AC.BB)
 			fast_fire(user, user)
 			. = TRUE
+
+/obj/item/gun/projectile/get_ammo_counter_text()
+	var/current = 0
+	var/max = 1
+	if(magazine)
+		current += magazine.ammo_count(countempties = FALSE)
+		max = magazine.max_ammo
+	if(chambered && chambered.BB)
+		current += 1
+	return "[current]/[max]"
