@@ -312,13 +312,14 @@
 	RegisterSignal(gun, COMSIG_GUN_AFTER_PROCESS_FIRE, PROC_REF(process_fire))
 	RegisterSignal(gun, COMSIG_GUN_RELOAD, PROC_REF(update_ammo_count))
 	RegisterSignal(gun, COMSIG_GUN_UNLOAD, PROC_REF(update_ammo_count))
+	RegisterSignal(gun, COMSIG_EGUN_SELECT_MODE, PROC_REF(update_ammo_count))
 
 
 /obj/item/gun_module/rail/hud/ammo_counter/remove_hud(mob/user)
 	if(!granted)
 		return
 	granted = FALSE
-	UnregisterSignal(gun, list(COMSIG_GUN_AFTER_PROCESS_FIRE, COMSIG_GUN_RELOAD, COMSIG_GUN_UNLOAD))
+	UnregisterSignal(gun, list(COMSIG_GUN_AFTER_PROCESS_FIRE, COMSIG_GUN_RELOAD, COMSIG_GUN_UNLOAD, COMSIG_EGUN_SELECT_MODE))
 	update_counter_maptext(user, gun, null)
 
 /obj/item/gun_module/rail/hud/ammo_counter/proc/process_fire(obj/item/gun/target_gun, target, mob/user)

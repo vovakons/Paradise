@@ -156,9 +156,10 @@
 
 /// Sent from obj/item/projectile/reload(): (user)
 #define COMSIG_GUN_RELOAD "gun_reload"
-
 /// Sent from obj/item/projectile/unload(): (user)
 #define COMSIG_GUN_UNLOAD "gun_unload"
+/// Sent from obj/item/energy/select_fire(): (user)
+#define COMSIG_EGUN_SELECT_MODE "egun_select_mode"
 
 // /obj/item/grenade signals
 ///called in /obj/item/gun/process_fire (user, target, params, zone_override)

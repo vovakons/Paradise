@@ -277,6 +277,7 @@
 		chambered = null
 	newshot()
 	update_icon()
+	SEND_SIGNAL(src, COMSIG_EGUN_SELECT_MODE, user)
 
 /obj/item/gun/energy/update_icon(updates = ALL)
 	. = ..()
@@ -376,3 +377,8 @@
 	var/obj/item/gun_module/sibyl/module = new /obj/item/gun_module/sibyl()
 	module.voice_is_enabled = FALSE
 	module.try_attach(src, null)
+
+/obj/item/gun/energy/get_ammo_counter_text()
+	var/obj/item/ammo_casing/energy/shot = ammo_type[select]
+	var/fires_count = floor(cell.charge / shot.e_cost)
+	return "[fires_count]"
