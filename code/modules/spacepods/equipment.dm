@@ -90,11 +90,8 @@
 /obj/item/spacepod_equipment/proc/removed(mob/user) // So that you can unload cargo when you remove the module
 	return
 
-/*
-///////////////////////////////////////
-/////////Weapon System///////////////////
-///////////////////////////////////////
-*/
+
+// MARK: Weapon System
 
 /obj/item/spacepod_equipment/weaponry
 	name = "pod weapon"
@@ -172,11 +169,8 @@
 	fire_delay = 10
 	fire_sound = 'sound/weapons/kenetic_accel.ogg'
 
-/*
-///////////////////////////////////////
-/////////Misc. System///////////////////
-///////////////////////////////////////
-*/
+
+// MARK: Misc. System
 
 GLOBAL_LIST_EMPTY(pod_trackers)
 
@@ -201,11 +195,8 @@ GLOBAL_LIST_EMPTY(pod_trackers)
 		my_atom.equipment_system.misc_system = null
 	return ..()
 
-/*
-///////////////////////////////////////
-/////////Cargo System//////////////////
-///////////////////////////////////////
-*/
+
+// MARK: Cargo System
 
 /obj/item/spacepod_equipment/cargo
 	name = "pod cargo"
@@ -231,7 +222,7 @@ GLOBAL_LIST_EMPTY(pod_trackers)
 	. = ..()
 	unload()
 
-// Ore System
+// MARK: Ore System
 /obj/item/spacepod_equipment/cargo/ore
 	name = "spacepod ore storage system"
 	desc = "An ore storage system for spacepods. Scoops up any ore you drive over."
@@ -241,17 +232,14 @@ GLOBAL_LIST_EMPTY(pod_trackers)
 	if(storage && istype(I,/obj/item/stack/ore))
 		I.forceMove(storage)
 
-// Crate System
+// MARK: Crate System
 /obj/item/spacepod_equipment/cargo/crate
 	name = "spacepod crate storage system"
 	desc = "A heavy duty storage system for spacepods. Holds one crate."
 	icon_state = "cargo_crate"
 
-/*
-///////////////////////////////////////
-/////////Secondary Cargo System////////
-///////////////////////////////////////
-*/
+
+// MARK: Secondary Cargo System
 
 /obj/item/spacepod_equipment/sec_cargo
 	name = "secondary cargo"
@@ -277,11 +265,8 @@ GLOBAL_LIST_EMPTY(pod_trackers)
 	icon_state = "sec_cargo_loot"
 	storage_mod = list("slots" = 7, "w_class" = 14)
 
-/*
-///////////////////////////////////////
-/////////Lock System///////////////////
-///////////////////////////////////////
-*/
+
+// MARK: Lock System
 
 /obj/item/spacepod_equipment/lock
 	name = "pod lock"
@@ -328,7 +313,9 @@ GLOBAL_LIST_EMPTY(pod_trackers)
 
 	return ..()
 
-// Locator System
+
+// MARK: Locator System
+
 /obj/item/spacepod_equipment/locators
 	name = "Locator system"
 	desc = "You shouldn't be seeing this"
