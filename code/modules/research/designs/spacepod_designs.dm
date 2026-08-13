@@ -9,9 +9,8 @@
 	build_path = /obj/item/circuitboard/mecha/pod
 	category = list(POD_FAB_CATEGORY_PARTS)
 
-//////////////////////////////////////////////////
-/////////SPACEPOD PARTS///////////////////////////
-//////////////////////////////////////////////////
+
+// MARK: Spacepod parts
 
 /datum/design/podframe_fp
 	construction_time = 200
@@ -57,9 +56,8 @@
 	category = list(POD_FAB_CATEGORY_FRAME)
 	materials = list(MAT_METAL=15000,MAT_GLASS=5000)
 
-//////////////////////////
-////////POD CORE////////
-//////////////////////////
+
+// MARK: Pod core
 
 /datum/design/pod_core
 	construction_time = 700 //Pod core should take a bit to process, after all, it's a big complicated engine and stuff.
@@ -72,9 +70,8 @@
 	category = list(POD_FAB_CATEGORY_PARTS)
 	materials = list(MAT_METAL=5000,MAT_URANIUM=1000,MAT_PLASMA=5000)
 
-//////////////////////////////////////////
-////////SPACEPOD ARMOR////////////////////
-//////////////////////////////////////////
+
+// MARK: Spacepod armor
 
 /datum/design/pod_armor_civ
 	construction_time = 400 //more time than frames, less than pod core
@@ -87,9 +84,8 @@
 	category = list(POD_FAB_CATEGORY_ARMOR)
 	materials = list(MAT_METAL=15000,MAT_GLASS=5000,MAT_PLASMA=10000)
 
-//////////////////////////////////////////
-//////SPACEPOD GUNS///////////////////////
-//////////////////////////////////////////
+
+// MARK: Spacepod guns
 
 /datum/design/pod_gun_taser
 	construction_time = 200
@@ -161,9 +157,8 @@
 	build_path = /obj/item/spacepod_equipment/weaponry/mining_laser
 	category = list(POD_FAB_CATEGORY_WEAPONRY)
 
-//////////////////////////////////////////
-//////SPACEPOD MISC. ITEMS////////////////
-//////////////////////////////////////////
+
+// MARK: Pacepod misc
 
 /datum/design/pod_misc_tracker
 	construction_time = 100
@@ -176,9 +171,8 @@
 	build_path = /obj/item/spacepod_equipment/misc/tracker
 	category = list(POD_FAB_CATEGORY_PARTS)
 
-//////////////////////////////////////////
-//////SPACEPOD CARGO ITEMS////////////////
-//////////////////////////////////////////
+
+// MARK: Spacepod cargo
 
 /datum/design/pod_cargo_ore
 	construction_time = 100
@@ -202,9 +196,8 @@
 	build_path = /obj/item/spacepod_equipment/cargo/crate
 	category = list(POD_FAB_CATEGORY_CARGO)
 
-//////////////////////////////////////////
-//////SPACEPOD SEC CARGO ITEMS////////////
-//////////////////////////////////////////
+
+// MARK: Sec spacepod cargo
 
 /datum/design/passenger_seat
 	construction_time = 100
@@ -228,9 +221,9 @@
 	build_path = /obj/item/spacepod_equipment/sec_cargo/loot_box
 	category = list(POD_FAB_CATEGORY_CARGO)
 
-//////////////////////////////////////////
-//////SPACEPOD LOCK ITEMS////////////////
-//////////////////////////////////////////
+
+// MARK: SPapceod lock
+
 /datum/design/pod_lock_keyed
 	construction_time = 100
 	name = "Spacepod Tumbler Lock"
@@ -253,9 +246,9 @@
 	build_path = /obj/item/spacepod_equipment/key
 	category = list(POD_FAB_CATEGORY_PARTS)
 
-//////////////////////////////////////////
-//////SPACEPOD LOCATORS////////////////
-//////////////////////////////////////////
+
+// MARK: Spacepod locators
+
 /datum/design/pod_basic_locator
 	construction_time = 100
 	name = "Модуль поиска астероидов"
