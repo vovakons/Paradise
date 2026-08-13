@@ -669,104 +669,6 @@
 			L += inv.return_inv()
 	return L
 
-/obj/spacepod/civilian
-	icon_state = "pod_civ"
-	desc = "Стильный гражданский космический челнок."
-
-/obj/spacepod/civilian/attackby(obj/item/I, mob/user, params)
-	if(user.a_intent == INTENT_HARM)
-		return ..()
-
-	if(istype(I, /obj/item/pod_paint_bucket))
-		apply_paint(user)
-		return ATTACK_CHAIN_PROCEED_SUCCESS
-
-	return ..()
-
-/obj/spacepod/random
-	icon_state = "pod_civ"
-// placeholder
-
-/obj/spacepod/sec
-	name = "security spacepod"
-	desc = "Бронированный челнок службы безопасности с усиленной бронёй."
-	icon_state = "pod_dece"
-	health = 600
-
-/obj/spacepod/sec/get_ru_names()
-	return alist(
-		NOMINATIVE = "космический челнок охраны",
-		GENITIVE = "космического челнока охраны",
-		DATIVE = "космическому челноку охраны",
-		ACCUSATIVE = "космический челнок охраны",
-		INSTRUMENTAL = "космическим челноком охраны",
-		PREPOSITIONAL = "космическом челноке охраны",
-	)
-
-/obj/spacepod/syndi
-	name = "syndicate spacepod"
-	desc = "Челнок, окрашенный в цвета \"Синдиката\"."
-	icon_state = "pod_synd"
-	health = 400
-	unlocked = FALSE
-
-/obj/spacepod/syndi/get_ru_names()
-	return alist(
-		NOMINATIVE = "космический челнок \"Синдиката\"",
-		GENITIVE = "космического челнока \"Синдиката\"",
-		DATIVE = "космическому челноку \"Синдиката\"",
-		ACCUSATIVE = "космический челнок \"Синдиката\"",
-		INSTRUMENTAL = "космическим челноком \"Синдиката\"",
-		PREPOSITIONAL = "космическом челноке \"Синдиката\"",
-	)
-
-/obj/spacepod/syndi/unlocked
-	unlocked = TRUE
-
-/obj/spacepod/sec/Initialize(mapload)
-	. = ..()
-
-	var/obj/item/spacepod_equipment/weaponry/burst_taser/T = new /obj/item/spacepod_equipment/weaponry/taser
-	T.loc = equipment_system
-	equipment_system.weapon_system = T
-	equipment_system.weapon_system.my_atom = src
-	equipment_system.installed_modules += T
-	var/obj/item/spacepod_equipment/misc/tracker/L = new /obj/item/spacepod_equipment/misc/tracker
-	L.loc = equipment_system
-	equipment_system.misc_system = L
-	equipment_system.misc_system.my_atom = src
-	equipment_system.installed_modules += L
-	var/obj/item/spacepod_equipment/sec_cargo/chair/C = new /obj/item/spacepod_equipment/sec_cargo/chair
-	C.loc = equipment_system
-	equipment_system.sec_cargo_system = C
-	equipment_system.sec_cargo_system.my_atom = src
-	equipment_system.installed_modules += C
-	max_passengers = 1
-	var/obj/item/spacepod_equipment/lock/keyed/K = new /obj/item/spacepod_equipment/lock/keyed
-	K.loc = equipment_system
-	equipment_system.lock_system = K
-	equipment_system.lock_system.my_atom = src
-	equipment_system.lock_system.id = 100000
-	equipment_system.installed_modules += K
-
-/obj/spacepod/random/Initialize(mapload)
-	. = ..()
-	icon_state = pick("pod_civ", "pod_black", "pod_mil", "pod_synd", "pod_gold", "pod_industrial")
-	switch(icon_state)
-		if("pod_civ")
-			desc = "Элегантный гражданский челнок."
-		if("pod_black")
-			desc = "Чёрный челнок без опознавательных знаков."
-		if("pod_mil")
-			desc = "Тёмно-серый челнок с эмблемой военного подразделения \"Нанотрейзен\"."
-		if("pod_synd")
-			desc = "Грозный военный челнок с надписью \"Нахуй НТ\" на борту."
-		if("pod_gold")
-			desc = "Позолоченный челнок — явно стоил кому-то целого состояния."
-		if("pod_industrial")
-			desc = "Промышленный челнок с усиленной конструкцией."
-	update_icons()
-
 /obj/spacepod/proc/toggle_internal_tank(mob/user)
 	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
@@ -1081,83 +983,6 @@
 	misc_action.Remove(user)
 	fire_action.Remove(user)
 
-/datum/action/innate/pod
-	check_flags = AB_CHECK_HANDS_BLOCKED|AB_CHECK_CONSCIOUS|AB_CHECK_INCAPACITATED
-	button_icon = 'icons/mob/actions/actions_mecha.dmi'
-	var/obj/spacepod/pod
-
-/datum/action/innate/pod/Grant(mob/living/L, obj/spacepod/S)
-	if(S)
-		pod = S
-	. = ..()
-
-/datum/action/innate/pod/Destroy()
-	pod = null
-	return ..()
-
-/datum/action/innate/pod/pod_eject
-	name = "Выйти из челнока"
-	button_icon_state = "mech_eject"
-
-/datum/action/innate/pod/pod_eject/Activate()
-	pod.exit_pod(owner)
-
-/datum/action/innate/pod/pod_toggle_internals
-	name = "Переключить баллон"
-	desc = "Переключает подачу воздуха из внутреннего баллона, защищая от вакуума и разреженной атмосферы."
-	button_icon_state = "mech_internals_off"
-
-/datum/action/innate/pod/pod_toggle_internals/Activate()
-	if(!owner || !pod || pod.pilot != owner)
-		return
-	pod.toggle_internal_tank(owner)
-	button_icon_state = "mech_internals_[pod.use_internal_tank ? "on" : "off"]"
-	UpdateButtonIcon()
-
-/datum/action/innate/pod/pod_toggle_lights
-	name = "Переключить прожектор"
-	desc = "Переключает мощный осветительный модуль."
-	button_icon_state = "mech_lights_off"
-
-/datum/action/innate/pod/pod_toggle_lights/Activate()
-	if(!owner || !pod || pod.pilot != owner)
-		return
-	pod.toggleLights(owner)
-	button_icon_state = "mech_lights_[pod.lights ? "on" : "off"]"
-	UpdateButtonIcon()
-
-/datum/action/innate/pod/pod_fire
-	name = "Стрелять"
-	button_icon_state = "mech_zoom_off"
-
-/datum/action/innate/pod/pod_fire/Activate()
-	if(!owner || !pod || pod.pilot != owner)
-		return
-	pod.fireWeapon(owner)
-
-/datum/action/innate/pod/pod_misc
-	name = "Доп. системы"
-	button_icon_state = "mech_misc"
-
-/datum/action/innate/pod/pod_misc/Activate()
-	if(!owner || !pod || pod.pilot != owner)
-		return
-	var/misc_system = tgui_input_list(owner, "Выберите систему", "Управление челноком", POD_MISC_SYSTEMS)
-	if(!misc_system)
-		return
-	if(!owner || !pod || pod.pilot != owner) //we check twice because of input
-		return
-	switch(misc_system)
-		if(POD_MISC_LOCK_DOOR)
-			pod.lock_pod(owner)
-		if(POD_MISC_POD_DOORS)
-			pod.toggleDoors(owner)
-		if(POD_MISC_UNLOAD_CARGO)
-			pod.unload(owner)
-		if(POD_MISC_CHECK_SEAT)
-			pod.checkSeat(owner)
-		if(POD_MISC_LOCATOR_SKAN)
-			pod.startScan(owner)
 
 // Fun fact, these procs are just copypastes from pod code
 // And have been for the past 4 years
@@ -1255,7 +1080,24 @@
 			for(var/obj/item/item in pod_loc.contents)
 				equipment_system.cargo_system.passover(item)
 
-//// Damaged spacepod
+
+// MARK: Civilian spacepod
+/obj/spacepod/civilian
+	icon_state = "pod_civ"
+	desc = "Стильный гражданский космический челнок."
+
+/obj/spacepod/civilian/attackby(obj/item/I, mob/user, params)
+	if(user.a_intent == INTENT_HARM)
+		return ..()
+
+	if(istype(I, /obj/item/pod_paint_bucket))
+		apply_paint(user)
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
+	return ..()
+
+
+// MARK: Damaged spacepod
 /obj/spacepod/civilian/damaged
 	desc = "Сильно поврежденный челнок."
 
@@ -1263,6 +1105,175 @@
 	. = ..()
 	deal_damage(200)
 	update_icon()
+
+
+// MARK: Random spacepod
+/obj/spacepod/random
+	icon_state = "pod_civ"
+
+/obj/spacepod/random/Initialize(mapload)
+	. = ..()
+	icon_state = pick("pod_civ", "pod_black", "pod_mil", "pod_synd", "pod_gold", "pod_industrial")
+	switch(icon_state)
+		if("pod_civ")
+			desc = "Элегантный гражданский челнок."
+		if("pod_black")
+			desc = "Чёрный челнок без опознавательных знаков."
+		if("pod_mil")
+			desc = "Тёмно-серый челнок с эмблемой военного подразделения \"Нанотрейзен\"."
+		if("pod_synd")
+			desc = "Грозный военный челнок с надписью \"Нахуй НТ\" на борту."
+		if("pod_gold")
+			desc = "Позолоченный челнок — явно стоил кому-то целого состояния."
+		if("pod_industrial")
+			desc = "Промышленный челнок с усиленной конструкцией."
+	update_icons()
+
+
+// MARK: Security spacepod
+/obj/spacepod/sec
+	name = "security spacepod"
+	desc = "Бронированный челнок службы безопасности с усиленной бронёй."
+	icon_state = "pod_dece"
+	health = 600
+
+/obj/spacepod/sec/get_ru_names()
+	return alist(
+		NOMINATIVE = "космический челнок охраны",
+		GENITIVE = "космического челнока охраны",
+		DATIVE = "космическому челноку охраны",
+		ACCUSATIVE = "космический челнок охраны",
+		INSTRUMENTAL = "космическим челноком охраны",
+		PREPOSITIONAL = "космическом челноке охраны",
+	)
+
+/obj/spacepod/sec/Initialize(mapload)
+	. = ..()
+
+	var/obj/item/spacepod_equipment/weaponry/burst_taser/T = new /obj/item/spacepod_equipment/weaponry/taser
+	T.loc = equipment_system
+	equipment_system.weapon_system = T
+	equipment_system.weapon_system.my_atom = src
+	equipment_system.installed_modules += T
+	var/obj/item/spacepod_equipment/misc/tracker/L = new /obj/item/spacepod_equipment/misc/tracker
+	L.loc = equipment_system
+	equipment_system.misc_system = L
+	equipment_system.misc_system.my_atom = src
+	equipment_system.installed_modules += L
+	var/obj/item/spacepod_equipment/sec_cargo/chair/C = new /obj/item/spacepod_equipment/sec_cargo/chair
+	C.loc = equipment_system
+	equipment_system.sec_cargo_system = C
+	equipment_system.sec_cargo_system.my_atom = src
+	equipment_system.installed_modules += C
+	max_passengers = 1
+	var/obj/item/spacepod_equipment/lock/keyed/K = new /obj/item/spacepod_equipment/lock/keyed
+	K.loc = equipment_system
+	equipment_system.lock_system = K
+	equipment_system.lock_system.my_atom = src
+	equipment_system.lock_system.id = 100000
+	equipment_system.installed_modules += K
+
+
+// MARK: Syndicat spacepod
+/obj/spacepod/syndi
+	name = "syndicate spacepod"
+	desc = "Челнок, окрашенный в цвета \"Синдиката\"."
+	icon_state = "pod_synd"
+	health = 400
+	unlocked = FALSE
+
+/obj/spacepod/syndi/get_ru_names()
+	return alist(
+		NOMINATIVE = "космический челнок \"Синдиката\"",
+		GENITIVE = "космического челнока \"Синдиката\"",
+		DATIVE = "космическому челноку \"Синдиката\"",
+		ACCUSATIVE = "космический челнок \"Синдиката\"",
+		INSTRUMENTAL = "космическим челноком \"Синдиката\"",
+		PREPOSITIONAL = "космическом челноке \"Синдиката\"",
+	)
+
+/obj/spacepod/syndi/unlocked
+	unlocked = TRUE
+
+
+// MARK: Pod Actions
+/datum/action/innate/pod
+	check_flags = AB_CHECK_HANDS_BLOCKED|AB_CHECK_CONSCIOUS|AB_CHECK_INCAPACITATED
+	button_icon = 'icons/mob/actions/actions_mecha.dmi'
+	var/obj/spacepod/pod
+
+/datum/action/innate/pod/Grant(mob/living/L, obj/spacepod/S)
+	if(S)
+		pod = S
+	. = ..()
+
+/datum/action/innate/pod/Destroy()
+	pod = null
+	return ..()
+
+/datum/action/innate/pod/pod_eject
+	name = "Выйти из челнока"
+	button_icon_state = "mech_eject"
+
+/datum/action/innate/pod/pod_eject/Activate()
+	pod.exit_pod(owner)
+
+/datum/action/innate/pod/pod_toggle_internals
+	name = "Переключить баллон"
+	desc = "Переключает подачу воздуха из внутреннего баллона, защищая от вакуума и разреженной атмосферы."
+	button_icon_state = "mech_internals_off"
+
+/datum/action/innate/pod/pod_toggle_internals/Activate()
+	if(!owner || !pod || pod.pilot != owner)
+		return
+	pod.toggle_internal_tank(owner)
+	button_icon_state = "mech_internals_[pod.use_internal_tank ? "on" : "off"]"
+	UpdateButtonIcon()
+
+/datum/action/innate/pod/pod_toggle_lights
+	name = "Переключить прожектор"
+	desc = "Переключает мощный осветительный модуль."
+	button_icon_state = "mech_lights_off"
+
+/datum/action/innate/pod/pod_toggle_lights/Activate()
+	if(!owner || !pod || pod.pilot != owner)
+		return
+	pod.toggleLights(owner)
+	button_icon_state = "mech_lights_[pod.lights ? "on" : "off"]"
+	UpdateButtonIcon()
+
+/datum/action/innate/pod/pod_fire
+	name = "Стрелять"
+	button_icon_state = "mech_zoom_off"
+
+/datum/action/innate/pod/pod_fire/Activate()
+	if(!owner || !pod || pod.pilot != owner)
+		return
+	pod.fireWeapon(owner)
+
+/datum/action/innate/pod/pod_misc
+	name = "Доп. системы"
+	button_icon_state = "mech_misc"
+
+/datum/action/innate/pod/pod_misc/Activate()
+	if(!owner || !pod || pod.pilot != owner)
+		return
+	var/misc_system = tgui_input_list(owner, "Выберите систему", "Управление челноком", POD_MISC_SYSTEMS)
+	if(!misc_system)
+		return
+	if(!owner || !pod || pod.pilot != owner) //we check twice because of input
+		return
+	switch(misc_system)
+		if(POD_MISC_LOCK_DOOR)
+			pod.lock_pod(owner)
+		if(POD_MISC_POD_DOORS)
+			pod.toggleDoors(owner)
+		if(POD_MISC_UNLOAD_CARGO)
+			pod.unload(owner)
+		if(POD_MISC_CHECK_SEAT)
+			pod.checkSeat(owner)
+		if(POD_MISC_LOCATOR_SKAN)
+			pod.startScan(owner)
 
 #undef DAMAGE
 #undef FIRE_OLAY

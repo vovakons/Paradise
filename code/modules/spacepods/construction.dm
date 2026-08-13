@@ -26,9 +26,9 @@
 /obj/structure/spacepod_frame/attack_hand()
 	return
 
-/////////////////////////////////
-// CONSTRUCTION STEPS
-/////////////////////////////////
+
+// MARK: Construction steps
+
 /datum/construction/reversible2/pod
 	result = /obj/spacepod/civilian
 	base_icon="pod"
