@@ -361,3 +361,108 @@ GLOBAL_LIST_EMPTY(pod_trackers)
 	desc = "Улучшеный модуль поиска способный обнаружить любой объект в секторе"
 	icon_state = "pod_locator"
 	can_found_all = TRUE
+
+
+// MARK: Spacepod module
+/obj/item/spacepod_module
+	name = "spacepod module"
+	icon = 'icons/obj/spacepod.dmi'
+	icon_state = "weapon_burst_taser"
+	origin_tech = "programming=2;materials=2;engineering=2"
+	var/datum/spacepod_module/module_path = null
+
+/obj/item/spacepod_module/proc/install_to(mob/living/user, obj/spacepod2/pod)
+	return null
+
+
+// MARK: Fueltanks
+/obj/item/spacepod_module/fuel_tank
+	name = "spacepod fueltank module"
+	module_path = /datum/spacepod_module/fuel_tank/full
+
+/obj/item/spacepod_module/fuel_tank/install_to(mob/living/user, obj/spacepod2/pod)
+	var/fueltank_id = "fueltank_[length(pod.systems.fuel_tanks) + 1]"
+	var/fueltank_name = tgui_input_text(user, "Название топливного бака", "Назвать топливный бак", max_length = MAX_NAME_LEN, encode = TRUE)
+	if(QDELETED(src))
+		return null
+	var/datum/spacepod_module/module = new module_path(fueltank_id)
+	module.name = fueltank_name
+	return module
+
+/obj/item/spacepod_module/fuel_tank/large
+	name = "spacepod large fueltank module"
+	module_path = /datum/spacepod_module/fuel_tank/large/full
+
+
+// MARK: Battery
+/obj/item/spacepod_module/battery
+	name = "spacepod battery module"
+	module_path = /datum/spacepod_module/battery/full
+
+/obj/item/spacepod_module/battery/install_to(mob/living/user, obj/spacepod2/pod)
+	if(pod.systems.battery != null)
+		to_chat(user, span_notice("Аккумуляторная батарея уже установлена в космическом челноке!"))
+		return null
+	var/datum/spacepod_module/module = new module_path("battery")
+	return module
+
+
+// MARK: Fuel pump
+/obj/item/spacepod_module/fuel_pump
+	name = "spacepod fuel pump module"
+	module_path = /datum/spacepod_module/fuel_pump
+
+/obj/item/spacepod_module/fuel_pump/install_to(mob/living/user, obj/spacepod2/pod)
+	if(length(pod.systems.fuel_tanks) == 0)
+		to_chat(user, span_notice("Чтобы установить топливный насос, сначала установите топливный бак!"))
+		return null
+	var/datum/spacepod_module/fuel_tank/source_fueltank = tgui_input_list(user, "Выберите откуда насос будет качать топливо:", "Выбор источника топлива", pod.systems.fuel_tanks)
+	var/datum/spacepod_module/fuel_tank/destination_fueltank = tgui_input_list(user, "Выберите куда насос будет качать топливо:", "Выбор назначения топлива", pod.systems.fuel_tanks | pod.systems.engines)
+	var/pump_id = "fuelpump_[length(pod.systems.fuel_pumps) + 1]"
+	var/pump_name = tgui_input_text(user, "Название топливного насоса", "Назвать топливный насос", max_length = MAX_NAME_LEN, encode = TRUE)
+	if(QDELETED(src))
+		return null
+	var/datum/spacepod_module/fuel_pump/pump = new module_path(pump_id)
+	pump.name = pump_name
+	pump.source_tank = source_fueltank
+	pump.destination_tank = destination_fueltank
+	return pump
+
+
+// MARK: APU
+/obj/item/spacepod_module/apu
+	name = "spacepod apu module"
+	module_path = /datum/spacepod_module/fuel_tank/engine/apu
+
+/obj/item/spacepod_module/apu/install_to(mob/living/user, obj/spacepod2/pod)
+	if(pod.systems.apu != null)
+		to_chat(user, span_notice("Вспомогательная силовая установка уже установлена в космическом челноке!"))
+		return null
+	var/datum/spacepod_module/apu = new module_path("apu")
+	return apu
+
+
+// MARK: Engines
+/obj/item/spacepod_module/engine
+	name = "spacepod engine module"
+	module_path = /datum/spacepod_module/fuel_tank/engine
+
+/obj/item/spacepod_module/engine/install_to(mob/living/user, obj/spacepod2/pod)
+	var/engine_id = "engine_[length(pod.systems.engines) + 1]"
+	var/engine_name = tgui_input_text(user, "Название двигателя", "Назвать двигатель", max_length = MAX_NAME_LEN, encode = TRUE)
+	var/datum/spacepod_module/engine = new module_path(engine_id)
+	engine.name = engine_name
+	return engine
+
+
+// MARK: Gyroscope
+/obj/item/spacepod_module/gyroscope
+	name = "spacepod gyroscope module"
+	module_path = /datum/spacepod_module/gyroscope
+
+/obj/item/spacepod_module/gyroscope/install_to(mob/living/user, obj/spacepod2/pod)
+	if(pod.systems.gyroscope != null)
+		to_chat(user, span_notice("Стабилизирующий гироскоп уже установлен в космическом челноке!"))
+		return null
+	var/datum/spacepod_module/gyroscope = new module_path("gyroscope")
+	return gyroscope

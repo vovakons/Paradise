@@ -24,6 +24,27 @@
 	gyroscope = null
 	QDEL_LIST(modules)
 
+/datum/spacepod_systems/proc/check_complete()
+	. = list()
+	if(battery == null)
+		. += span_notice("Отсутствует аккумуляторная батарея.")
+	if(fuel_tanks == null || length(fuel_tanks) == 0)
+		. += span_notice("Отсутствуют топливные баки.")
+	if(fuel_pumps == null || length(fuel_pumps) == 0)
+		. += span_notice("Отсутствуют топливные насосы.")
+	var/exists_engine = FALSE
+	if(engines)
+		for(var/datum/spacepod_module/fuel_tank/engine/engine in engines)
+			if(!engine.is_apu())
+				exists_engine = TRUE
+				break
+	if(!exists_engine)
+		. += span_notice("Отсутствуют двигатели.")
+	if(apu == null)
+		. += span_notice("Отсутствует вспомогательная силовая установка.")
+	if(gyroscope == null)
+		. += span_notice("Отсутствует гироскопический стабилизатор.")
+
 /datum/spacepod_systems/proc/add_module(datum/spacepod_module/module)
 	module.systems = src
 	modules += module
@@ -341,6 +362,9 @@ Three engine spacepod:
 	. = ..()
 	if(current_rpm <= 0 || !rpm_destination_engine)
 		return
+	if(!enable)
+		select_rpm_destination_engine(null)
+		return
 	rpm_destination_engine.current_rpm = max(rpm_destination_engine.current_rpm, current_rpm / 10) // 10% of rpm provde to engine for ignition
 	current_rpm = max(current_rpm - current_rpm / 20, 0) // slowly stop by 5% becase rpm provide to engine
 	if(current_rpm == 0)
@@ -348,6 +372,8 @@ Three engine spacepod:
 		turn_off()
 
 /datum/spacepod_module/fuel_tank/engine/apu/proc/select_rpm_destination_engine(datum/spacepod_module/fuel_tank/engine/destination)
+	if(!enable && destination)
+		return
 	if(rpm_destination_engine)
 		rpm_destination_engine.external_rotation = FALSE
 	rpm_destination_engine = destination

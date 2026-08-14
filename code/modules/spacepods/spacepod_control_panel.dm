@@ -20,6 +20,8 @@
 		ui = new(user, src, "SpacepodControlPanel", name)
 		ui.open()
 
+
+// MARK: ui_data
 /datum/ui_module/spacepod_control_panels/ui_data(mob/user)
 	//create root data
 	var/list/data = list()

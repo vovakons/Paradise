@@ -581,6 +581,70 @@
 	systems.add_module(gyro)
 
 
+// MARK: Custom spacepod
+/obj/spacepod2/custom
+	name = "not complete spacepod"
+	desc = "Незавершенный космический челнок."
+	move_delay = POD_SPEED_NORMAL
+	var/assemble_process = TRUE
+
+/obj/spacepod2/custom/examine(mob/user)
+	. = ..()
+	. += span_notice("Сборка пода не завершена.")
+	var/list/errors = systems.check_complete()
+	if(length(errors) > 0)
+		for(var/error_msg in errors)
+			. += error_msg
+	else
+		. += span_notice("Для завершения сборки используйте мультитул.")
+
+/obj/spacepod2/custom/multitool_act(mob/living/user, obj/item/tool)
+	if(!assemble_process)
+		return ..()
+	. = TRUE
+	var/list/assemble_errors = systems.check_complete()
+	if(length(assemble_errors) > 0)
+		to_chat(user, span_warning("Сборка не завершена, осмотрите челнок чтобы узнать какие детали отсутствуют для завершения сборки."))
+		return
+	var/new_name = tgui_input_text(user, "Название челнока", "Переименовать челнок", max_length = MAX_NAME_LEN, encode = TRUE)
+	if(!assemble_process)
+		return
+	if(length(new_name) == 0)
+		return
+	name = new_name
+	ru_names = alist(
+		NOMINATIVE = "космический челнок \"[new_name]\"",
+		GENITIVE = "космического челнока \"[new_name]\"",
+		DATIVE = "космическому челноку \"[new_name]\"",
+		ACCUSATIVE = "космический челнок \"[new_name]\"",
+		INSTRUMENTAL = "космическим челноком \"[new_name]\"",
+		PREPOSITIONAL = "космическом челноке \"[new_name]\"",
+	)
+	assemble_process = FALSE
+
+/obj/spacepod2/custom/attackby(obj/item/item, mob/living/user, list/modifiers)
+	if(!assemble_process)
+		return ..()
+	if(user.a_intent == INTENT_HARM)
+		return ..()
+	if(istype(item, /obj/item/spacepod_module))
+		var/obj/item/spacepod_module/module_obj = item
+		add_fingerprint(user)
+		if(!user.drop_transfer_item_to_loc(item, src))
+			return ..()
+		var/datum/spacepod_module/installed_module = module_obj.install_to(user, src)
+		if(installed_module == null)
+			item.forceMove(src.loc)
+			return ..()
+		qdel(item)
+		systems.add_module(installed_module)
+		to_chat(user, span_notice("Модуль [installed_module.name] установлен."))
+		update_icon(UPDATE_ICON_STATE)
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	return ..()
+
+
 // MARK: Civilian spacepod
 /obj/spacepod2/one_engine/civilian
 	name = "raptor spacepod"
