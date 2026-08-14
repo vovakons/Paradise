@@ -193,12 +193,12 @@ Three engine spacepod:
 	power = power_capacity
 
 /datum/spacepod_module/battery/proc/consume_power(amount)
+	if(!connection_power_net)
+		return FALSE
 	if(!enable)
 		return FALSE
-
 	if(power < amount)
 		return FALSE
-
 	power -= amount
 	return TRUE
 
@@ -332,6 +332,11 @@ Three engine spacepod:
 	enable = TRUE
 	return TRUE
 
+/datum/spacepod_module/fuel_tank/engine/apu/turn_off()
+	. = ..()
+	if(rpm_destination_engine != null)
+		select_rpm_destination_engine(null)
+
 /datum/spacepod_module/fuel_tank/engine/apu/process_work(seconds_per_tick)
 	. = ..()
 	if(current_rpm <= 0 || !rpm_destination_engine)
@@ -340,7 +345,7 @@ Three engine spacepod:
 	current_rpm = max(current_rpm - current_rpm / 20, 0) // slowly stop by 5% becase rpm provide to engine
 	if(current_rpm == 0)
 		error_text = "Низкие обороты"
-		enable = FALSE
+		turn_off()
 
 /datum/spacepod_module/fuel_tank/engine/apu/proc/select_rpm_destination_engine(datum/spacepod_module/fuel_tank/engine/destination)
 	if(rpm_destination_engine)

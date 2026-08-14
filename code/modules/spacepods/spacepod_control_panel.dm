@@ -86,6 +86,7 @@
 		engine_data["fuel_pressure_warn"] = engine_data["fuel_pressure"] <= 30
 		if(istype(engine, /datum/spacepod_module/fuel_tank/engine/apu))
 			var/datum/spacepod_module/fuel_tank/engine/apu/apu_engine = engine
+			engine_data["power_link"] = apu_engine.connection_power_net
 			engine_data["selected_rpm_provide_engine"] = apu_engine.rpm_destination_engine ? apu_engine.rpm_destination_engine.name : NOT_SELECTED_RPM_PROVIDER
 			var/rpm_destinations = list()
 			rpm_destinations += NOT_SELECTED_RPM_PROVIDER
@@ -95,6 +96,7 @@
 				rpm_destinations += dest_engine.name
 			engine_data["rpm_provide_engines"] = rpm_destinations
 		else
+			engine_data["power_link"] = null
 			engine_data["rpm_provide_engines"] = null
 		engine_data["generator_enable"] = engine.generator_enable
 		engine_data["generated_power"] = engine.generator_enable ? round(engine.current_rpm / engine.max_rpm * engine.generate_power, 1) : 0

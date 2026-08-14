@@ -92,56 +92,47 @@ const ElectricityPanel = (props: unknown) => {
     <Stack vertical fill>
       {/* Battery section */}
       <Stack.Item>
-        <Section title="Аккумуляторная батарея" ml='0' mr='0'>
-          <Table>
-            <Table.Row>
-                <Table.Cell bold width='50%'>Соединение к электросети:</Table.Cell>
-                <Table.Cell>
-                  <Box pb={1}>
-                    <Button
-                        selected={electricity.link}
-                        icon={electricity.link ? 'toggle-on' : 'toggle-off'}
-                        onClick={() => act('switch_powernet_link', { id: electricity.battery_id })}
-                    >
-                        {electricity.link ? 'Подключено' : 'Отключено'}
-                    </Button>
-                  </Box>
-              </Table.Cell>
-            </Table.Row>
-            <Table.Row>
-                <Table.Cell bold>Заряд батареи:</Table.Cell>
-                <Table.Cell><b>{electricity.power} Вт</b></Table.Cell>
-            </Table.Row>
-            <Table.Row>
-                <Table.Cell bold>Емкость аккумулятора:</Table.Cell>
-                <Table.Cell><b>{electricity.capacity} Вт·ч</b></Table.Cell>
-            </Table.Row>
-            <Table.Row>
-                <Table.Cell bold>Заполнение:</Table.Cell>
-                <Table.Cell><b>{electricity.percent}%</b></Table.Cell>
-            </Table.Row>
-          </Table>
-        </Section>
+        {electricity.exists ? (
+          <Section title="Аккумуляторная батарея" ml='0' mr='0'>
+            <Table>
+              <ToggleButtonRow
+                caption='Соединение к электросети'
+                enable={electricity.link}
+                enable_text='Подключено'
+                disable_text='Отключено'
+                clicked={() => act('switch_powernet_link', { id: electricity.battery_id })}
+              />
+              <TextRow
+                caption='Заряд батареи'
+                value_text={electricity.power + ' Вт'}
+              />
+              <TextRow
+                caption='Емкость аккумулятора'
+                value_text={electricity.capacity + ' Вт·ч'}
+              />
+              <TextRow
+                caption='Заряд в процентах'
+                value_text={electricity.percent + '%'}
+              />
+            </Table>
+          </Section>
+        ) : (
+          <Box><b>Аккумуляторная батаерея отсутствует!</b></Box>
+        )}
       </Stack.Item>
       {/* Electricity consumers section */}
       <Stack.Item grow>
         <Section fill scrollable title="Потребители">
             <Table>
                 {electricity.consumers.map(consumer => (
-                    <Table.Row key={consumer.id} pb={1}>
-                        <Table.Cell bold width='50%'>{consumer.name}:</Table.Cell>
-                        <Table.Cell>
-                          <Box pb={1}>
-                            <Button
-                                selected={consumer.link}
-                                icon={consumer.link ? 'toggle-on' : 'toggle-off'}
-                                onClick={() => act('switch_powernet_link', { id: consumer.id })}
-                            >
-                                {consumer.link ? 'Подключено' : 'Отключено'}
-                            </Button>
-                          </Box>
-                        </Table.Cell>
-                    </Table.Row>
+                    <ToggleButtonRow
+                      key={consumer.id}
+                      caption={consumer.name}
+                      enable={consumer.link}
+                      enable_text='Подключено'
+                      disable_text='Отключено'
+                      clicked={() => act('switch_powernet_link', { id: consumer.id })}
+                    />
                 ))}
             </Table>
         </Section>
@@ -160,6 +151,7 @@ type EnginesPanelData = {
 type EngineData = {
   id: string;
   name: string;
+  power_link: boolean;
   enable: boolean;
   rpm: number;
   rpm_percent: number;
@@ -198,41 +190,39 @@ const EnginesPanel = (props: unknown) => {
         <Stack.Item key={engine.id}>
           <Section title={engine.name} ml='0' mr='0'>
             <Table>
-              <Table.Row>
-                <Table.Cell bold width='50%'>Состояние:</Table.Cell>
-                <Table.Cell>
-                  <Box pb={1}>
-                    <Button
-                        selected={engine.enable}
-                        icon={engine.enable ? 'toggle-on' : 'toggle-off'}
-                        onClick={() => act('switch_enable', { id: engine.id })}
-                    >
-                        {engine.enable ? 'Запущено' : 'Отключено'}
-                    </Button>
-                  </Box>
-                </Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                  <Table.Cell bold>Обороты:</Table.Cell>
-                  <Box inline mr={1} color={engine.rpm_warn ? 'bad' : 'good'}>
-                      {engine.rpm} RPM
-                  </Box>
-              </Table.Row>
-              <Table.Row>
-                  <Table.Cell bold>Мощность:</Table.Cell>
-                  <Box inline mr={1} color={engine.rpm_warn ? 'bad' : 'good'}>
-                      {engine.rpm_percent}%
-                  </Box>
-              </Table.Row>
-              <Table.Row>
-                  <Table.Cell bold>Давление топлива:</Table.Cell>
-                  <Box inline mr={1} color={engine.fuel_pressure_warn ? 'bad' : 'good'}>
-                      {engine.fuel_pressure}%
-                  </Box>
-              </Table.Row>
+              {engine.power_link !== null ? (
+                <TextStatusRow
+                  caption='Соединение к электросети'
+                  enable={engine.power_link}
+                  enable_text='Подключено'
+                  disable_text='Отключено'
+                />
+              ) : ('')}
+              <ToggleButtonRow
+                caption='Состояние'
+                enable={engine.enable}
+                enable_text='Запущено'
+                disable_text='Отключено'
+                clicked={() => act('switch_enable', { id: engine.id })}
+              />
+              <ColorTextRow
+                caption='Обороты'
+                value_text={engine.rpm + ' RPM'}
+                warn={engine.rpm_warn}
+              />
+              <ColorTextRow
+                caption='Мощность'
+                value_text={engine.rpm_percent + '%'}
+                warn={engine.rpm_warn}
+              />
+              <ColorTextRow
+                caption='Давление топлива'
+                value_text={engine.fuel_pressure + '%'}
+                warn={engine.fuel_pressure_warn}
+              />
               {engine.rpm_provide_engines !== null ? (
                 <Table.Row>
-                  <Table.Cell bold>Передача крутящего момента:</Table.Cell>
+                  <Table.Cell bold width='50%'>Передача крутящего момента:</Table.Cell>
                   <Box pb={1}>
                     <Dropdown
                       options={engine.rpm_provide_engines}
@@ -245,40 +235,23 @@ const EnginesPanel = (props: unknown) => {
                   </Box>
                 </Table.Row>
               ) : ('')}
-              <Table.Row>
-                <Table.Cell bold width='50%'>Генератор:</Table.Cell>
-                <Table.Cell>
-                  <Box pb={1}>
-                    <Button
-                        selected={engine.generator_enable}
-                        icon={engine.generator_enable ? 'toggle-on' : 'toggle-off'}
-                        onClick={() => act('switch_generator_enable', { id: engine.id })}
-                    >
-                        {engine.generator_enable ? 'Запущено' : 'Отключено'}
-                    </Button>
-                  </Box>
-                </Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                  <Table.Cell bold>Генерация электричества:</Table.Cell>
-                  <Box inline mr={1}>
-                      {engine.generated_power} Ватт
-                  </Box>
-              </Table.Row>
-              <Table.Row>
-                  <Table.Cell bold>Температура:</Table.Cell>
-                  <Box inline mr={1} color={engine.temperature_warn ? 'bad' : 'good'}>
-                      {engine.temperature} C
-                  </Box>
-              </Table.Row>
-              {engine.error_text !== null ? (
-                <Table.Row>
-                  <Table.Cell bold>Ошибка:</Table.Cell>
-                  <Box inline mr={1} color='bad'>
-                      {engine.error_text}
-                  </Box>
-                </Table.Row>
-              ) : ''}
+              <ToggleButtonRow
+                caption='Генератор'
+                enable={engine.generator_enable}
+                enable_text='Запущено'
+                disable_text='Отключено'
+                clicked={() => act('switch_generator_enable', { id: engine.id })}
+              />
+              <TextRow
+                caption='Генерация электричества'
+                value_text={engine.generated_power + ' ватт'}
+              />
+              <ColorTextRow
+                caption='Температура'
+                value_text={engine.temperature + ' C'}
+                warn={engine.temperature_warn}
+              />
+              <ErrorRow error_text={engine.error_text} />
             </Table>
           </Section>
         </Stack.Item>
@@ -287,54 +260,35 @@ const EnginesPanel = (props: unknown) => {
         <Stack.Item>
           <Section title={engines.gyroscope.name} ml='0' mr='0'>
             <Table>
-              <Table.Row>
-                <Table.Cell bold width='50%'>Соединение к электросети:</Table.Cell>
-                <Table.Cell>
-                  <Box inline mr={1} color={engines.gyroscope.power_link ? 'good' : 'bad'}>
-                      {engines.gyroscope.power_link ? 'Подключено' : 'Отключено'}
-                  </Box>
-                </Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell bold>Состояние:</Table.Cell>
-                <Table.Cell>
-                  <Box pb={1}>
-                    <Button
-                        selected={engines.gyroscope.enable}
-                        icon={engines.gyroscope.enable ? 'toggle-on' : 'toggle-off'}
-                        onClick={() => act('switch_enable', { id: engines.gyroscope.id })}
-                    >
-                        {engines.gyroscope.enable ? 'Запущено' : 'Отключено'}
-                    </Button>
-                  </Box>
-                </Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                  <Table.Cell bold>Обороты:</Table.Cell>
-                  <Box inline mr={1} color={engines.gyroscope.rpm_warn ? 'bad' : 'good'}>
-                      {engines.gyroscope.rpm} RPM
-                  </Box>
-              </Table.Row>
-              <Table.Row>
-                  <Table.Cell bold>Мощность:</Table.Cell>
-                  <Box inline mr={1} color={engines.gyroscope.rpm_warn ? 'bad' : 'good'}>
-                      {engines.gyroscope.rpm_percent}%
-                  </Box>
-              </Table.Row>
-              <Table.Row>
-                  <Table.Cell bold>Температура:</Table.Cell>
-                  <Box inline mr={1} color={engines.gyroscope.temperature_warn ? 'bad' : 'good'}>
-                      {engines.gyroscope.temperature} C
-                  </Box>
-              </Table.Row>
-              {engines.gyroscope.error_text !== null ? (
-                <Table.Row>
-                  <Table.Cell bold>Ошибка:</Table.Cell>
-                  <Box inline mr={1} color='bad'>
-                      {engines.gyroscope.error_text}
-                  </Box>
-                </Table.Row>
-              ) : ''}
+              <TextStatusRow
+                caption='Соединение к электросети'
+                enable={engines.gyroscope.power_link}
+                enable_text='Подключено'
+                disable_text='Отключено'
+              />
+              <ToggleButtonRow
+                caption='Состояние'
+                enable={engines.gyroscope.enable}
+                enable_text='Запущено'
+                disable_text='Отключено'
+                clicked={() => act('switch_enable', { id: engines.gyroscope.id })}
+              />
+              <ColorTextRow
+                caption='Обороты'
+                value_text={engines.gyroscope.rpm + ' RPM'}
+                warn={engines.gyroscope.rpm_warn}
+              />
+              <ColorTextRow
+                caption='Мощность'
+                value_text={engines.gyroscope.rpm_percent + '%'}
+                warn={engines.gyroscope.rpm_warn}
+              />
+              <ColorTextRow
+                caption='Температура'
+                value_text={engines.gyroscope.temperature + ' C'}
+                warn={engines.gyroscope.temperature_warn}
+              />
+              <ErrorRow error_text={engines.gyroscope.error_text} />
             </Table>
           </Section>
         </Stack.Item>
@@ -381,18 +335,20 @@ const FuelSystemPanel = (props: unknown) => {
         <Stack.Item key={fuel_tank.id}>
           <Section title={fuel_tank.name} ml='0' mr='0'>
             <Table>
-              <Table.Row>
-                  <Table.Cell bold width='50%'>Емкость топлива:</Table.Cell>
-                  <Table.Cell><b>{fuel_tank.fuel_capacity} л.</b></Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                  <Table.Cell bold>Уровень топлива:</Table.Cell>
-                  <Table.Cell><b>{fuel_tank.fuel_amount} л.</b></Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                  <Table.Cell bold>Уровень в прцоентах:</Table.Cell>
-                  <Table.Cell><b>{fuel_tank.level_percent}%</b></Table.Cell>
-              </Table.Row>
+              <TextRow
+                caption='Емкость топлива'
+                value_text={fuel_tank.fuel_capacity + ' л.'}
+              />
+              <ColorTextRow
+                caption='Уровень топлива'
+                value_text={fuel_tank.fuel_amount + ' л.'}
+                warn={fuel_tank.level_percent < 20}
+              />
+              <ColorTextRow
+                caption='Уровень в процентах'
+                value_text={fuel_tank.level_percent + '%'}
+                warn={fuel_tank.level_percent < 20}
+              />
             </Table>
           </Section>
         </Stack.Item>
@@ -402,46 +358,29 @@ const FuelSystemPanel = (props: unknown) => {
         <Stack.Item key={fuel_pump.id}>
           <Section title={fuel_pump.name} ml='0' mr='0'>
             <Table>
-              <Table.Row>
-                <Table.Cell bold width='50%'>Соединение к электросети:</Table.Cell>
-                <Table.Cell>
-                  <Box inline mr={1} color={fuel_pump.power_link ? 'good' : 'bad'}>
-                      {fuel_pump.power_link ? 'Подключено' : 'Отключено'}
-                  </Box>
-                </Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell bold width='50%'>Состояние:</Table.Cell>
-                <Table.Cell>
-                  <Box pb={1}>
-                    <Button
-                        selected={fuel_pump.enable}
-                        icon={fuel_pump.enable ? 'toggle-on' : 'toggle-off'}
-                        onClick={() => act('switch_enable', { id: fuel_pump.id })}
-                    >
-                        {fuel_pump.enable ? 'Запущено' : 'Отключено'}
-                    </Button>
-                  </Box>
-                </Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                  <Table.Cell bold>Скорость перекачки:</Table.Cell>
-                  <Box inline mr={1}>{fuel_pump.pump_speed} литр/сек</Box>
-              </Table.Row>
-              <Table.Row>
-                  <Table.Cell bold>Температура:</Table.Cell>
-                  <Box inline mr={1} color={fuel_pump.temperature_warn ? 'bad' : 'good'}>
-                      {fuel_pump.temperature} C
-                  </Box>
-              </Table.Row>
-              {fuel_pump.error_text !== null ? (
-                <Table.Row>
-                  <Table.Cell bold>Ошибка:</Table.Cell>
-                  <Box inline mr={1} color='bad'>
-                      {fuel_pump.error_text}
-                  </Box>
-                </Table.Row>
-              ) : ''}
+              <TextStatusRow
+                caption='Соединение к электросети'
+                enable={fuel_pump.power_link}
+                enable_text='Подключено'
+                disable_text='Отключено'
+              />
+              <ToggleButtonRow
+                caption='Состояние'
+                enable={fuel_pump.enable}
+                enable_text='Запущено'
+                disable_text='Отключено'
+                clicked={() => act('switch_enable', { id: fuel_pump.id })}
+              />
+              <TextRow
+                caption='Скорость перекачки'
+                value_text={fuel_pump.pump_speed + ' литр/сек'}
+              />
+              <ColorTextRow
+                caption='Температура'
+                value_text={fuel_pump.temperature + ' C'}
+                warn={fuel_pump.temperature_warn}
+              />
+              <ErrorRow error_text={fuel_pump.error_text} />
             </Table>
           </Section>
         </Stack.Item>
@@ -449,3 +388,109 @@ const FuelSystemPanel = (props: unknown) => {
     </Stack>
   );
 };
+
+
+// MARK: Elements
+type ToggleButtonRowData = {
+  caption: string;
+  enable: boolean;
+  enable_text: string;
+  disable_text: string;
+  clicked: any;
+};
+
+const ToggleButtonRow = (props: ToggleButtonRowData) => {
+  const { caption, enable, enable_text, disable_text, clicked } = props;
+  return (
+    <Table.Row>
+      <Table.Cell bold width="50%">{caption}:</Table.Cell>
+      <Table.Cell>
+        <Box pb={1}>
+          <Button
+              selected={enable}
+              icon={enable ? 'toggle-on' : 'toggle-off'}
+              onClick={() => clicked()}
+          >
+              { enable ? enable_text : disable_text }
+          </Button>
+        </Box>
+      </Table.Cell>
+    </Table.Row>
+  )
+}
+
+
+type TextRowData = {
+  caption: string;
+  value_text: string;
+};
+
+const TextRow = (props: TextRowData) => {
+  const { caption, value_text } = props;
+  return (
+    <Table.Row>
+        <Table.Cell bold width='50%'>{caption}:</Table.Cell>
+        <Table.Cell><b>{value_text}</b></Table.Cell>
+    </Table.Row>
+  )
+}
+
+
+type TextStatusRowData = {
+  caption: string;
+  enable: boolean;
+  enable_text: string;
+  disable_text: string;
+};
+
+const TextStatusRow = (props: TextStatusRowData) => {
+  const { caption, enable, enable_text, disable_text } = props;
+  return (
+    <Table.Row>
+      <Table.Cell bold width='50%'>{caption}:</Table.Cell>
+      <Table.Cell>
+        <Box inline mr={1} color={enable ? 'good' : 'bad'}>
+            { enable ? enable_text : disable_text }
+        </Box>
+      </Table.Cell>
+    </Table.Row>
+  )
+}
+
+
+type ColorTextRowData = {
+  caption: string;
+  value_text: string;
+  warn: boolean;
+};
+
+const ColorTextRow = (props: ColorTextRowData) => {
+  const { caption, value_text, warn } = props;
+  return (
+    <Table.Row>
+      <Table.Cell bold width="50%">{caption}:</Table.Cell>
+      <Box inline mr={1} color={warn ? 'bad' : 'good'}>
+          {value_text}
+      </Box>
+    </Table.Row>
+  )
+}
+
+
+type ErrorRowData = {
+  error_text: string;
+};
+
+const ErrorRow = (props: ErrorRowData) => {
+  const { error_text } = props;
+  if(error_text !== null) {
+    return (
+      <Table.Row>
+        <Table.Cell bold>Ошибка:</Table.Cell>
+        <Box inline mr={1} color='bad'>
+          {error_text}
+        </Box>
+    </Table.Row>)
+  }
+  return ('')
+}
