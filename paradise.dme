@@ -4178,6 +4178,7 @@
 #include "code\modules\spacepods\equipment.dm"
 #include "code\modules\spacepods\lock_buster.dm"
 #include "code\modules\spacepods\parts.dm"
+#include "code\modules\spacepods\spacepod_control_panel.dm"
 #include "code\modules\spacepods\spacepod_modules.dm"
 #include "code\modules\spacepods\spacepod.dm"
 #include "code\modules\spacepods\spacepod2.dm"

@@ -29,14 +29,15 @@
 	modules += module
 	if(istype(module, /datum/spacepod_module/battery))
 		battery = module
-	if(istype(module, /datum/spacepod_module/fuel_tank))
-		fuel_tanks += module
 	if(istype(module, /datum/spacepod_module/fuel_pump))
-		fuel_pumps = module
+		fuel_pumps += module
 	if(istype(module, /datum/spacepod_module/fuel_tank/engine/apu))
 		apu = module
+		engines += module
 	else if(istype(module, /datum/spacepod_module/fuel_tank/engine))
 		engines += module
+	else if(istype(module, /datum/spacepod_module/fuel_tank))
+		fuel_tanks += module
 	if(istype(module, /datum/spacepod_module/gyroscope))
 		gyroscope = module
 
@@ -50,10 +51,15 @@
 	if(!length(engines))
 		return 0
 	var/total_thrust = 0
+	var/max_thrust = 0
 	for(var/datum/spacepod_module/fuel_tank/engine/engine as anything in engines)
+		if(engine.is_apu())
+			continue
 		total_thrust += engine.current_rpm / engine.max_rpm
-	var/max_thrust = length(engines)
-	return total_thrust / max_thrust
+		max_thrust += 1
+	if(max_thrust == 0) //zero div check
+		max_thrust = 1
+	return clamp(total_thrust / max_thrust, 0, 1)
 
 /datum/spacepod_systems/proc/can_maneuver()
 	if(!gyroscope)
@@ -63,6 +69,7 @@
 
 // MARK: Basic module
 /datum/spacepod_module
+	var/id = "unknown"
 	var/name = "Модуль челнока"
 	var/datum/spacepod_systems/systems = null
 
@@ -82,10 +89,12 @@
 	var/connection_power_net = FALSE
 	/// Amount of consumed power in watt per tick
 	var/consume_power = 0
+	/// Error detail data
+	var/error_text = null
 
-
-/datum/spacepod_module/New()
+/datum/spacepod_module/New(id)
 	. = ..()
+	src.id = id
 	integrity = max_integrity
 
 /datum/spacepod_module/proc/fire_process()
@@ -109,6 +118,13 @@
 
 /datum/spacepod_module/proc/process_work(seconds_per_tick)
 	return enable
+
+/datum/spacepod_module/proc/turn_on()
+	error_text = null
+	enable = TRUE
+
+/datum/spacepod_module/proc/turn_off()
+	enable = FALSE
 
 
 // MARK: Fuel tank
@@ -147,21 +163,34 @@ Three engine spacepod:
 	fuel_amount -= amount
 	return amount
 
+/datum/spacepod_module/fuel_tank/full/New(id)
+	. = ..()
+	fuel_amount = fuel_capacity
+
 /datum/spacepod_module/fuel_tank/large
 	name = "Большой топливный бак"
 	max_integrity = 300
 	hit_weight = POD_MODULE_HIT_CHANCE_EXTRA_LARGE
 	fuel_capacity = 2000
 
+/datum/spacepod_module/fuel_tank/large/full/New(id)
+	. = ..()
+	fuel_amount = fuel_capacity
+
 
 // MARK: Battery
 /datum/spacepod_module/battery
 	name = "Аккумуляторная батарея"
 	max_integrity = 200
+	enable = TRUE
 	/// Battery capacity in watt
 	var/power_capacity = 5000 //watt
 	/// Current power level in watt
 	var/power = 0
+
+/datum/spacepod_module/battery/full/New(id)
+	. = ..()
+	power = power_capacity
 
 /datum/spacepod_module/battery/proc/consume_power(amount)
 	if(!enable)
@@ -185,13 +214,20 @@ Three engine spacepod:
 	fire_damage_mod = 5
 	consume_power = 10
 	/// Fuel pumping speed in units per tick
-	var/pump_speed = 5 //units per tick
+	var/pump_speed = 10 //units per tick
 	var/datum/spacepod_module/fuel_tank/source_tank
 	var/datum/spacepod_module/fuel_tank/destination_tank
 
 /datum/spacepod_module/fuel_pump/process_work(seconds_per_tick)
 	. = ..()
-	if(!. || !process_power(seconds_per_tick))
+	if(!.)
+		return
+	if(!process_power(seconds_per_tick))
+		if(!connection_power_net)
+			error_text = "Нет подключения к электросети для работы топливного насоса"
+		else
+			error_text = "Не хватает электричества для работы топливного насоса"
+		turn_off()
 		return
 	var/pumped = pump_speed * seconds_per_tick
 	if(pumped > source_tank.fuel_amount)
@@ -211,7 +247,7 @@ Three engine spacepod:
 	hit_weight = POD_MODULE_HIT_CHANCE_LARGE
 	max_integrity = 300
 	fire_damage_mod = 1
-	fuel_capacity = 10
+	fuel_capacity = 30
 	/// How many fuel consume in units per tick on 100% of power
 	var/fuel_consume_amount = 2
 	/// Maximal rotations per minutes
@@ -225,17 +261,34 @@ Three engine spacepod:
 	var/generator_enable = FALSE
 	/// How many powers generate on 100% rpm per seconds in watt
 	var/generate_power = 100
+	/// Receiving external rotation
+	var/external_rotation = FALSE
 
 /datum/spacepod_module/fuel_tank/engine/proc/get_rpm_percent()
 	return round(current_rpm / max_rpm * 100, 1)
+
+/datum/spacepod_module/fuel_tank/engine/turn_on()
+	error_text = null
+	ignite()
 
 /datum/spacepod_module/fuel_tank/engine/proc/ignite()
 	if(enable)
 		return FALSE
 	if(current_rpm <= 0) //no rotation - no ignition, provde rotations from apu
+		error_text = "Нет оборотов для запуска"
 		return FALSE
 	enable = TRUE
+	external_rotation = FALSE
 	return TRUE
+
+/datum/spacepod_module/fuel_tank/engine/proc/enable_power_generator()
+	if(current_rpm > 0)
+		generator_enable = TRUE
+	else
+		error_text = "Нет оборотов двигателя для запуска генератора"
+
+/datum/spacepod_module/fuel_tank/engine/proc/is_apu()
+	return FALSE
 
 /datum/spacepod_module/fuel_tank/engine/process_work(seconds_per_tick)
 	if(generator_enable)
@@ -244,12 +297,13 @@ Three engine spacepod:
 			systems.battery.accumulate_power(rpm_mod * generate_power * seconds_per_tick)
 
 	if(!enable) // slowly stoping
-		if(current_rpm == 0)
+		if(external_rotation || current_rpm == 0)
 			return
 		current_rpm = max(current_rpm - ignition_acceleration * seconds_per_tick, 0)
 		return
 
-	if(consume_fuel(fuel_consume_speed * seconds_per_tick) > 0)
+	if(!consume_fuel(fuel_consume_speed * seconds_per_tick) > 0)
+		error_text = "Топливное голодание"
 		enable = FALSE //auto off
 		return
 	if(current_rpm >= max_rpm)
@@ -263,10 +317,17 @@ Three engine spacepod:
 	generate_power = 50
 	var/datum/spacepod_module/fuel_tank/engine/rpm_destination_engine = null
 
+/datum/spacepod_module/fuel_tank/engine/apu/is_apu()
+	return TRUE
+
 /datum/spacepod_module/fuel_tank/engine/apu/ignite()
 	if(enable || current_rpm > 0)
 		return FALSE
 	if(!process_power(1)) // can not ignite, because low power
+		if(!connection_power_net)
+			error_text = "Нет подключения к электросети для запуска стартера"
+		else
+			error_text = "Не хватает электричества для запуска стартера"
 		return FALSE
 	enable = TRUE
 	return TRUE
@@ -278,12 +339,20 @@ Three engine spacepod:
 	rpm_destination_engine.current_rpm = max(rpm_destination_engine.current_rpm, current_rpm / 10) // 10% of rpm provde to engine for ignition
 	current_rpm = max(current_rpm - current_rpm / 20, 0) // slowly stop by 5% becase rpm provide to engine
 	if(current_rpm == 0)
+		error_text = "Низкие обороты"
 		enable = FALSE
+
+/datum/spacepod_module/fuel_tank/engine/apu/proc/select_rpm_destination_engine(datum/spacepod_module/fuel_tank/engine/destination)
+	if(rpm_destination_engine)
+		rpm_destination_engine.external_rotation = FALSE
+	rpm_destination_engine = destination
+	if(rpm_destination_engine)
+		rpm_destination_engine.external_rotation = TRUE
 
 
 // MARK: Gyroscope
 /datum/spacepod_module/gyroscope
-	name = "Широскопический стабилизатор"
+	name = "Гироскопический стабилизатор"
 	hit_weight = POD_MODULE_HIT_CHANCE_LARGE
 	max_integrity = 250
 	consume_power = 50
@@ -301,6 +370,10 @@ Three engine spacepod:
 		current_rpm = max(current_rpm - ignition_acceleration * seconds_per_tick, 0)
 		return
 	if(!process_power(seconds_per_tick))
+		if(!connection_power_net)
+			error_text = "Нет подключения к электросети для работы гироскопического стабилизатора"
+		else
+			error_text = "Не хватает электричества для работы гироскопического стабилизатора"
 		enable = FALSE //auto off
 		return
 	if(current_rpm >= max_rpm)

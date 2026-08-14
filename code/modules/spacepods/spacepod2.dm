@@ -1,6 +1,9 @@
 /// Basic pod speed
-#define POD_MAX_MOVE_DELAY (0.15 SECONDS) //basic 0.15
-#define POD_MIN_MOVE_DELAY (0.4 SECONDS)
+#define POD_LOW_THRUST_DELAY (0.85 SECONDS)
+#define POD_BASE_MOVE_DELAY (0.15 SECONDS)
+#define POD_SPEED_HIGH (0.12 SECONDS)
+#define POD_SPEED_NORMAL (0.15 SECONDS)
+#define POD_SPEED_SLOW (0.18 SECONDS)
 /// Speed modifier for gravity area
 #define POD_GRAVITY_SPEED_MOD 2.5 // basic 0.4 seconds
 /// Eject occupant from spacepod from outside by grab attack
@@ -15,6 +18,7 @@
 	name = "space pod"
 	desc = "Космический челнок, предназначенный для путешествий в открытом космосе."
 	icon = 'icons/goonstation/48x48/pods.dmi'
+	icon_state = "pod_civ"
 	density = TRUE
 	move_resist = MOVE_FORCE_EXTREMELY_STRONG
 	move_force = MOVE_FORCE_VERY_STRONG
@@ -33,7 +37,7 @@
 	var/obj/item/storage/internal/cargo_hold
 
 	/// Internal pod system
-	var/datum/spacepod_systems/internal_system = null
+	var/datum/spacepod_systems/systems = null
 
 	/// Air in cabin
 	var/datum/gas_mixture/cabin_air
@@ -52,8 +56,7 @@
 	var/unlocked = TRUE
 
 	/// Movement delay (use smaller value for higher speed)
-	var/move_min_delay = POD_MIN_MOVE_DELAY
-	var/move_max_delay = POD_MAX_MOVE_DELAY
+	var/move_delay = POD_SPEED_NORMAL
 	/// Movement cooldown
 	COOLDOWN_DECLARE(spacepod_move_cooldown)
 	/// Ion trail effect
@@ -64,6 +67,11 @@
 	var/datum/action/innate/pod2/pod_eject/passanger_eject = new
 	var/datum/action/innate/pod2/pod_toggle_internals/internals_action = new
 	var/datum/action/innate/pod2/pod_toggle_lights/lights_action = new
+	var/datum/action/innate/pod2/pod_panel/panel_action = new
+
+	// tgui
+	var/datum/ui_module/spacepod_control_panels/control_panels
+
 
 /obj/spacepod2/get_ru_names()
 	return alist(
@@ -92,10 +100,12 @@
 	ion_trail = new
 	ion_trail.set_up(src)
 	ion_trail.start()
+	control_panels = new()
+	control_panels.pod = src
 
 /obj/spacepod2/proc/create_internal_system()
-	internal_system = new()
-	return internal_system
+	systems = new()
+	return systems
 
 /obj/spacepod2/proc/add_cabin()
 	cabin_air = new
@@ -111,7 +121,7 @@
 
 /obj/spacepod2/Destroy()
 	QDEL_NULL(cargo_hold)
-	QDEL_NULL(internal_system)
+	QDEL_NULL(systems)
 	QDEL_NULL(cabin_air)
 	QDEL_NULL(internal_tank)
 	QDEL_NULL(ion_trail)
@@ -119,6 +129,8 @@
 	QDEL_NULL(passanger_eject)
 	QDEL_NULL(internals_action)
 	QDEL_NULL(lights_action)
+	QDEL_NULL(panel_action)
+	QDEL_NULL(control_panels)
 	occupant_sanity_check()
 	if(pilot)
 		eject_pilot()
@@ -133,7 +145,7 @@
 /obj/spacepod2/process(seconds_per_tick)
 	give_air()
 	regulate_temp()
-	internal_system.process_work(seconds_per_tick, src)
+	systems.process_work(seconds_per_tick, src)
 
 /obj/spacepod2/proc/give_air()
 	if(!internal_tank)
@@ -421,28 +433,11 @@
 
 	. = TRUE
 
-	// var/skill_factor
-	// if(pilot)
-	// 	CALCULATE_SKILL_MOD(pilot, SPACEPOD_BATTERY_USAGE_MOD, skill_mod)
-	// 	skill_factor = skill_mod
-	// if(health <= 0)
-	// 	to_chat(user, span_warning("Она мертва, Джим."))
-	// 	. = FALSE
-	// else if(!battery)
-	// 	to_chat(user, span_warning("Батарея не обнаружена."))
-	// 	. = FALSE
-	// else if(!COOLDOWN_FINISHED(src, cooldown_emp))
-	// 	to_chat(user, span_warning("Интерфейс не отвечает. Перезагрузка через [COOLDOWN_TIMELEFT(src, cooldown_emp)] [DECL_SEC_MIN(COOLDOWN_TIMELEFT(src, cooldown_emp))]."))
-	// 	. = FALSE
-	// else if(!battery.use(1 / skill_factor))
-	// 	to_chat(user, span_warning("Недостаточно энергии."))
-	// 	. = FALSE
-	if(!.)
-		COOLDOWN_START(src, spacepod_move_cooldown, 0.25 SECONDS)
-		return .
-
-	var/speed_mod = internal_system.get_total_speed_mod()
+	var/speed_mod = systems.get_total_speed_mod()
 	if(speed_mod <= 0)
+		. = FALSE
+
+	if(!.)
 		COOLDOWN_START(src, spacepod_move_cooldown, 0.25 SECONDS)
 		return .
 
@@ -456,9 +451,11 @@
 		if(!next_step)
 			COOLDOWN_START(src, spacepod_move_cooldown, 0.25 SECONDS)
 			return FALSE
-		var/move_delay = move_min_delay + (move_max_delay - move_min_delay) * (1 - speed_mod)
-		var/calculated_move_delay = no_gravity(loc) ? move_delay : move_delay * POD_GRAVITY_SPEED_MOD
-		. = Move(next_step, direction, update_dir = internal_system.can_maneuver())
+		var/calculated_move_delay = move_delay + POD_LOW_THRUST_DELAY * (1 - speed_mod)
+		if(!no_gravity(loc))
+			calculated_move_delay *=  POD_GRAVITY_SPEED_MOD
+		set_dir_on_move = systems.can_maneuver()
+		. = Move(next_step, direction)
 		if(ISDIAGONALDIR(direction) && loc == next_step)
 			calculated_move_delay *= sqrt(2)
 		set_glide_size(DELAY_TO_GLIDE_SIZE(calculated_move_delay))
@@ -470,14 +467,144 @@
 	// 			equipment_system.cargo_system.passover(item)
 
 
+// MARK: One engine pod
+/obj/spacepod2/one_engine
+	name = "one engine spacepod"
+	desc = "Однодвигательный космический челнок."
+
+/obj/spacepod2/one_engine/create_internal_system()
+	. = ..()
+	systems.add_module(new /datum/spacepod_module/battery/full("battery"))
+	// fueltank
+	var/datum/spacepod_module/fuel_tank/large/central_fuel_tank = new /datum/spacepod_module/fuel_tank/large/full("central_fueltank")
+	central_fuel_tank.name = "Центральный топливный бак"
+	systems.add_module(central_fuel_tank)
+	// engines
+	var/datum/spacepod_module/fuel_tank/engine/apu/apu = new("apu")
+	var/datum/spacepod_module/fuel_tank/engine/central_engine = new("engine_central")
+	central_engine.name = "Центральный двигатель"
+	// Fuel pumps
+	// central fueltank - apu
+	var/datum/spacepod_module/fuel_pump/pump_apu = new("pump_central_fueltanktank_to_apu")
+	pump_apu.name = "Топливный насос из центрального бака в ВСУ"
+	pump_apu.source_tank = central_fuel_tank
+	pump_apu.destination_tank = apu
+	systems.add_module(pump_apu)
+	// central fueltank - central engine
+	var/datum/spacepod_module/fuel_pump/pump_central_engine = new("pump_central_fueltank_to_engine_central")
+	pump_central_engine.name = "Топливный насос из центрального бака в центральный двигатель"
+	pump_central_engine.source_tank = central_fuel_tank
+	pump_central_engine.destination_tank = central_engine
+	systems.add_module(pump_central_engine)
+	// Add engines after fuel pumps
+	systems.add_module(apu)
+	systems.add_module(central_engine)
+	// Gyroscope
+	var/datum/spacepod_module/gyroscope/gyro = new("gyroscope")
+	systems.add_module(gyro)
+
+
+// MARK: Two engine
+/obj/spacepod2/two_engine
+	name = "two engine spacepod"
+	desc = "Двухдвигательный космический челнок."
+	move_delay = POD_SPEED_HIGH
+
+/obj/spacepod2/two_engine/create_internal_system()
+	. = ..()
+	systems.add_module(new /datum/spacepod_module/battery/full("battery"))
+	// fuel tanks
+	var/datum/spacepod_module/fuel_tank/fuel_tank_central = new /datum/spacepod_module/fuel_tank/full("fueltank_left")
+	fuel_tank_central.name = "Центральный топливный бак"
+	systems.add_module(fuel_tank_central)
+	var/datum/spacepod_module/fuel_tank/fuel_tank_right = new /datum/spacepod_module/fuel_tank/full("fueltank_right")
+	fuel_tank_right.name = "Правый топливный бак"
+	systems.add_module(fuel_tank_right)
+	var/datum/spacepod_module/fuel_tank/fuel_tank_left = new /datum/spacepod_module/fuel_tank/full("fueltank_left")
+	fuel_tank_left.name = "Левый топливный бак"
+	systems.add_module(fuel_tank_left)
+	// Engines
+	var/datum/spacepod_module/fuel_tank/engine/apu/apu = new("apu")
+	var/datum/spacepod_module/fuel_tank/engine/engine_right = new("engine_right")
+	engine_right.name = "Правый двигатель"
+	var/datum/spacepod_module/fuel_tank/engine/engine_left = new("engine_left")
+	engine_left.name = "Левый двигатель"
+	// Fuel pumps
+	// central fueltank - apu
+	var/datum/spacepod_module/fuel_pump/pump_central_to_apu = new("pump_central_fueltanktank_to_apu")
+	pump_central_to_apu.name = "Топливный насос из центрального бака в ВСУ"
+	pump_central_to_apu.source_tank = fuel_tank_central
+	pump_central_to_apu.destination_tank = apu
+	systems.add_module(pump_central_to_apu)
+	// central fueltank - right engine
+	var/datum/spacepod_module/fuel_pump/pump_central_to_right_engine = new("pump_central_fueltank_to_engine_right")
+	pump_central_to_right_engine.name = "Топливный насос из центрального бака в правый двигатель"
+	pump_central_to_right_engine.source_tank = fuel_tank_central
+	pump_central_to_right_engine.destination_tank = engine_right
+	systems.add_module(pump_central_to_right_engine)
+	// central fueltank - left engine
+	var/datum/spacepod_module/fuel_pump/pump_central_to_left_engine = new("pump_central_fueltank_to_engine_left")
+	pump_central_to_left_engine.name = "Топливный насос из центрального бака в левый двигатель"
+	pump_central_to_left_engine.source_tank = fuel_tank_central
+	pump_central_to_left_engine.destination_tank = engine_left
+	systems.add_module(pump_central_to_left_engine)
+	// right fueltank - central fueltank
+	var/datum/spacepod_module/fuel_pump/pump_right_to_central = new("pump_right_fueltank_to_central_fueltank")
+	pump_right_to_central.name = "Топливный насос из правого бака в центральный бак"
+	pump_right_to_central.source_tank = fuel_tank_right
+	pump_right_to_central.destination_tank = fuel_tank_central
+	systems.add_module(pump_right_to_central)
+	// left fueltank - central fueltank
+	var/datum/spacepod_module/fuel_pump/pump_left_to_central = new("pump_left_fueltank_to_central_fueltank")
+	pump_left_to_central.name = "Топливный насос из левого бака в центральный бак"
+	pump_left_to_central.source_tank = fuel_tank_left
+	pump_left_to_central.destination_tank = fuel_tank_central
+	systems.add_module(pump_left_to_central)
+	// right fueltank - right engine
+	var/datum/spacepod_module/fuel_pump/pump_right_to_right_engine = new("pump_right_fueltank_to_right_engine")
+	pump_right_to_right_engine.name = "Топливный насос из правого бака в правый двигатель"
+	pump_right_to_right_engine.source_tank = fuel_tank_right
+	pump_right_to_right_engine.destination_tank = engine_right
+	systems.add_module(pump_right_to_right_engine)
+	// left fueltank - left engine
+	var/datum/spacepod_module/fuel_pump/pump_left_to_left_engine = new("pump_left_fueltank_to_left_engine")
+	pump_left_to_left_engine.name = "Топливный насос из левого бака в левый двигатель"
+	pump_left_to_left_engine.source_tank = fuel_tank_left
+	pump_left_to_left_engine.destination_tank = engine_left
+	systems.add_module(pump_left_to_left_engine)
+	// Add engine after pumps
+	systems.add_module(apu)
+	systems.add_module(engine_right)
+	systems.add_module(engine_left)
+	// Gyroscope
+	var/datum/spacepod_module/gyroscope/gyro = new("gyroscope")
+	systems.add_module(gyro)
+
+
+// MARK: Civilian spacepod
+/obj/spacepod2/one_engine/civilian
+	name = "raptor spacepod"
+	desc = "Стильный гражданский космический челнок \"Странник\""
+
+/obj/spacepod2/one_engine/civilian/get_ru_names()
+	return alist(
+		NOMINATIVE = "космический челнок \"Странник\"",
+		GENITIVE = "космического челнока \"Странник\"",
+		DATIVE = "космическому челноку \"Странник\"",
+		ACCUSATIVE = "космический челнок \"Странник\"",
+		INSTRUMENTAL = "космическим челноком \"Странник\"",
+		PREPOSITIONAL = "космическом челноке \"Странник\"",
+	)
+
+
 // MARK: Security spacepod
-/obj/spacepod2/raptor
+/obj/spacepod2/two_engine/raptor
 	name = "raptor spacepod"
 	desc = "Бронированный челнок службы безопасности \"Раптор\"."
 	icon_state = "pod_dece"
 	health = 600
 
-/obj/spacepod2/raptor/get_ru_names()
+/obj/spacepod2/two_engine/raptor/get_ru_names()
 	return alist(
 		NOMINATIVE = "космический челнок \"Раптор\"",
 		GENITIVE = "космического челнока \"Раптор\"",
@@ -487,26 +614,6 @@
 		PREPOSITIONAL = "космическом челноке \"Раптор\"",
 	)
 
-/obj/spacepod2/raptor/create_internal_system()
-	. = ..()
-	internal_system.add_module(new /datum/spacepod_module/battery())
-	var/datum/spacepod_module/fuel_tank/large/central_fuel_tank = new()
-	internal_system.add_module(central_fuel_tank)
-	var/datum/spacepod_module/fuel_tank/engine/apu/apu = new()
-	internal_system.add_module(apu)
-	var/datum/spacepod_module/fuel_pump/apu_pump = new()
-	apu_pump.source_tank = central_fuel_tank
-	apu_pump.destination_tank = apu
-	internal_system.add_module(apu_pump)
-	var/datum/spacepod_module/fuel_tank/engine/central_engine = new()
-	internal_system.add_module(central_engine)
-	var/datum/spacepod_module/fuel_pump/central_engine_pump = new()
-	central_engine_pump.source_tank = central_fuel_tank
-	central_engine_pump.destination_tank = central_engine
-	internal_system.add_module(central_engine_pump)
-	var/datum/spacepod_module/gyroscope/gyro = new()
-	internal_system.add_module(gyro)
-
 
 // MARK: Actions
 /obj/spacepod2/proc/GrantPilotActions(mob/living/user)
@@ -514,12 +621,14 @@
 	internals_action.Grant(user, src)
 	lights_action.Grant(user, src)
 	//fire_action.Grant(user, src)
+	panel_action.Grant(user, src)
 
 /obj/spacepod2/proc/RemovePilotActions(mob/living/user)
 	eject_action.Remove(user)
 	internals_action.Remove(user)
 	lights_action.Remove(user)
 	//fire_action.Remove(user)
+	panel_action.Remove(user)
 
 /datum/action/innate/pod2
 	check_flags = AB_CHECK_HANDS_BLOCKED|AB_CHECK_CONSCIOUS|AB_CHECK_INCAPACITATED
@@ -575,13 +684,15 @@
 		return
 	// pod.fireWeapon(owner)
 
-/datum/action/innate/pod2/pod_misc
-	name = "Доп. системы"
+/datum/action/innate/pod2/pod_panel
+	name = "Панель управления"
 	button_icon_state = "mech_misc"
 
-/datum/action/innate/pod2/pod_misc/Activate()
+/datum/action/innate/pod2/pod_panel/Activate()
 	if(!owner || !pod || pod.pilot != owner)
 		return
+	pod.control_panels.ui_interact(owner)
+
 	// var/misc_system = tgui_input_list(owner, "Выберите систему", "Управление челноком", POD_MISC_SYSTEMS)
 	// if(!misc_system)
 	// 	return
