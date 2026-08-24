@@ -10,6 +10,7 @@ type SpacepodControlPanelData = {
   engines: EnginesPanelData;
   fuel: FuelSystemPanelData;
   weapons: WeaponsPanelData;
+  life_support: LifeSupportPanelData;
 };
 
 type SpacepodControlPanelTabsData = {
@@ -26,6 +27,8 @@ const decideTab = (tab_id: string) => {
       return <EnginesPanel />;
     case 'fuel':
       return <FuelSystemPanel />;
+    case 'life_support':
+      return <LifeSupportPanel />;
     case 'weapons':
       return <WeaponsPanel />;
     default:
@@ -399,6 +402,7 @@ type WeaponsPanelData = {
   guns: GunData[];
 };
 
+
 type WeaponModuleData = {
   id: string;
   name: string;
@@ -503,6 +507,77 @@ const WeaponsPanel = (props: unknown) => {
           </Section>
         </Stack.Item>
       ))}
+    </Stack>
+  );
+};
+
+
+// MARK: Life support panel
+type LifeSupportPanelData = {
+  airtank: AirtankData;
+  atmos: AtmosData;
+};
+
+type AirtankData = {
+  name: string;
+  enable: boolean;
+  volume: string;
+  pressure: string;
+  low_pressure: boolean;
+};
+
+type AtmosData = {
+  pressure: string;
+  low_pressure: boolean;
+  temperature: string;
+  low_temperature: boolean;
+};
+
+const LifeSupportPanel = (props: unknown) => {
+  const { act, data } = useBackend<SpacepodControlPanelData>();
+  const { life_support } = data;
+
+  return (
+    <Stack vertical fill>
+      <Stack.Item>
+        <Table>
+          <ColorTextRow
+            caption='Баллон'
+            value_text={life_support.airtank === null ? 'Отсутствует' : life_support.airtank.name }
+            warn={life_support.airtank === null}
+          />
+          {life_support.airtank === null ? ('') : (
+            <>
+              <TextRow
+                caption='Объем'
+                value_text={life_support.airtank.volume}
+              />
+              <ColorTextRow
+                caption='Давление в баллоне'
+                value_text={life_support.airtank.pressure}
+                warn={life_support.airtank.low_pressure}
+              />
+              <ToggleButtonRow
+                caption='Подача кислорода с баллона'
+                enable={life_support.airtank.enable}
+                enable_text='Включено'
+                disable_text='Отключено'
+                clicked={() => act('switch_airtank')}
+              />
+            </>
+          )}
+          <ColorTextRow
+            caption='Давление в кабине'
+            value_text={life_support.atmos.pressure}
+            warn={life_support.atmos.low_pressure}
+          />
+          <ColorTextRow
+            caption='Температура в кабине'
+            value_text={life_support.atmos.temperature}
+            warn={life_support.atmos.low_temperature}
+          />
+        </Table>
+      </Stack.Item>
     </Stack>
   );
 };

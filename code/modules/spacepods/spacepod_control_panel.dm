@@ -2,6 +2,7 @@
 #define TAB_ENGINES "engines"
 #define TAB_FUEL "fuel"
 #define TAB_WEAPONS "weapons"
+#define TAB_LIFE_SUPPORT "life_support"
 
 #define NOT_SELECTED_RPM_PROVIDER "Не передавать"
 
@@ -32,6 +33,7 @@
 	data["engines"] = create_engines_panel_data()
 	data["fuel"] = create_fuel_panel_data()
 	data["weapons"] = create_weapons_panel_data()
+	data["life_support"] = create_life_support_data()
 	return data
 
 /datum/ui_module/spacepod_control_panels/proc/create_tabs_data()
@@ -50,6 +52,11 @@
 		"id" = TAB_FUEL,
 		"name" = "Топливо",
 		"icon" = "tint",
+	))
+	tabs += list(list(
+		"id" = TAB_LIFE_SUPPORT,
+		"name" = "Жизнеобеспечение",
+		"icon" = "thermometer-full",
 	))
 	if(pod.systems.weapon != null)
 		tabs += list(list(
@@ -205,6 +212,26 @@
 		data["capacity"] = 0
 	return data
 
+/datum/ui_module/spacepod_control_panels/proc/create_life_support_data()
+	var/list/panel = list()
+	if(pod.internal_tank != null)
+		var/list/airtank = list()
+		airtank["name"] = pod.internal_tank.declent_ru(NOMINATIVE)
+		airtank["enable"] = pod.use_internal_tank
+		airtank["volume"] = pod.internal_tank.volume
+		airtank["pressure"] = "[pod.internal_tank.return_pressure()] P"
+		airtank["low_pressure"] = pod.internal_tank.return_pressure() < 0.25 * pod.internal_tank.maximum_pressure
+		panel["airtank"] = airtank
+	else
+		panel["airtank"] = null
+	var/list/atmos = list()
+	atmos["pressure"] = pod.cabin_air.return_pressure()
+	atmos["low_pressure"] = pod.cabin_air.return_pressure() < 0.8 * ONE_ATMOSPHERE
+	var/temperature = pod.cabin_air.temperature()
+	atmos["temperature"] = temperature
+	atmos["low_temperature"] = temperature < T0C || temperature > T100C
+	panel["atmos"] = atmos
+	return panel
 
 // MARK: ui_act
 /datum/ui_module/spacepod_control_panels/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
@@ -231,6 +258,8 @@
 		if("reload_weapon")
 			var/id = params["id"]
 			reload_weapon(id)
+		if("switch_airtank")
+			switch_airtank()
 		else
 			return ..()
 
@@ -306,3 +335,6 @@
 	if(weapon_slot == null)
 		return
 	weapon_slot.reload(pod, usr)
+
+/datum/ui_module/spacepod_control_panels/proc/switch_airtank()
+	pod.toggle_internal_tank(usr)

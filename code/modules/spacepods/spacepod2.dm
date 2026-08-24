@@ -44,7 +44,7 @@
 	/// Air tank for cabin
 	var/obj/machinery/portable_atmospherics/canister/internal_tank
 	/// Enable internal tank flag
-	var/use_internal_tank = TRUE
+	var/use_internal_tank = FALSE
 
 	/// Frame integrity
 	var/health = 250
@@ -583,6 +583,12 @@
 	cargo_hold.hear_message(user, msg)
 	..()
 
+/obj/spacepod2/proc/toggle_internal_tank(mob/user)
+	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
+		return
+
+	use_internal_tank = !use_internal_tank
+	to_chat(user, span_notice("Подача воздуха: [use_internal_tank ? "из баллона" : "снаружи"]."))
 
 // MARK: Movement
 // it looks really good with default Process_Spacemove and newtonian movement actually, should make a button to turn it on/off
@@ -836,7 +842,7 @@
 /datum/action/innate/pod2/pod_toggle_internals/Activate()
 	if(!owner || !pod || pod.pilot != owner)
 		return
-	// pod.toggle_internal_tank(owner)
+	pod.toggle_internal_tank(owner)
 	button_icon_state = "mech_internals_[pod.use_internal_tank ? "on" : "off"]"
 	UpdateButtonIcon()
 
