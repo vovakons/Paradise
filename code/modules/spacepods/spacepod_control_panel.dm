@@ -285,7 +285,7 @@
 		destination_engine = null
 	target_engine.select_rpm_destination_engine(destination_engine)
 
-/datum/ui_module/proc/toggle_weapon_safety(id)
+/datum/ui_module/spacepod_control_panels/proc/toggle_weapon_safety(id)
 	var/datum/spacepod_module/weapon/weapon_module = pod.systems.weapon
 	var/datum/spacepod_weapon_slot/weapon_slot = null
 	if(weapon_module.primary.id == id)

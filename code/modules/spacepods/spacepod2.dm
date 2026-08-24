@@ -538,7 +538,7 @@
 	if(!systems.weapon.connection_power_net || !systems.weapon.enable)
 		return // weapon module offline
 
-	var/obj/item/gun/selected_gun = null
+	var/datum/spacepod_weapon_slot/selected_gun = null
 	if(LAZYACCESS(modifiers, RIGHT_CLICK))
 		selected_gun = systems.weapon.secondary
 	else
@@ -549,7 +549,7 @@
 	if(selected_gun.safety || selected_gun.charging)
 		return // safety or charging process
 
-	selected_gun.fast_fire(target, user)
+	selected_gun.weapon.fast_fire(target, user)
 
 
 // MARK: Environment
@@ -786,6 +786,8 @@
 	. = ..()
 	var/datum/spacepod_module/weapon/turret/gun_turret = new("gun_turret")
 	systems.add_module(gun_turret)
+	var/obj/item/gun/energy/disabler/disabler_gun = new(src)
+	gun_turret.install_gun(disabler_gun)
 	var/obj/item/gun/energy/laser/laser_gun = new(src)
 	gun_turret.install_gun(laser_gun)
 
