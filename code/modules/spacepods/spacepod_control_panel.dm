@@ -1,6 +1,7 @@
 #define TAB_ELECTRICITY "electricity"
 #define TAB_ENGINES "engines"
 #define TAB_FUEL "fuel"
+#define TAB_WEAPONS "weapons"
 
 #define NOT_SELECTED_RPM_PROVIDER "Не передавать"
 
@@ -30,6 +31,7 @@
 	data["electricity"] = create_electricity_panel_data()
 	data["engines"] = create_engines_panel_data()
 	data["fuel"] = create_fuel_panel_data()
+	data["weapons"] = create_weapons_panel_data()
 	return data
 
 /datum/ui_module/spacepod_control_panels/proc/create_tabs_data()
@@ -49,10 +51,16 @@
 		"name" = "Топливо",
 		"icon" = "tint",
 	))
+	if(pod.systems.weapon != null)
+		tabs += list(list(
+			"id" = TAB_WEAPONS,
+			"name" = "Вооружение",
+			"icon" = "crosshairs",
+		))
 	return tabs
 
 /datum/ui_module/spacepod_control_panels/proc/create_electricity_panel_data()
-	var panel = list()
+	var/list/panel = list()
 	if(pod.systems.battery)
 		panel["exists"] = TRUE
 		panel["battery_id"] = pod.systems.battery.id
@@ -74,7 +82,7 @@
 	return panel
 
 /datum/ui_module/spacepod_control_panels/proc/create_engines_panel_data()
-	var panel = list()
+	var/list/panel = list()
 	var/list/engines = list()
 	for(var/datum/spacepod_module/fuel_tank/engine/engine in pod.systems.engines)
 		var/list/engine_data= list()
@@ -126,7 +134,7 @@
 	return panel
 
 /datum/ui_module/spacepod_control_panels/proc/create_fuel_panel_data()
-	var panel = list()
+	var/list/panel = list()
 	var/fuel_tanks = list()
 	for(var/datum/spacepod_module/fuel_tank/fuel_tank in pod.systems.fuel_tanks)
 		var/tank_data = list()
@@ -152,6 +160,51 @@
 	panel["fuel_pumps"] = fuel_pumps
 	return panel
 
+/datum/ui_module/spacepod_control_panels/proc/create_weapons_panel_data()
+	var/list/panel = list()
+	if(pod.systems.weapon == null)
+		return panel
+	var/module = list()
+	module["id"] = pod.systems.weapon.id
+	module["name"] = pod.systems.weapon.name
+	module["enable"] = pod.systems.weapon.enable
+	module["power_link"] = pod.systems.weapon.connection_power_net
+	module["error_text"] = pod.systems.weapon.error_text
+	panel["module"] = module
+	var/guns = list()
+	if(pod.systems.weapon.primary.weapon)
+		guns += list(create_weapon_data(pod.systems.weapon.primary, TRUE))
+	if(pod.systems.weapon.secondary.weapon)
+		guns += list(create_weapon_data(pod.systems.weapon.secondary, FALSE))
+	panel["guns"] = guns
+	return panel
+
+/datum/ui_module/spacepod_control_panels/proc/create_weapon_data(datum/spacepod_weapon_slot/gun_slot, is_primary)
+	var/data = list()
+	data["id"] = gun_slot.id
+	data["name"] = gun_slot.weapon.declent_ru(NOMINATIVE)
+	data["primary"] = is_primary
+	data["safety"] = gun_slot.safety
+	data["charging"] = gun_slot.charging
+	if(isprojectilegun(gun_slot.weapon))
+		data["type"] = 1
+		var/obj/item/gun/projectile/projectile_gun = gun_slot.weapon
+		data["ammo"] = projectile_gun.get_ammo()
+		if(projectile_gun.magazine)
+			data["capacity"] = projectile_gun.magazine.max_ammo
+		else
+			data["capacity"] = 0
+	else if(isenergygun(gun_slot.weapon))
+		data["type"] = 2
+		var/obj/item/gun/energy/energy_gun = gun_slot.weapon
+		data["ammo"] = energy_gun.get_ammo_count()
+		data["capacity"] = energy_gun.get_max_ammo_count()
+	else
+		data["type"] = 3
+		data["ammo"] = 0
+		data["capacity"] = 0
+	return data
+
 
 // MARK: ui_act
 /datum/ui_module/spacepod_control_panels/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
@@ -172,6 +225,12 @@
 			var/id = params["id"]
 			var/dest_name = params["destination"]
 			select_engine_rpm_provider(id, dest_name)
+		if("toggle_weapon_safety")
+			var/id = params["id"]
+			toggle_weapon_safety(id)
+		if("reload_weapon")
+			var/id = params["id"]
+			reload_weapon(id)
 		else
 			return ..()
 
@@ -225,3 +284,25 @@
 	if(destination_engine_name == NOT_SELECTED_RPM_PROVIDER || destination_engine == null)
 		destination_engine = null
 	target_engine.select_rpm_destination_engine(destination_engine)
+
+/datum/ui_module/proc/toggle_weapon_safety(id)
+	var/datum/spacepod_module/weapon/weapon_module = pod.systems.weapon
+	var/datum/spacepod_weapon_slot/weapon_slot = null
+	if(weapon_module.primary.id == id)
+		weapon_slot = weapon_module.primary
+	if(weapon_module.secondary.id == id)
+		weapon_slot = weapon_module.secondary
+	if(weapon_slot == null)
+		return
+	weapon_slot.safety = !weapon_slot.safety
+
+/datum/ui_module/spacepod_control_panels/proc/reload_weapon(id)
+	var/datum/spacepod_module/weapon/weapon_module = pod.systems.weapon
+	var/datum/spacepod_weapon_slot/weapon_slot = null
+	if(weapon_module.primary.id == id)
+		weapon_slot = weapon_module.primary
+	if(weapon_module.secondary.id == id)
+		weapon_slot = weapon_module.secondary
+	if(weapon_slot == null)
+		return
+	weapon_slot.reload(pod, usr)

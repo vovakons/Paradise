@@ -13,6 +13,7 @@
 	var/datum/spacepod_module/fuel_tank/engine/apu/apu = null
 	var/list/datum/spacepod_module/fuel_tank/engine/engines = list()
 	var/datum/spacepod_module/gyroscope/gyroscope = null
+	var/datum/spacepod_module/weapon/weapon = null
 
 /datum/spacepod_systems/Destroy(force)
 	. = ..()
@@ -61,6 +62,41 @@
 		fuel_tanks += module
 	if(istype(module, /datum/spacepod_module/gyroscope))
 		gyroscope = module
+	if(istype(module, /datum/spacepod_module/weapon))
+		weapon = module
+
+/datum/spacepod_systems/proc/remove_module(datum/spacepod_module/module)
+	module.enable = FALSE
+	module.fire = FALSE
+	module.connection_power_net = FALSE
+	module.systems = null
+	modules -= module
+	if(istype(module, /datum/spacepod_module/battery))
+		battery = null
+	if(istype(module, /datum/spacepod_module/fuel_pump))
+		fuel_pumps -= module
+	if(istype(module, /datum/spacepod_module/fuel_tank/engine/apu))
+		remove_fuel_tank_from_pumps(module)
+		apu.select_rpm_destination_engine(null)
+		apu = null
+		engines -= module
+	else if(istype(module, /datum/spacepod_module/fuel_tank/engine))
+		remove_fuel_tank_from_pumps(module)
+		engines -= module
+	else if(istype(module, /datum/spacepod_module/fuel_tank))
+		remove_fuel_tank_from_pumps(module)
+		fuel_tanks -= module
+	if(istype(module, /datum/spacepod_module/gyroscope))
+		gyroscope = null
+	if(istype(module, /datum/spacepod_module/weapon))
+		weapon = null
+
+/datum/spacepod_systems/proc/remove_fuel_tank_from_pumps(datum/spacepod_module/fuel_tank/tank)
+	for(var/datum/spacepod_module/fuel_pump/pump in fuel_pumps)
+		if(pump.source_tank == tank)
+			pump.source_tank = null
+		if(pump.destination_tank == tank)
+			pump.destination_tank = null
 
 /datum/spacepod_systems/proc/process_work(seconds_per_tick, obj/spacepod2/pod)
 	for(var/datum/spacepod_module/module as anything in modules)
@@ -112,6 +148,8 @@
 	var/consume_power = 0
 	/// Error detail data
 	var/error_text = null
+	/// Linked module item
+	var/obj/item/spacepod_module/module_item = null
 
 /datum/spacepod_module/New(id)
 	. = ..()
@@ -242,6 +280,10 @@ Three engine spacepod:
 /datum/spacepod_module/fuel_pump/process_work(seconds_per_tick)
 	. = ..()
 	if(!.)
+		return
+	if(source_tank == null || destination_tank == null)
+		error_text = "Отсутствует подключение!"
+		turn_off()
 		return
 	if(!process_power(seconds_per_tick))
 		if(!connection_power_net)
@@ -405,7 +447,7 @@ Three engine spacepod:
 			error_text = "Нет подключения к электросети для работы гироскопического стабилизатора"
 		else
 			error_text = "Не хватает электричества для работы гироскопического стабилизатора"
-		enable = FALSE //auto off
+		turn_off()
 		return
 	if(current_rpm >= max_rpm)
 		return
@@ -413,3 +455,108 @@ Three engine spacepod:
 
 /datum/spacepod_module/gyroscope/proc/is_working()
 	return current_rpm > max_rpm / 2
+
+
+// MARK: Weapon
+/datum/spacepod_module/weapon
+	name = "Модуль вооружения"
+	hit_weight = POD_MODULE_HIT_CHANCE_LARGE
+	max_integrity = 250
+	consume_power = 5
+	var/only_course_fire = FALSE
+	var/datum/spacepod_weapon_slot/primary = new("primary", "Основное")
+	var/datum/spacepod_weapon_slot/secondary = new("secondary", "Дополнительное")
+
+/datum/spacepod_module/weapon/Destroy(force)
+	QDEL_NULL(primary)
+	QDEL_NULL(secondary)
+	. = ..()
+
+/datum/spacepod_module/weapon/proc/install_gun(obj/item/gun/installed_gun)
+	if(primary.weapon == null)
+		primary.weapon = installed_gun
+		return TRUE
+	if(secondary.weapon == null)
+		secondary.weapon = installed_gun
+		return TRUE
+	return FALSE
+
+/datum/spacepod_module/weapon/proc/remove_gun(obj/item/gun/selected_gun)
+	if(primary.weapon == selected_gun)
+		primary.weapon = null
+		primary.charging = FALSE
+		primary.safety = TRUE
+		return selected_gun
+	if(secondary.weapon == selected_gun)
+		secondary.weapon = null
+		secondary.charging = FALSE
+		secondary.safety = TRUE
+		return selected_gun
+	return null
+
+
+/datum/spacepod_weapon_slot
+	var/id
+	var/name
+	var/obj/item/gun/weapon = null
+	var/safety = TRUE
+	var/charging = FALSE
+	var/recharge_rate = 100
+
+/datum/spacepod_weapon_slot/New(id, name)
+	. = ..()
+	src.id = id
+	src.name = name
+
+/datum/spacepod_weapon_slot/proc/reload(obj/spacepod2/pod, mob/user)
+	if(weapon == null)
+		return
+	if(isenergygun(weapon))
+		charging = !charging
+		return
+
+	if(isprojectilegun(weapon))
+		var/obj/item/gun/projectile/gun = weapon
+		for(var/obj/item/ammo_box/magazine/magazine in pod.cargo_hold.contents)
+			if(!istype(magazine, gun.mag_type))
+				continue
+			var/obj/item/ammo_box/magazine/gun_magazine = gun.magazine
+			gun.attackby(magazine, user)
+			var/mag_changed = (gun_magazine && gun_magazine.loc != gun)
+			if(!mag_changed || !pod.cargo_hold.can_be_inserted(gun_magazine))
+				return
+			pod.cargo_hold.handle_item_insertion(gun_magazine)
+			gun_magazine.update_appearance()
+			return
+
+/datum/spacepod_weapon_slot/proc/process_charge(datum/spacepod_module/weapon/module)
+	if(weapon == null)
+		return
+	if(!charging)
+		return
+	if(!isenergygun(weapon))
+		return
+	var/obj/item/gun/energy/energy_gun = weapon
+	if(module.systems.battery.consume_power(recharge_rate))
+		energy_gun.cell.give(recharge_rate)
+
+/datum/spacepod_module/weapon/process_work(seconds_per_tick)
+	if(!enable)
+		return
+	if(!process_power(seconds_per_tick))
+		if(!connection_power_net)
+			error_text = "Нет подключения к электросети"
+		else
+			error_text = "Не хватает электричества для работы"
+		turn_off()
+		return
+	primary.process_charge(src)
+	secondary.process_charge(src)
+
+
+/datum/spacepod_module/weapon/course
+	name = "Модуль курсового вооружения"
+	only_course_fire = TRUE
+
+/datum/spacepod_module/weapon/turret
+	name = "Модуль турельного вооружения"

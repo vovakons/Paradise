@@ -15,8 +15,8 @@
 
 // MARK: Basic spacepod
 /obj/spacepod2
-	name = "space pod"
-	desc = "Космический челнок, предназначенный для путешествий в открытом космосе."
+	name = "not complete spacepod"
+	desc = "Незавершенный космический челнок."
 	icon = 'icons/goonstation/48x48/pods.dmi'
 	icon_state = "pod_civ"
 	density = TRUE
@@ -54,6 +54,10 @@
 	var/lights_power = 6
 	/// Pod door unlocked flag
 	var/unlocked = TRUE
+	/// Complete assembly flag
+	var/assemble_process = TRUE
+	/// Hant state flag
+	var/hatch_opened = FALSE
 
 	/// Movement delay (use smaller value for higher speed)
 	var/move_delay = POD_SPEED_NORMAL
@@ -93,9 +97,9 @@
 	GLOB.spacepods_list += src
 	cargo_hold = new/obj/item/storage/internal(src)
 	cargo_hold.w_class = 5 //so you can put bags in
-	cargo_hold.storage_slots = 0 //You need to install cargo modules to use it.
-	cargo_hold.max_w_class = 5 //fit almost anything
-	cargo_hold.max_combined_w_class = 0 //you can optimize your stash with larger items
+	cargo_hold.storage_slots = 4
+	cargo_hold.max_w_class = 5
+	cargo_hold.max_combined_w_class = 14
 	START_PROCESSING(SSobj, src)
 	ion_trail = new
 	ion_trail.set_up(src)
@@ -140,6 +144,152 @@
 	GLOB.spacepods_list -= src
 	STOP_PROCESSING(SSobj, src)
 	return ..()
+
+/obj/spacepod2/examine(mob/user)
+	. = ..()
+	if(assemble_process)
+		. += span_notice("Сборка пода не завершена.")
+		var/list/errors = systems.check_complete()
+		if(length(errors) > 0)
+			for(var/error_msg in errors)
+				. += error_msg
+			return
+		. += span_notice("Для завершения сборки используйте мультитул.")
+
+	if(hatch_opened)
+		. += span_notice("Люк техобслуживания открыт.")
+
+
+// MARK: Assemble procs
+/obj/spacepod2/multitool_act(mob/living/user, obj/item/tool)
+	if(!assemble_process)
+		return ..()
+	. = TRUE
+	var/list/assemble_errors = systems.check_complete()
+	if(length(assemble_errors) > 0)
+		to_chat(user, span_warning("Сборка не завершена, осмотрите челнок чтобы узнать какие детали отсутствуют для завершения сборки."))
+		return
+	var/new_name = tgui_input_text(user, "Название челнока", "Задать название челнока", max_length = MAX_NAME_LEN, encode = TRUE)
+	if(length(new_name) == 0 || !assemble_process)
+		return
+	var/new_desc = tgui_input_text(user, "Описание челнока", "Задать описание челнока", max_length = MAX_MESSAGE_LEN, encode = TRUE)
+	if(length(new_desc) == 0 || !assemble_process)
+		return
+	name = new_name
+	desc = new_desc
+	ru_names = alist(
+		NOMINATIVE = "космический челнок \"[new_name]\"",
+		GENITIVE = "космического челнока \"[new_name]\"",
+		DATIVE = "космическому челноку \"[new_name]\"",
+		ACCUSATIVE = "космический челнок \"[new_name]\"",
+		INSTRUMENTAL = "космическим челноком \"[new_name]\"",
+		PREPOSITIONAL = "космическом челноке \"[new_name]\"",
+	)
+	assemble_process = FALSE
+
+/obj/spacepod2/crowbar_act(mob/living/user, obj/item/tool)
+	if(assemble_process)
+		. = TRUE
+		var/datum/spacepod_module/extracted_module = tgui_input_list(user, "Выберите модуль для удаления:", "Удаление модуля", systems.modules)
+		if(extracted_module == null || extracted_module.systems == null)
+			return
+		systems.remove_module(extracted_module)
+		if(!extracted_module.module_item)
+			qdel(extracted_module)
+			to_chat(user, span_warning("Модуль [extracted_module.name] извлечен, но рассыпается в руках!"))
+			return
+		extracted_module.module_item.forceMove(extracted_module.module_item)
+		to_chat(user, span_notice("Модуль [extracted_module.name] извлечен."))
+
+	if(!unlocked)
+		return ..()
+
+	. = TRUE
+	if(hatch_opened)
+		hatch_opened = FALSE
+		to_chat(user, span_notice("Люк техобслуживания закрыт."))
+	else
+		hatch_opened = TRUE
+		to_chat(user, span_notice("Люк техобслуживания открыт."))
+
+
+/obj/spacepod2/attackby(obj/item/item, mob/living/user, list/modifiers)
+	if(user.a_intent == INTENT_HARM)
+		return ..()
+
+	if(assemble_process && istype(item, /obj/item/spacepod_module))
+		var/obj/item/spacepod_module/module_obj = item
+		add_fingerprint(user)
+		if(!user.drop_transfer_item_to_loc(item, src))
+			return ..()
+		var/datum/spacepod_module/installed_module = module_obj.install_to(user, src)
+		installed_module.module_item = module_obj
+		if(installed_module == null)
+			item.forceMove(src.loc)
+			return ..()
+		systems.add_module(installed_module)
+		to_chat(user, span_notice("Модуль [installed_module.name] установлен."))
+		update_icon(UPDATE_ICON_STATE)
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	if(hatch_opened && isgun(item))
+		if(systems.weapon == null)
+			return ..()
+		if(systems.weapon.install_gun(item))
+			if(!user.drop_transfer_item_to_loc(item, src))
+				return ..()
+			item.forceMove(src)
+			update_icon(UPDATE_ICON_STATE)
+			return ATTACK_CHAIN_BLOCKED_ALL
+
+	if(hatch_opened && ismultitool(item))
+		to_chat(user, span_notice("Системы космического челнока переведены в режим сборки."))
+		assemble_process = TRUE
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	return ..()
+
+#define ACTION_CARGO_ACCESS "Доступ к хранилищу"
+#define ACTION_REMOVE_PRIMARY_WEAPON "Извлечь основное вооружение"
+#define ACTION_REMOVE_SECONDARY_WEAPON "Извлечь дополнительное вооружение"
+
+/obj/spacepod2/attack_hand(mob/user)
+	if(user.a_intent == INTENT_GRAB && unlocked)
+		eject_any_occupant(user)
+
+	if(hatch_opened)
+		var/list/options = list()
+		options += ACTION_CARGO_ACCESS
+		if(systems.weapon != null)
+			if(systems.weapon.primary.weapon != null)
+				options += ACTION_REMOVE_PRIMARY_WEAPON
+			if(systems.weapon.secondary.weapon != null)
+				options += ACTION_REMOVE_SECONDARY_WEAPON
+
+		var/choice = length(options) == 1 ? options[1] : tgui_input_list(user, "Что вы хотите сделать?", "Доступ к челноку через люк", options)
+		if(!choice)
+			return
+		switch(choice)
+			if(ACTION_CARGO_ACCESS)
+				cargo_hold.open(user)
+			if(ACTION_REMOVE_PRIMARY_WEAPON)
+				if(systems.weapon != null)
+					remove_gun_from_systems(user, systems.weapon.primary.weapon)
+			if(ACTION_REMOVE_SECONDARY_WEAPON)
+				if(systems.weapon != null)
+					remove_gun_from_systems(user, systems.weapon.secondary.weapon)
+
+/obj/spacepod2/proc/remove_gun_from_systems(mob/user, obj/item/gun/selected_gun)
+	if(selected_gun == null)
+		to_chat(user, span_notice("Вооружение не установлено."))
+		return
+	var/obj/item/gun/removed_gun = systems.weapon.remove_gun(selected_gun)
+	if(removed_gun == null)
+		to_chat(user, span_notice("Вооружение не установлено."))
+		return
+	removed_gun.forceMove(src.loc)
+	to_chat(user, span_notice("Вы извлекаете [removed_gun.declent_ru(NOMINATIVE)] из космического челнока."))
+
 
 // MARK: Process (update)
 /obj/spacepod2/process(seconds_per_tick)
@@ -381,9 +531,25 @@
 
 
 // MARK: Attack procs
-/obj/spacepod2/attack_hand(mob/user)
-	if(user.a_intent == INTENT_GRAB && unlocked)
-		eject_any_occupant(user)
+/obj/spacepod2/proc/click_action(atom/target, mob/user, list/modifiers)
+	if(systems.weapon == null)
+		return // weapons not installed
+
+	if(!systems.weapon.connection_power_net || !systems.weapon.enable)
+		return // weapon module offline
+
+	var/obj/item/gun/selected_gun = null
+	if(LAZYACCESS(modifiers, RIGHT_CLICK))
+		selected_gun = systems.weapon.secondary
+	else
+		selected_gun = systems.weapon.primary
+
+	if(selected_gun == null)
+		return // selected gun not exists
+	if(selected_gun.safety || selected_gun.charging)
+		return // safety or charging process
+
+	selected_gun.fast_fire(target, user)
 
 
 // MARK: Environment
@@ -471,6 +637,7 @@
 /obj/spacepod2/one_engine
 	name = "one engine spacepod"
 	desc = "Однодвигательный космический челнок."
+	assemble_process = FALSE
 
 /obj/spacepod2/one_engine/create_internal_system()
 	. = ..()
@@ -509,6 +676,7 @@
 	name = "two engine spacepod"
 	desc = "Двухдвигательный космический челнок."
 	move_delay = POD_SPEED_HIGH
+	assemble_process = FALSE
 
 /obj/spacepod2/two_engine/create_internal_system()
 	. = ..()
@@ -581,73 +749,9 @@
 	systems.add_module(gyro)
 
 
-// MARK: Custom spacepod
-/obj/spacepod2/custom
-	name = "not complete spacepod"
-	desc = "Незавершенный космический челнок."
-	move_delay = POD_SPEED_NORMAL
-	var/assemble_process = TRUE
-
-/obj/spacepod2/custom/examine(mob/user)
-	. = ..()
-	. += span_notice("Сборка пода не завершена.")
-	var/list/errors = systems.check_complete()
-	if(length(errors) > 0)
-		for(var/error_msg in errors)
-			. += error_msg
-	else
-		. += span_notice("Для завершения сборки используйте мультитул.")
-
-/obj/spacepod2/custom/multitool_act(mob/living/user, obj/item/tool)
-	if(!assemble_process)
-		return ..()
-	. = TRUE
-	var/list/assemble_errors = systems.check_complete()
-	if(length(assemble_errors) > 0)
-		to_chat(user, span_warning("Сборка не завершена, осмотрите челнок чтобы узнать какие детали отсутствуют для завершения сборки."))
-		return
-	var/new_name = tgui_input_text(user, "Название челнока", "Переименовать челнок", max_length = MAX_NAME_LEN, encode = TRUE)
-	if(!assemble_process)
-		return
-	if(length(new_name) == 0)
-		return
-	name = new_name
-	ru_names = alist(
-		NOMINATIVE = "космический челнок \"[new_name]\"",
-		GENITIVE = "космического челнока \"[new_name]\"",
-		DATIVE = "космическому челноку \"[new_name]\"",
-		ACCUSATIVE = "космический челнок \"[new_name]\"",
-		INSTRUMENTAL = "космическим челноком \"[new_name]\"",
-		PREPOSITIONAL = "космическом челноке \"[new_name]\"",
-	)
-	assemble_process = FALSE
-
-/obj/spacepod2/custom/attackby(obj/item/item, mob/living/user, list/modifiers)
-	if(!assemble_process)
-		return ..()
-	if(user.a_intent == INTENT_HARM)
-		return ..()
-	if(istype(item, /obj/item/spacepod_module))
-		var/obj/item/spacepod_module/module_obj = item
-		add_fingerprint(user)
-		if(!user.drop_transfer_item_to_loc(item, src))
-			return ..()
-		var/datum/spacepod_module/installed_module = module_obj.install_to(user, src)
-		if(installed_module == null)
-			item.forceMove(src.loc)
-			return ..()
-		qdel(item)
-		systems.add_module(installed_module)
-		to_chat(user, span_notice("Модуль [installed_module.name] установлен."))
-		update_icon(UPDATE_ICON_STATE)
-		return ATTACK_CHAIN_BLOCKED_ALL
-
-	return ..()
-
-
 // MARK: Civilian spacepod
 /obj/spacepod2/one_engine/civilian
-	name = "raptor spacepod"
+	name = "wanderer spacepod"
 	desc = "Стильный гражданский космический челнок \"Странник\""
 
 /obj/spacepod2/one_engine/civilian/get_ru_names()
@@ -677,6 +781,13 @@
 		INSTRUMENTAL = "космическим челноком \"Раптор\"",
 		PREPOSITIONAL = "космическом челноке \"Раптор\"",
 	)
+
+/obj/spacepod2/two_engine/raptor/create_internal_system()
+	. = ..()
+	var/datum/spacepod_module/weapon/turret/gun_turret = new("gun_turret")
+	systems.add_module(gun_turret)
+	var/obj/item/gun/energy/laser/laser_gun = new(src)
+	gun_turret.install_gun(laser_gun)
 
 
 // MARK: Actions

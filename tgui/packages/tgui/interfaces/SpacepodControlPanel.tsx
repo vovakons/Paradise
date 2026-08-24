@@ -9,6 +9,7 @@ type SpacepodControlPanelData = {
   electricity: ElectricityPanelData;
   engines: EnginesPanelData;
   fuel: FuelSystemPanelData;
+  weapons: WeaponsPanelData;
 };
 
 type SpacepodControlPanelTabsData = {
@@ -25,6 +26,8 @@ const decideTab = (tab_id: string) => {
       return <EnginesPanel />;
     case 'fuel':
       return <FuelSystemPanel />;
+    case 'weapons':
+      return <WeaponsPanel />;
     default:
       return (
         <Section>
@@ -390,6 +393,121 @@ const FuelSystemPanel = (props: unknown) => {
 };
 
 
+// MARK: Weapons panel
+type WeaponsPanelData = {
+  module: WeaponModuleData;
+  guns: GunData[];
+};
+
+type WeaponModuleData = {
+  id: string;
+  name: string;
+  enable: boolean;
+  power_link: boolean;
+  error_text: string;
+};
+
+type GunData = {
+  id: string;
+  name: string;
+  primary: boolean;
+  safety: boolean;
+  type: number;
+  ammo: number;
+  capacity: number;
+  charging: boolean;
+};
+
+const get_gun_type_name = (type: number) => {
+  switch(type) {
+    case 1:
+      return "Баллистический"
+    case 2:
+      return "Энергетический"
+    case 0:
+      return "Неизвестно"
+  }
+};
+
+const WeaponsPanel = (props: unknown) => {
+  const { act, data } = useBackend<SpacepodControlPanelData>();
+  const { weapons } = data;
+
+  return (
+    <Stack vertical fill>
+      {/* Module section */}
+      {weapons.module === null ? ('') : (
+        <Stack.Item>
+          <Section title={weapons.module.name} ml='0' mr='0'>
+            <Table>
+              <TextStatusRow
+                caption='Соединение к электросети'
+                enable={weapons.module.power_link}
+                enable_text='Подключено'
+                disable_text='Отключено'
+              />
+              <ToggleButtonRow
+                caption='Состояние'
+                enable={weapons.module.enable}
+                enable_text='Запущено'
+                disable_text='Отключено'
+                clicked={() => act('switch_enable', { id: weapons.module.id })}
+              />
+              <ErrorRow error_text={weapons.module.error_text} />
+            </Table>
+          </Section>
+        </Stack.Item>
+      )}
+      {/* Attached guns section */}
+      {weapons.guns.map(gun => (
+        <Stack.Item key={gun.id}>
+          <Section title={gun.name} ml='0' mr='0'>
+            <Table>
+              <TextRow
+                caption='Слот'
+                value_text={gun.primary ? 'Основное' : 'Вторичное'}
+              />
+              <ToggleButtonRow
+                caption='Предохранитель'
+                enable={gun.safety}
+                enable_text='Включено'
+                disable_text='Отключено'
+                clicked={() => act('toggle_weapon_safety', { id: gun.id })}
+              />
+              <TextRow
+                caption='Тип'
+                value_text={get_gun_type_name(gun.type)}
+              />
+              <ColorTextRow
+                caption='Боезапас'
+                value_text={gun.ammo + '/' + gun.capacity}
+                warn={gun.ammo === 0}
+              />
+              {gun.type === 1 ? (
+                <ButtonRow
+                  caption='Зарядка'
+                  text='Перезарядить'
+                  clicked={() => act('reload_weapon', { id: gun.id })}
+                />
+              ) : ('')}
+              {gun.type === 2 ? (
+                <ToggleButtonRow
+                  caption='Зарядка'
+                  enable={gun.charging}
+                  enable_text='Включено'
+                  disable_text='Отключено'
+                  clicked={() => act('reload_weapon', { id: gun.id })}
+                />
+              ) : ('')}
+            </Table>
+          </Section>
+        </Stack.Item>
+      ))}
+    </Stack>
+  );
+};
+
+
 // MARK: Elements
 type ToggleButtonRowData = {
   caption: string;
@@ -412,6 +530,30 @@ const ToggleButtonRow = (props: ToggleButtonRowData) => {
               onClick={() => clicked()}
           >
               { enable ? enable_text : disable_text }
+          </Button>
+        </Box>
+      </Table.Cell>
+    </Table.Row>
+  )
+}
+
+type ButtonRowData = {
+  caption: string;
+  text: string;
+  clicked: any;
+};
+
+const ButtonRow = (props: ButtonRowData) => {
+  const { caption, text, clicked } = props;
+  return (
+    <Table.Row>
+      <Table.Cell bold width="50%">{caption}:</Table.Cell>
+      <Table.Cell>
+        <Box pb={1}>
+          <Button
+              onClick={() => clicked()}
+          >
+              {text}
           </Button>
         </Box>
       </Table.Cell>

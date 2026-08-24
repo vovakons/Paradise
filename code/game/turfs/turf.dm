@@ -334,7 +334,7 @@
 		tompost_bump = src
 	if(tompost_bump)
 		mover.Bump(tompost_bump)
-		return (mover.movement_type & PHASING)
+		return mover.CanPassAfterBump(tompost_bump)
 	return TRUE
 
 /turf/proc/levelupdate()

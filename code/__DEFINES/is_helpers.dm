@@ -115,6 +115,8 @@ GLOBAL_VAR_INIT(refid_filter, TYPEID(filter(type="angular_blur")))
 
 #define ismecha(A) (istype(A, /obj/mecha))
 
+#define isspacepod2(A) (istype(A, /obj/spacepod2))
+
 #define isvampirecoffin(A) (istype(A, /obj/structure/closet/coffin/vampire))
 
 #define isspacepod(A) (istype(A, /obj/spacepod))
@@ -128,6 +130,8 @@ GLOBAL_VAR_INIT(refid_filter, TYPEID(filter(type="angular_blur")))
 #define isgun(A) (istype(A, /obj/item/gun))
 
 #define isenergygun(A) (istype(A, /obj/item/gun/energy))
+
+#define isprojectilegun(A) (istype(A, /obj/item/gun/projectile))
 
 #define isspeedloader(A) (istype(A, /obj/item/ammo_box/speedloader))
 

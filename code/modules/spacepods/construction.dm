@@ -248,7 +248,7 @@
 
 
 /datum/construction/reversible2/custom_pod
-	result = /obj/spacepod2/custom
+	result = /obj/spacepod2
 	base_icon="pod"
 	steps = list(
 		// 1. Initial state
