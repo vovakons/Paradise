@@ -198,24 +198,6 @@
 
 
 // MARK: Fuel tank
-/*
-Engine consume 2 unit fuel per tick
-One engine spacepod:
-	Basic fuel tank can contain 1000 unit - 8.33 minutes of flight
-	Three basic fuel tanks contain 3000 units - 25 minutes of flight
-	Large fuel tank contain 2000 unit - 16.66 minutes of flight
-	Three basic fuel tanks contain 6000 units - 50 minutes of flight
-Two engine spacepod:
-	Basic fuel tank can contain 1000 unit - 4.16 minutes of flight
-	Three basic fuel tanks contain 3000 units - 12.5 minutes of flight
-	Large fuel tank contain 2000 unit - 8.33 minutes of flight
-	Three basic fuel tanks contain 6000 units - 25 minutes of flight
-Three engine spacepod:
-	Basic fuel tank can contain 1000 unit - 2.77 minutes of flight
-	Three basic fuel tanks contain 3000 units - 8.33 minutes of flight
-	Large fuel tank contain 2000 unit - 5.55 minutes of flight
-	Three basic fuel tanks contain 6000 units - 16.66 minutes of flight
-*/
 /datum/spacepod_module/fuel_tank
 	name = "Топливный бак"
 	max_integrity = 200

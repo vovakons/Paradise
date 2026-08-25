@@ -233,9 +233,8 @@
 	if(!hatch_opened)
 		return ..()
 
-	if(isgun(item))
-		if(systems.weapon == null)
-			return ..()
+	// attach gun
+	if(isgun(item) && systems.weapon != null)
 		if(systems.weapon.install_gun(item))
 			if(!user.drop_transfer_item_to_loc(item, src))
 				return ..()
@@ -243,11 +242,13 @@
 			update_icon(UPDATE_ICON_STATE)
 			return ATTACK_CHAIN_BLOCKED_ALL
 
+	// sitch to assemble mode
 	if(ismultitool(item))
 		to_chat(user, span_notice("Системы космического челнока переведены в режим сборки."))
 		assemble_process = TRUE
 		return ATTACK_CHAIN_BLOCKED_ALL
 
+	// refill fuel
 	if(istype(item, /obj/item/tank/internals))
 		var/obj/item/tank/internals/fuel_tank = item
 		if(fuel_tank.air_contents.toxins() <= 0)
@@ -259,6 +260,16 @@
 		fuel_tank.air_contents.set_toxins(last_fuel / 10)
 		to_chat(user, span_notice("Заправлено [availableFuel - last_fuel] топлива из [availableFuel]."))
 		return ATTACK_CHAIN_BLOCKED_ALL
+
+	// charge battery
+	if(iscell(item) && systems.battery != null)
+		var/charge_rate = 0.1
+		var/obj/item/stock_parts/cell/cell_item = item
+		var/free_charge = systems.battery.power_capacity - systems.battery.power
+		var/used_charge = min(cell_item.charge * charge_rate, free_charge)
+		systems.battery.power += used_charge
+		cell_item.charge -= used_charge / charge_rate
+		to_chat(user, span_notice("Аккумуляторная батарея заряжена на [used_charge] Ватт."))
 
 	return ..()
 
@@ -706,7 +717,7 @@
 	. = ..()
 	systems.add_module(new /datum/spacepod_module/battery/full("battery"))
 	// fuel tanks
-	var/datum/spacepod_module/fuel_tank/fuel_tank_central = new /datum/spacepod_module/fuel_tank/full("fueltank_left")
+	var/datum/spacepod_module/fuel_tank/large/fuel_tank_central = new /datum/spacepod_module/fuel_tank/large/full("fueltank_left")
 	fuel_tank_central.name = "Центральный топливный бак"
 	systems.add_module(fuel_tank_central)
 	var/datum/spacepod_module/fuel_tank/fuel_tank_right = new /datum/spacepod_module/fuel_tank/full("fueltank_right")
