@@ -69,7 +69,6 @@
 	// Actions
 	var/datum/action/innate/pod2/pod_eject/eject_action = new
 	var/datum/action/innate/pod2/pod_eject/passanger_eject = new
-	var/datum/action/innate/pod2/pod_toggle_internals/internals_action = new
 	var/datum/action/innate/pod2/pod_toggle_lights/lights_action = new
 	var/datum/action/innate/pod2/pod_panel/panel_action = new
 
@@ -131,7 +130,6 @@
 	QDEL_NULL(ion_trail)
 	QDEL_NULL(eject_action)
 	QDEL_NULL(passanger_eject)
-	QDEL_NULL(internals_action)
 	QDEL_NULL(lights_action)
 	QDEL_NULL(panel_action)
 	QDEL_NULL(control_panels)
@@ -278,6 +276,10 @@
 			if(ACTION_REMOVE_SECONDARY_WEAPON)
 				if(systems.weapon != null)
 					remove_gun_from_systems(user, systems.weapon.secondary.weapon)
+
+#undef ACTION_CARGO_ACCESS
+#undef ACTION_REMOVE_PRIMARY_WEAPON
+#undef ACTION_REMOVE_SECONDARY_WEAPON
 
 /obj/spacepod2/proc/remove_gun_from_systems(mob/user, obj/item/gun/selected_gun)
 	if(selected_gun == null)
@@ -590,6 +592,7 @@
 	use_internal_tank = !use_internal_tank
 	to_chat(user, span_notice("Подача воздуха: [use_internal_tank ? "из баллона" : "снаружи"]."))
 
+
 // MARK: Movement
 // it looks really good with default Process_Spacemove and newtonian movement actually, should make a button to turn it on/off
 /obj/spacepod2/Process_Spacemove(movement_dir = NONE, continuous_move = FALSE)
@@ -801,14 +804,12 @@
 // MARK: Actions
 /obj/spacepod2/proc/GrantPilotActions(mob/living/user)
 	eject_action.Grant(user, src)
-	internals_action.Grant(user, src)
 	lights_action.Grant(user, src)
 	//fire_action.Grant(user, src)
 	panel_action.Grant(user, src)
 
 /obj/spacepod2/proc/RemovePilotActions(mob/living/user)
 	eject_action.Remove(user)
-	internals_action.Remove(user)
 	lights_action.Remove(user)
 	//fire_action.Remove(user)
 	panel_action.Remove(user)
@@ -833,18 +834,6 @@
 
 /datum/action/innate/pod2/pod_eject/Activate()
 	pod.exit_pod(owner)
-
-/datum/action/innate/pod2/pod_toggle_internals
-	name = "Переключить баллон"
-	desc = "Переключает подачу воздуха из внутреннего баллона, защищая от вакуума и разреженной атмосферы."
-	button_icon_state = "mech_internals_off"
-
-/datum/action/innate/pod2/pod_toggle_internals/Activate()
-	if(!owner || !pod || pod.pilot != owner)
-		return
-	pod.toggle_internal_tank(owner)
-	button_icon_state = "mech_internals_[pod.use_internal_tank ? "on" : "off"]"
-	UpdateButtonIcon()
 
 /datum/action/innate/pod2/pod_toggle_lights
 	name = "Переключить прожектор"

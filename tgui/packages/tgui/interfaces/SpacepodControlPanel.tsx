@@ -554,7 +554,7 @@ const LifeSupportPanel = (props: unknown) => {
               />
               <ColorTextRow
                 caption='Давление в баллоне'
-                value_text={life_support.airtank.pressure}
+                value_text={life_support.airtank.pressure + ' Pa'}
                 warn={life_support.airtank.low_pressure}
               />
               <ToggleButtonRow
@@ -568,12 +568,12 @@ const LifeSupportPanel = (props: unknown) => {
           )}
           <ColorTextRow
             caption='Давление в кабине'
-            value_text={life_support.atmos.pressure}
+            value_text={life_support.atmos.pressure + " Pa"}
             warn={life_support.atmos.low_pressure}
           />
           <ColorTextRow
             caption='Температура в кабине'
-            value_text={life_support.atmos.temperature}
+            value_text={life_support.atmos.temperature + ' K'}
             warn={life_support.atmos.low_temperature}
           />
         </Table>

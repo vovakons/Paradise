@@ -219,17 +219,26 @@
 		airtank["name"] = pod.internal_tank.declent_ru(NOMINATIVE)
 		airtank["enable"] = pod.use_internal_tank
 		airtank["volume"] = pod.internal_tank.volume
-		airtank["pressure"] = "[pod.internal_tank.return_pressure()] P"
+		airtank["pressure"] = pod.internal_tank.return_pressure()
 		airtank["low_pressure"] = pod.internal_tank.return_pressure() < 0.25 * pod.internal_tank.maximum_pressure
 		panel["airtank"] = airtank
 	else
 		panel["airtank"] = null
 	var/list/atmos = list()
-	atmos["pressure"] = pod.cabin_air.return_pressure()
-	atmos["low_pressure"] = pod.cabin_air.return_pressure() < 0.8 * ONE_ATMOSPHERE
-	var/temperature = pod.cabin_air.temperature()
-	atmos["temperature"] = temperature
-	atmos["low_temperature"] = temperature < T0C || temperature > T100C
+	if(pod.use_internal_tank)
+		atmos["pressure"] = pod.cabin_air.return_pressure()
+		atmos["low_pressure"] = pod.cabin_air.return_pressure() < 0.8 * ONE_ATMOSPHERE
+		var/temperature = pod.cabin_air.temperature()
+		atmos["temperature"] = temperature
+		atmos["low_temperature"] = temperature < T0C || temperature > T100C
+	else
+		var/turf/pod_location = get_turf(pod)
+		var/datum/gas_mixture/external_air = pod_location.get_readonly_air()
+		atmos["pressure"] = external_air.return_pressure()
+		atmos["low_pressure"] = external_air.return_pressure() < 0.8 * ONE_ATMOSPHERE
+		var/temperature = external_air.temperature()
+		atmos["temperature"] = temperature
+		atmos["low_temperature"] = temperature < T0C || temperature > T100C
 	panel["atmos"] = atmos
 	return panel
 
