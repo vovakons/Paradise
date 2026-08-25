@@ -14,6 +14,7 @@
 	var/list/datum/spacepod_module/fuel_tank/engine/engines = list()
 	var/datum/spacepod_module/gyroscope/gyroscope = null
 	var/datum/spacepod_module/weapon/weapon = null
+	var/list/datum/spacepod_module/armor/armors = list()
 
 /datum/spacepod_systems/Destroy(force)
 	. = ..()
@@ -64,6 +65,8 @@
 		gyroscope = module
 	if(istype(module, /datum/spacepod_module/weapon))
 		weapon = module
+	if(istype(module, /datum/spacepod_module/armor))
+		armors += module
 
 /datum/spacepod_systems/proc/remove_module(datum/spacepod_module/module)
 	module.enable = FALSE
@@ -90,6 +93,8 @@
 		gyroscope = null
 	if(istype(module, /datum/spacepod_module/weapon))
 		weapon = null
+	if(istype(module, /datum/spacepod_module/armor))
+		armors -= module
 
 /datum/spacepod_systems/proc/remove_fuel_tank_from_pumps(datum/spacepod_module/fuel_tank/tank)
 	for(var/datum/spacepod_module/fuel_pump/pump in fuel_pumps)
@@ -553,3 +558,15 @@
 
 /datum/spacepod_module/weapon/turret
 	name = "Модуль турельного вооружения"
+
+// MARK: Armor
+/datum/spacepod_module/armor
+	hit_weight = POD_MODULE_HIT_CHANCE_LARGE
+	max_integrity = 200
+
+/datum/spacepod_module/armor/light
+	name = "Модуль лёгкой брони"
+
+/datum/spacepod_module/armor/heavy
+	name = "Модуль тяжёлой брони"
+	max_integrity = 350

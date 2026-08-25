@@ -704,6 +704,13 @@
 	// Gyroscope
 	var/datum/spacepod_module/gyroscope/gyro = new("gyroscope")
 	systems.add_module(gyro)
+	// Armor
+	var/datum/spacepod_module/armor/fore_armor = new /datum/spacepod_module/armor/light("fore_armor")
+	fore_armor.name = "Носовая броня"
+	systems.add_module(fore_armor)
+	var/datum/spacepod_module/armor/aft_armor = new /datum/spacepod_module/armor/light("aft_armor")
+	aft_armor.name = "Кормовая броня"
+	systems.add_module(aft_armor)
 
 
 // MARK: Two engine
@@ -782,6 +789,19 @@
 	// Gyroscope
 	var/datum/spacepod_module/gyroscope/gyro = new("gyroscope")
 	systems.add_module(gyro)
+	// Armor
+	var/datum/spacepod_module/armor/fore_armor = new /datum/spacepod_module/armor/heavy("fore_armor")
+	fore_armor.name = "Носовая броня"
+	systems.add_module(fore_armor)
+	var/datum/spacepod_module/armor/aft_armor = new /datum/spacepod_module/armor/heavy("aft_armor")
+	aft_armor.name = "Кормовая броня"
+	systems.add_module(aft_armor)
+	var/datum/spacepod_module/armor/port_side_armor = new /datum/spacepod_module/armor/heavy("port_side_armor")
+	port_side_armor.name = "Броня левого борта"
+	systems.add_module(port_side_armor)
+	var/datum/spacepod_module/armor/starboard_side_armor = new /datum/spacepod_module/armor/heavy("starboard_side_armor")
+	starboard_side_armor.name = "Броня правого борта"
+	systems.add_module(starboard_side_armor)
 
 
 // MARK: Civilian spacepod
