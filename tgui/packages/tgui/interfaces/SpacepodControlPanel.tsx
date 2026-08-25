@@ -47,7 +47,7 @@ export const SpacepodControlPanel = (props: unknown) => {
   const { selected_tab, tabs } = data;
 
   return (
-    <Window width={450} height={600} title="Панель управления космическим челноком">
+    <Window width={500} height={600} title="Панель управления космическим челноком">
       <ComplexModal />
       <Window.Content scrollable>
         <Stack fill vertical>
