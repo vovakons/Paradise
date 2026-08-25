@@ -230,7 +230,10 @@
 		update_icon(UPDATE_ICON_STATE)
 		return ATTACK_CHAIN_BLOCKED_ALL
 
-	if(hatch_opened && isgun(item))
+	if(!hatch_opened)
+		return ..()
+
+	if(isgun(item))
 		if(systems.weapon == null)
 			return ..()
 		if(systems.weapon.install_gun(item))
@@ -240,9 +243,21 @@
 			update_icon(UPDATE_ICON_STATE)
 			return ATTACK_CHAIN_BLOCKED_ALL
 
-	if(hatch_opened && ismultitool(item))
+	if(ismultitool(item))
 		to_chat(user, span_notice("Системы космического челнока переведены в режим сборки."))
 		assemble_process = TRUE
+		return ATTACK_CHAIN_BLOCKED_ALL
+
+	if(istype(item, /obj/item/tank/internals))
+		var/obj/item/tank/internals/fuel_tank = item
+		if(fuel_tank.air_contents.toxins() <= 0)
+			to_chat(user, span_notice("Нет нужного топлива!"))
+			return ATTACK_CHAIN_BLOCKED_ALL
+
+		var availableFuel = fuel_tank.air_contents.toxins() * 10
+		var/last_fuel = systems.fill_fuel_tanks(availableFuel)
+		fuel_tank.air_contents.set_toxins(last_fuel / 10)
+		to_chat(user, span_notice("Заправлено [availableFuel - last_fuel] топлива из [availableFuel]."))
 		return ATTACK_CHAIN_BLOCKED_ALL
 
 	return ..()

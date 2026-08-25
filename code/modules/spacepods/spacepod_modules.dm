@@ -123,6 +123,17 @@
 		return FALSE
 	return gyroscope.is_working()
 
+/datum/spacepod_systems/proc/fill_fuel_tanks(fuel_amount)
+	for(var/datum/spacepod_module/fuel_tank/tank in fuel_tanks)
+		var/fill_fuel_amount = tank.fuel_capacity - tank.fuel_amount
+		if(fill_fuel_amount <= 0)
+			continue
+		fill_fuel_amount = min(fill_fuel_amount, fuel_amount)
+		tank.fuel_amount += fill_fuel_amount
+		fuel_amount -= fill_fuel_amount
+		if(fuel_amount <= 0)
+			return 0
+	return fuel_amount
 
 // MARK: Basic module
 /datum/spacepod_module
