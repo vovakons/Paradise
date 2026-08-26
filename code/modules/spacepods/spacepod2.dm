@@ -47,7 +47,7 @@
 	var/use_internal_tank = FALSE
 
 	/// Frame integrity
-	var/health = 250
+	max_integrity = 300
 	/// Enable external lights
 	var/lights = FALSE
 	/// External lights power
@@ -225,7 +225,7 @@
 		if(installed_module == null)
 			item.forceMove(src.loc)
 			return ..()
-		systems.add_module(installed_module)
+		systems.add_module(src, installed_module)
 		to_chat(user, span_notice("Модуль [installed_module.name] установлен."))
 		update_icon(UPDATE_ICON_STATE)
 		return ATTACK_CHAIN_BLOCKED_ALL
@@ -580,6 +580,16 @@
 	selected_gun.weapon.fast_fire(target, user)
 
 
+// MARK: Damage
+/obj/spacepod2/take_damage(damage_amount, damage_type, damage_flag, sound_effect, attack_dir, armour_penetration)
+	if(damage_type != BRUTE && damage_type != BURN)
+		// ignore other damage types, only brute or burn
+		return ..(0, damage_type, damage_flag, sound_effect, attack_dir, armour_penetration)
+
+	// damage modules, and return remaining damage to frame
+	damage_amount = systems.damage_modules(damage_amount)
+	return ..(damage_amount, damage_type, damage_flag, sound_effect, attack_dir, armour_penetration)
+
 // MARK: Environment
 /obj/spacepod2/return_obj_air()
 	RETURN_TYPE(/datum/gas_mixture)
@@ -676,11 +686,11 @@
 
 /obj/spacepod2/one_engine/create_internal_system()
 	. = ..()
-	systems.add_module(new /datum/spacepod_module/battery/full("battery"))
+	systems.add_module(src, new /datum/spacepod_module/battery/full("battery"))
 	// fueltank
 	var/datum/spacepod_module/fuel_tank/large/central_fuel_tank = new /datum/spacepod_module/fuel_tank/large/full("central_fueltank")
 	central_fuel_tank.name = "Центральный топливный бак"
-	systems.add_module(central_fuel_tank)
+	systems.add_module(src, central_fuel_tank)
 	// engines
 	var/datum/spacepod_module/fuel_tank/engine/apu/apu = new("apu")
 	var/datum/spacepod_module/fuel_tank/engine/central_engine = new("engine_central")
@@ -691,26 +701,26 @@
 	pump_apu.name = "Топливный насос из центрального бака в ВСУ"
 	pump_apu.source_tank = central_fuel_tank
 	pump_apu.destination_tank = apu
-	systems.add_module(pump_apu)
+	systems.add_module(src, pump_apu)
 	// central fueltank - central engine
 	var/datum/spacepod_module/fuel_pump/pump_central_engine = new("pump_central_fueltank_to_engine_central")
 	pump_central_engine.name = "Топливный насос из центрального бака в центральный двигатель"
 	pump_central_engine.source_tank = central_fuel_tank
 	pump_central_engine.destination_tank = central_engine
-	systems.add_module(pump_central_engine)
+	systems.add_module(src, pump_central_engine)
 	// Add engines after fuel pumps
-	systems.add_module(apu)
-	systems.add_module(central_engine)
+	systems.add_module(src, apu)
+	systems.add_module(src, central_engine)
 	// Gyroscope
 	var/datum/spacepod_module/gyroscope/gyro = new("gyroscope")
-	systems.add_module(gyro)
+	systems.add_module(src, gyro)
 	// Armor
 	var/datum/spacepod_module/armor/fore_armor = new /datum/spacepod_module/armor/light("fore_armor")
 	fore_armor.name = "Носовая броня"
-	systems.add_module(fore_armor)
+	systems.add_module(src, fore_armor)
 	var/datum/spacepod_module/armor/aft_armor = new /datum/spacepod_module/armor/light("aft_armor")
 	aft_armor.name = "Кормовая броня"
-	systems.add_module(aft_armor)
+	systems.add_module(src, aft_armor)
 
 
 // MARK: Two engine
@@ -722,17 +732,17 @@
 
 /obj/spacepod2/two_engine/create_internal_system()
 	. = ..()
-	systems.add_module(new /datum/spacepod_module/battery/full("battery"))
+	systems.add_module(src, new /datum/spacepod_module/battery/full("battery"))
 	// fuel tanks
 	var/datum/spacepod_module/fuel_tank/large/fuel_tank_central = new /datum/spacepod_module/fuel_tank/large/full("fueltank_left")
 	fuel_tank_central.name = "Центральный топливный бак"
-	systems.add_module(fuel_tank_central)
+	systems.add_module(src, fuel_tank_central)
 	var/datum/spacepod_module/fuel_tank/fuel_tank_right = new /datum/spacepod_module/fuel_tank/full("fueltank_right")
 	fuel_tank_right.name = "Правый топливный бак"
-	systems.add_module(fuel_tank_right)
+	systems.add_module(src, fuel_tank_right)
 	var/datum/spacepod_module/fuel_tank/fuel_tank_left = new /datum/spacepod_module/fuel_tank/full("fueltank_left")
 	fuel_tank_left.name = "Левый топливный бак"
-	systems.add_module(fuel_tank_left)
+	systems.add_module(src, fuel_tank_left)
 	// Engines
 	var/datum/spacepod_module/fuel_tank/engine/apu/apu = new("apu")
 	var/datum/spacepod_module/fuel_tank/engine/engine_right = new("engine_right")
@@ -745,63 +755,63 @@
 	pump_central_to_apu.name = "Топливный насос из центрального бака в ВСУ"
 	pump_central_to_apu.source_tank = fuel_tank_central
 	pump_central_to_apu.destination_tank = apu
-	systems.add_module(pump_central_to_apu)
+	systems.add_module(src, pump_central_to_apu)
 	// central fueltank - right engine
 	var/datum/spacepod_module/fuel_pump/pump_central_to_right_engine = new("pump_central_fueltank_to_engine_right")
 	pump_central_to_right_engine.name = "Топливный насос из центрального бака в правый двигатель"
 	pump_central_to_right_engine.source_tank = fuel_tank_central
 	pump_central_to_right_engine.destination_tank = engine_right
-	systems.add_module(pump_central_to_right_engine)
+	systems.add_module(src, pump_central_to_right_engine)
 	// central fueltank - left engine
 	var/datum/spacepod_module/fuel_pump/pump_central_to_left_engine = new("pump_central_fueltank_to_engine_left")
 	pump_central_to_left_engine.name = "Топливный насос из центрального бака в левый двигатель"
 	pump_central_to_left_engine.source_tank = fuel_tank_central
 	pump_central_to_left_engine.destination_tank = engine_left
-	systems.add_module(pump_central_to_left_engine)
+	systems.add_module(src, pump_central_to_left_engine)
 	// right fueltank - central fueltank
 	var/datum/spacepod_module/fuel_pump/pump_right_to_central = new("pump_right_fueltank_to_central_fueltank")
 	pump_right_to_central.name = "Топливный насос из правого бака в центральный бак"
 	pump_right_to_central.source_tank = fuel_tank_right
 	pump_right_to_central.destination_tank = fuel_tank_central
-	systems.add_module(pump_right_to_central)
+	systems.add_module(src, pump_right_to_central)
 	// left fueltank - central fueltank
 	var/datum/spacepod_module/fuel_pump/pump_left_to_central = new("pump_left_fueltank_to_central_fueltank")
 	pump_left_to_central.name = "Топливный насос из левого бака в центральный бак"
 	pump_left_to_central.source_tank = fuel_tank_left
 	pump_left_to_central.destination_tank = fuel_tank_central
-	systems.add_module(pump_left_to_central)
+	systems.add_module(src, pump_left_to_central)
 	// right fueltank - right engine
 	var/datum/spacepod_module/fuel_pump/pump_right_to_right_engine = new("pump_right_fueltank_to_right_engine")
 	pump_right_to_right_engine.name = "Топливный насос из правого бака в правый двигатель"
 	pump_right_to_right_engine.source_tank = fuel_tank_right
 	pump_right_to_right_engine.destination_tank = engine_right
-	systems.add_module(pump_right_to_right_engine)
+	systems.add_module(src, pump_right_to_right_engine)
 	// left fueltank - left engine
 	var/datum/spacepod_module/fuel_pump/pump_left_to_left_engine = new("pump_left_fueltank_to_left_engine")
 	pump_left_to_left_engine.name = "Топливный насос из левого бака в левый двигатель"
 	pump_left_to_left_engine.source_tank = fuel_tank_left
 	pump_left_to_left_engine.destination_tank = engine_left
-	systems.add_module(pump_left_to_left_engine)
+	systems.add_module(src, pump_left_to_left_engine)
 	// Add engine after pumps
-	systems.add_module(apu)
-	systems.add_module(engine_right)
-	systems.add_module(engine_left)
+	systems.add_module(src, apu)
+	systems.add_module(src, engine_right)
+	systems.add_module(src, engine_left)
 	// Gyroscope
 	var/datum/spacepod_module/gyroscope/gyro = new("gyroscope")
-	systems.add_module(gyro)
+	systems.add_module(src, gyro)
 	// Armor
 	var/datum/spacepod_module/armor/fore_armor = new /datum/spacepod_module/armor/heavy("fore_armor")
 	fore_armor.name = "Носовая броня"
-	systems.add_module(fore_armor)
+	systems.add_module(src, fore_armor)
 	var/datum/spacepod_module/armor/aft_armor = new /datum/spacepod_module/armor/heavy("aft_armor")
 	aft_armor.name = "Кормовая броня"
-	systems.add_module(aft_armor)
+	systems.add_module(src, aft_armor)
 	var/datum/spacepod_module/armor/port_side_armor = new /datum/spacepod_module/armor/heavy("port_side_armor")
 	port_side_armor.name = "Броня левого борта"
-	systems.add_module(port_side_armor)
+	systems.add_module(src, port_side_armor)
 	var/datum/spacepod_module/armor/starboard_side_armor = new /datum/spacepod_module/armor/heavy("starboard_side_armor")
 	starboard_side_armor.name = "Броня правого борта"
-	systems.add_module(starboard_side_armor)
+	systems.add_module(src, starboard_side_armor)
 
 
 // MARK: Civilian spacepod
@@ -825,7 +835,7 @@
 	name = "raptor spacepod"
 	desc = "Бронированный челнок службы безопасности \"Раптор\"."
 	icon_state = "pod_dece"
-	health = 600
+	max_integrity = 450
 
 /obj/spacepod2/two_engine/raptor/get_ru_names()
 	return alist(
@@ -840,11 +850,12 @@
 /obj/spacepod2/two_engine/raptor/create_internal_system()
 	. = ..()
 	var/datum/spacepod_module/weapon/turret/gun_turret = new("gun_turret")
-	systems.add_module(gun_turret)
+	systems.add_module(src, gun_turret)
 	var/obj/item/gun/energy/disabler/disabler_gun = new(src)
 	gun_turret.install_gun(disabler_gun)
 	var/obj/item/gun/energy/laser/laser_gun = new(src)
 	gun_turret.install_gun(laser_gun)
+	systems.add_module(src, new /datum/spacepod_module/passenger_seat("passenger_seat"))
 
 
 // MARK: Actions

@@ -3,6 +3,7 @@
 #define POD_MODULE_HIT_CHANCE_NORMAL 10
 #define POD_MODULE_HIT_CHANCE_LARGE 20
 #define POD_MODULE_HIT_CHANCE_EXTRA_LARGE 40
+#define POD_HULL_HIT_CHANCE 25
 
 // MARK: Spacepod systems
 /datum/spacepod_systems
@@ -47,7 +48,7 @@
 	if(gyroscope == null)
 		. += span_notice("Отсутствует гироскопический стабилизатор.")
 
-/datum/spacepod_systems/proc/add_module(datum/spacepod_module/module)
+/datum/spacepod_systems/proc/add_module(obj/spacepod2/pod, datum/spacepod_module/module)
 	module.systems = src
 	modules += module
 	if(istype(module, /datum/spacepod_module/battery))
@@ -67,8 +68,10 @@
 		weapon = module
 	if(istype(module, /datum/spacepod_module/armor))
 		armors += module
+	module.on_install(pod)
 
-/datum/spacepod_systems/proc/remove_module(datum/spacepod_module/module)
+/datum/spacepod_systems/proc/remove_module(obj/spacepod2/pod, datum/spacepod_module/module)
+	module.on_remove(pod)
 	module.enable = FALSE
 	module.fire = FALSE
 	module.connection_power_net = FALSE
@@ -140,6 +143,21 @@
 			return 0
 	return fuel_amount
 
+/datum/spacepod_systems/proc/damage_modules(damage_amount)
+	var/hit_chance_summ = 0
+	for(var/datum/spacepod_module/module in modules)
+		hit_chance_summ += module.hit_weight
+	hit_chance_summ += POD_HULL_HIT_CHANCE
+	// randomize target module or hull
+	var/random_value = rand(0, hit_chance_summ - 1)
+	for(var/datum/spacepod_module/module in modules)
+		if(random_value < module.hit_weight)
+			return module.deal_damage(damage_amount)
+		random_value -= module.hit_weight
+	// otherwise - full damage to hull
+	return damage_amount
+
+
 // MARK: Basic module
 /datum/spacepod_module
 	var/id = "unknown"
@@ -156,6 +174,7 @@
 	var/enable = FALSE
 	/// Fire process
 	var/fire = FALSE
+	var/fire_on_hit_chance = 0
 	/// Module fire damage multiplyer
 	var/fire_damage_mod = 1
 	/// Connect to electric power net
@@ -171,6 +190,12 @@
 	. = ..()
 	src.id = id
 	integrity = max_integrity
+
+/datum/spacepod_module/proc/on_install(obj/spacepod2/pod)
+	return TRUE
+
+/datum/spacepod_module/proc/on_remove(obj/spacepod2/pod)
+	return TRUE
 
 /datum/spacepod_module/proc/fire_process()
 	if(!fire)
@@ -195,11 +220,24 @@
 	return enable
 
 /datum/spacepod_module/proc/turn_on()
+	if(integrity <= 0)
+		error_text = "Модуль уничтожен"
+		enable = FALSE
+		return
 	error_text = null
 	enable = TRUE
 
 /datum/spacepod_module/proc/turn_off()
 	enable = FALSE
+
+/datum/spacepod_module/proc/deal_damage(damage_amount)
+	var/absorbed_damage = min(integrity, damage_amount)
+	integrity -= absorbed_damage
+	if(integrity > 0 && fire_on_hit_chance > 0 && prob(damage_amount * fire_on_hit_chance / 100))
+		fire = TRUE
+	if(integrity <= 0 && enable)
+		enable = FALSE
+	return damage_amount - absorbed_damage
 
 
 // MARK: Fuel tank
@@ -208,6 +246,7 @@
 	max_integrity = 200
 	hit_weight = POD_MODULE_HIT_CHANCE_LARGE
 	fire_damage_mod = 2
+	fire_on_hit_chance = 25
 	/// Fuel capacity in units
 	var/fuel_capacity = 1000 //units
 	/// Current fuel level in units
@@ -239,6 +278,7 @@
 /datum/spacepod_module/battery
 	name = "Аккумуляторная батарея"
 	max_integrity = 200
+	fire_on_hit_chance = 10
 	enable = TRUE
 	/// Battery capacity in watt
 	var/power_capacity = 5000 //watt
@@ -269,6 +309,7 @@
 	max_integrity = 50
 	hit_weight = POD_MODULE_HIT_CHANCE_SMALL
 	fire_damage_mod = 5
+	fire_on_hit_chance = 20
 	consume_power = 10
 	/// Fuel pumping speed in units per tick
 	var/pump_speed = 10 //units per tick
@@ -308,6 +349,7 @@
 	hit_weight = POD_MODULE_HIT_CHANCE_LARGE
 	max_integrity = 300
 	fire_damage_mod = 1
+	fire_on_hit_chance = 15
 	fuel_capacity = 30
 	/// How many fuel consume in units per tick on 100% of power
 	var/fuel_consume_amount = 2
@@ -561,7 +603,7 @@
 
 // MARK: Armor
 /datum/spacepod_module/armor
-	hit_weight = POD_MODULE_HIT_CHANCE_LARGE
+	hit_weight = POD_MODULE_HIT_CHANCE_EXTRA_LARGE
 	max_integrity = 200
 
 /datum/spacepod_module/armor/light
@@ -570,3 +612,15 @@
 /datum/spacepod_module/armor/heavy
 	name = "Модуль тяжёлой брони"
 	max_integrity = 350
+
+
+// Misc modules
+/datum/spacepod_module/passenger_seat
+	name = "Пассажирское сиденье"
+	hit_weight = 0
+
+/datum/spacepod_module/passenger_seat/on_install(obj/spacepod2/pod)
+	pod.max_passengers += 1
+
+/datum/spacepod_module/passenger_seat/on_remove(obj/spacepod2/pod)
+	pod.max_passengers -= 1
