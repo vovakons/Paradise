@@ -856,6 +856,7 @@
 	var/obj/item/gun/energy/laser/laser_gun = new(src)
 	gun_turret.install_gun(laser_gun)
 	systems.add_module(src, new /datum/spacepod_module/passenger_seat("passenger_seat"))
+	systems.add_module(src, new /datum/spacepod_module/fire_extingusher("fire_extingusher"))
 
 
 // MARK: Actions

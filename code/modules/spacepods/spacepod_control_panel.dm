@@ -260,6 +260,8 @@
 	hull["max_integrity"] = pod.max_integrity
 	hull["integrity_warn"] = pod.obj_integrity < 0.25 * pod.max_integrity
 	hull["extenguish_charges"] = 0
+	if(pod.systems.fire_extenguisher != null)
+		hull["extenguish_charges"] = pod.systems.fire_extenguisher.charges
 	panel["hull"] = hull
 	var/modules = list()
 	for(var/datum/spacepod_module/module in pod.systems.modules)
@@ -268,7 +270,7 @@
 		module_data["name"] = module.name
 		module_data["integrity"] = module.integrity
 		module_data["max_integrity"] = module.max_integrity
-		module_data["integrity_warn"] = module.integrity < 0.25 * module.max_integrity
+		module_data["integrity_warn"] = module.integrity < 0.5 * module.max_integrity
 		module_data["fire"] = module.fire
 		modules += list(module_data)
 	panel["modules"] = modules
@@ -384,5 +386,16 @@
 	pod.toggle_internal_tank(usr)
 
 /datum/ui_module/spacepod_control_panels/proc/extinguish_module(module_id)
-	//TODO implement later
-	return
+	var/datum/spacepod_module/target_module = null
+	for(var/datum/spacepod_module/module in pod.systems.modules)
+		if(module_id == module.id)
+			target_module = module
+			break
+	if(!target_module)
+		return
+	if(!target_module.fire)
+		return
+	if(pod.systems.fire_extenguisher == null || pod.systems.fire_extenguisher.charges <= 0)
+		return
+	pod.systems.fire_extenguisher.charges -= 1
+	target_module.fire = FALSE

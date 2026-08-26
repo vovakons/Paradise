@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Dropdown,
+  Icon,
   Section,
   Stack,
   Table,
@@ -59,28 +60,33 @@ export const SpacepodControlPanel = (props: unknown) => {
 
   return (
     <Window
-      width={600}
+      width={700}
       height={600}
       title="Панель управления космическим челноком"
     >
       <ComplexModal />
-      <Window.Content scrollable>
-        <Stack fill vertical>
-          <Stack.Item>
-            <Tabs fluid>
+      <Window.Content>
+        <Stack fill vertical={false}>
+          <Stack.Item width="25%">
+            <Tabs fluid vertical>
               {tabs.map((tab) => (
                 <Tabs.Tab
                   key={tab.id}
                   icon={tab.icon}
                   selected={tab.id === selected_tab}
                   onClick={() => act('select_tab', { tab: tab.id })}
+                  height="50px"
                 >
                   {tab.name}
                 </Tabs.Tab>
               ))}
             </Tabs>
           </Stack.Item>
-          {decideTab(selected_tab)}
+          <Stack.Item width="75%">
+            <Section fill scrollable>
+              {decideTab(selected_tab)}
+            </Section>
+          </Stack.Item>
         </Stack>
       </Window.Content>
     </Window>
@@ -109,7 +115,7 @@ const ElectricityPanel = (props: unknown) => {
   const { electricity } = data;
 
   return (
-    <Stack vertical fill>
+    <Stack vertical fill width="100%" scrollable>
       {/* Battery section */}
       <Stack.Item>
         {electricity.exists ? (
@@ -208,7 +214,7 @@ const EnginesPanel = (props: unknown) => {
   const { engines } = data;
 
   return (
-    <Stack vertical fill>
+    <Stack vertical fill width="100%" scrollable>
       {engines.engines.map((engine) => (
         <Stack.Item key={engine.id}>
           <Section title={engine.name} ml="0" mr="0">
@@ -289,6 +295,7 @@ const EnginesPanel = (props: unknown) => {
           </Section>
         </Stack.Item>
       ))}
+      <Stack.Divider />
       {engines.gyroscope !== null ? (
         <Stack.Item>
           <Section title={engines.gyroscope.name} ml="0" mr="0">
@@ -364,7 +371,7 @@ const FuelSystemPanel = (props: unknown) => {
   const { fuel } = data;
 
   return (
-    <Stack vertical fill>
+    <Stack vertical fill width="100%" scrollable>
       {/* Fuel tanks section */}
       {fuel.fuel_tanks.map((fuel_tank) => (
         <Stack.Item key={fuel_tank.id}>
@@ -389,6 +396,7 @@ const FuelSystemPanel = (props: unknown) => {
         </Stack.Item>
       ))}
       {/* Fuel pumps section */}
+      <Stack.Divider />
       {fuel.fuel_pumps.map((fuel_pump) => (
         <Stack.Item key={fuel_pump.id}>
           <Section title={fuel_pump.name} ml="0" mr="0">
@@ -464,7 +472,7 @@ const WeaponsPanel = (props: unknown) => {
   const { weapons } = data;
 
   return (
-    <Stack vertical fill>
+    <Stack vertical fill width="100%">
       {/* Module section */}
       {weapons.module === null ? (
         ''
@@ -491,6 +499,7 @@ const WeaponsPanel = (props: unknown) => {
         </Stack.Item>
       )}
       {/* Attached guns section */}
+      <Stack.Divider />
       {weapons.guns.map((gun) => (
         <Stack.Item key={gun.id}>
           <Section title={gun.name} ml="0" mr="0">
@@ -566,51 +575,53 @@ const LifeSupportPanel = (props: unknown) => {
   const { life_support } = data;
 
   return (
-    <Stack vertical fill>
+    <Stack vertical fill width="100%">
       <Stack.Item>
-        <Table>
-          <ColorTextRow
-            caption="Баллон"
-            value_text={
-              life_support.airtank === null
-                ? 'Отсутствует'
-                : life_support.airtank.name
-            }
-            warn={life_support.airtank === null}
-          />
-          {life_support.airtank === null ? (
-            ''
-          ) : (
-            <>
-              <TextRow
-                caption="Объем"
-                value_text={life_support.airtank.volume}
-              />
-              <ColorTextRow
-                caption="Давление в баллоне"
-                value_text={`${life_support.airtank.pressure} Pa`}
-                warn={life_support.airtank.low_pressure}
-              />
-              <ToggleButtonRow
-                caption="Подача кислорода с баллона"
-                enable={life_support.airtank.enable}
-                enable_text="Включено"
-                disable_text="Отключено"
-                clicked={() => act('switch_airtank')}
-              />
-            </>
-          )}
-          <ColorTextRow
-            caption="Давление в кабине"
-            value_text={`${life_support.atmos.pressure} Pa`}
-            warn={life_support.atmos.low_pressure}
-          />
-          <ColorTextRow
-            caption="Температура в кабине"
-            value_text={`${life_support.atmos.temperature} K`}
-            warn={life_support.atmos.low_temperature}
-          />
-        </Table>
+        <Section title="Жизнеобеспечение" ml="0" mr="0">
+          <Table>
+            <ColorTextRow
+              caption="Баллон"
+              value_text={
+                life_support.airtank === null
+                  ? 'Отсутствует'
+                  : life_support.airtank.name
+              }
+              warn={life_support.airtank === null}
+            />
+            {life_support.airtank === null ? (
+              ''
+            ) : (
+              <>
+                <TextRow
+                  caption="Объем"
+                  value_text={life_support.airtank.volume}
+                />
+                <ColorTextRow
+                  caption="Давление в баллоне"
+                  value_text={`${life_support.airtank.pressure} Pa`}
+                  warn={life_support.airtank.low_pressure}
+                />
+                <ToggleButtonRow
+                  caption="Подача кислорода с баллона"
+                  enable={life_support.airtank.enable}
+                  enable_text="Включено"
+                  disable_text="Отключено"
+                  clicked={() => act('switch_airtank')}
+                />
+              </>
+            )}
+            <ColorTextRow
+              caption="Давление в кабине"
+              value_text={`${life_support.atmos.pressure} Pa`}
+              warn={life_support.atmos.low_pressure}
+            />
+            <ColorTextRow
+              caption="Температура в кабине"
+              value_text={`${life_support.atmos.temperature} K`}
+              warn={life_support.atmos.low_temperature}
+            />
+          </Table>
+        </Section>
       </Stack.Item>
     </Stack>
   );
@@ -644,7 +655,7 @@ const IntegrityPanel = (props: unknown) => {
   const { integrity } = data;
 
   return (
-    <Stack vertical fill>
+    <Stack vertical fill width="100%">
       {/* Hull section */}
       <Stack.Item>
         <Section title={integrity.hull.name} ml="0" mr="0">
@@ -669,27 +680,39 @@ const IntegrityPanel = (props: unknown) => {
             {integrity.modules.map((module) => (
               <>
                 {module.integrity > 0 ? (
-                  <ColorTextRow
-                    caption={module.name}
-                    value_text={`${module.integrity}/${module.max_integrity}`}
-                    warn={module.integrity_warn}
-                  />
+                  <Table.Row>
+                    <Table.Cell bold width="50%">
+                      {module.name}:
+                    </Table.Cell>
+                    <Box
+                      inline
+                      mr={1}
+                      color={module.integrity_warn ? 'bad' : 'good'}
+                    >
+                      {`${module.integrity}/${module.max_integrity}`}
+                      {module.fire ? (
+                        <>
+                          {' '}
+                          <Icon name="fire" />{' '}
+                          <Button
+                            icon="fire-extinguisher"
+                            disabled={integrity.hull.extenguish_charges <= 0}
+                            onClick={() => act('extinguish', { id: module.id })}
+                          >
+                            Пожаротушение
+                          </Button>
+                        </>
+                      ) : (
+                        ''
+                      )}
+                    </Box>
+                  </Table.Row>
                 ) : (
                   <ColorTextRow
                     caption={module.name}
                     value_text="Уничтожен"
                     warn={true}
                   />
-                )}
-                {module.fire ? (
-                  <BadColorButtonRow
-                    caption="Пожар"
-                    text="Пожаротушение"
-                    icon="fire-extinguisher"
-                    clicked={() => act('extinguish', { id: module.id })}
-                  />
-                ) : (
-                  ''
                 )}
               </>
             ))}

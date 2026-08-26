@@ -16,6 +16,7 @@
 	var/datum/spacepod_module/gyroscope/gyroscope = null
 	var/datum/spacepod_module/weapon/weapon = null
 	var/list/datum/spacepod_module/armor/armors = list()
+	var/datum/spacepod_module/fire_extingusher/fire_extenguisher = null
 
 /datum/spacepod_systems/Destroy(force)
 	. = ..()
@@ -68,6 +69,8 @@
 		weapon = module
 	if(istype(module, /datum/spacepod_module/armor))
 		armors += module
+	if(istype(module, /datum/spacepod_module/fire_extingusher))
+		fire_extenguisher = module
 	module.on_install(pod)
 
 /datum/spacepod_systems/proc/remove_module(obj/spacepod2/pod, datum/spacepod_module/module)
@@ -98,6 +101,8 @@
 		weapon = null
 	if(istype(module, /datum/spacepod_module/armor))
 		armors -= module
+	if(istype(module, /datum/spacepod_module/fire_extingusher))
+		fire_extenguisher = null
 
 /datum/spacepod_systems/proc/remove_fuel_tank_from_pumps(datum/spacepod_module/fuel_tank/tank)
 	for(var/datum/spacepod_module/fuel_pump/pump in fuel_pumps)
@@ -614,7 +619,7 @@
 	max_integrity = 350
 
 
-// Misc modules
+// MARK: Misc modules
 /datum/spacepod_module/passenger_seat
 	name = "Пассажирское сиденье"
 	hit_weight = 0
@@ -624,3 +629,8 @@
 
 /datum/spacepod_module/passenger_seat/on_remove(obj/spacepod2/pod)
 	pod.max_passengers -= 1
+
+/datum/spacepod_module/fire_extingusher
+	name = "Модуль пожаротушения"
+	hit_weight = 0
+	var/charges = 3
