@@ -3,6 +3,7 @@
 #define TAB_FUEL "fuel"
 #define TAB_WEAPONS "weapons"
 #define TAB_LIFE_SUPPORT "life_support"
+#define TAB_INTEGRITY "integrity"
 
 #define NOT_SELECTED_RPM_PROVIDER "Не передавать"
 
@@ -34,6 +35,7 @@
 	data["fuel"] = create_fuel_panel_data()
 	data["weapons"] = create_weapons_panel_data()
 	data["life_support"] = create_life_support_data()
+	data["integrity"] = create_integrity_panel_data()
 	return data
 
 /datum/ui_module/spacepod_control_panels/proc/create_tabs_data()
@@ -64,6 +66,11 @@
 			"name" = "Вооружение",
 			"icon" = "crosshairs",
 		))
+	tabs += list(list(
+		"id" = TAB_INTEGRITY,
+		"name" = "Прочность",
+		"icon" = "heart",
+	))
 	return tabs
 
 /datum/ui_module/spacepod_control_panels/proc/create_electricity_panel_data()
@@ -240,6 +247,28 @@
 		atmos["temperature"] = temperature
 		atmos["low_temperature"] = temperature < T0C || temperature > T100C
 	panel["atmos"] = atmos
+	return panel
+
+/datum/ui_module/spacepod_control_panels/proc/create_integrity_panel_data()
+	var/list/panel = list()
+	var/hull = list()
+	hull["name"] = "Корпус челнока"
+	hull["integrity"] = pod.obj_integrity
+	hull["max_integrity"] = pod.max_integrity
+	hull["integrity_warn"] = pod.obj_integrity < 0.25 * pod.max_integrity
+	hull["extenguish_charges"] = 0
+	panel["hull"] = hull
+	var/modules = list()
+	for(var/datum/spacepod_module/module in pod.systems.modules)
+		var/module_data = list()
+		module_data["id"] = module.id
+		module_data["name"] = module.name
+		module_data["integrity"] = module.integrity
+		module_data["max_integrity"] = module.max_integrity
+		module_data["integrity_warn"] = module.integrity < 0.25 * module.max_integrity
+		module_data["fire"] = module.fire
+		modules += list(module_data)
+	panel["modules"] = list(modules)
 	return panel
 
 // MARK: ui_act

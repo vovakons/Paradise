@@ -11,6 +11,7 @@ type SpacepodControlPanelData = {
   fuel: FuelSystemPanelData;
   weapons: WeaponsPanelData;
   life_support: LifeSupportPanelData;
+  integrity: IntegrityPanelData;
 };
 
 type SpacepodControlPanelTabsData = {
@@ -31,6 +32,8 @@ const decideTab = (tab_id: string) => {
       return <LifeSupportPanel />;
     case 'weapons':
       return <WeaponsPanel />;
+    case 'integrity':
+      return <IntegrityPanel />;
     default:
       return (
         <Section>
@@ -583,6 +586,90 @@ const LifeSupportPanel = (props: unknown) => {
 };
 
 
+// MARK: Integrity panel
+type IntegrityPanelData = {
+  hull: HullIntegrityData;
+  modules: ModuleIntegrityData[];
+};
+
+type HullIntegrityData = {
+  name: string;
+  integrity: number;
+  max_integrity: number;
+  integrity_warn: boolean;
+  extenguish_charges: number;
+};
+
+type ModuleIntegrityData = {
+  id: string;
+  name: string;
+  integrity: number;
+  max_integrity: number;
+  integrity_warn: boolean;
+  fire: boolean;
+};
+
+
+const IntegrityPanel = (props: unknown) => {
+  const { act, data } = useBackend<SpacepodControlPanelData>();
+  const { integrity } = data;
+
+  return (
+    <Stack vertical fill>
+      {/* Hull section */}
+      <Stack.Item>
+        <Section title={integrity.hull.name} ml='0' mr='0'>
+          <Table>
+            <ColorTextRow
+              caption='Прочность'
+              value_text={integrity.hull.integrity + '/' + integrity.hull.max_integrity}
+              warn={integrity.hull.integrity_warn}
+            />
+            <ColorTextRow
+              caption='Количество зарядов системы пожаротушения'
+              value_text={'' + integrity.hull.extenguish_charges}
+              warn={integrity.hull.extenguish_charges <= 0}
+            />
+          </Table>
+        </Section>
+      </Stack.Item>
+      {/* Modules section */}
+      <Stack.Item>
+        <Section title='Модули' ml='0' mr='0'>
+          <Table>
+            {integrity.modules.map(module => (
+              <>
+              {module.integrity > 0 ? (
+                <ColorTextRow
+                  caption={module.name}
+                  value_text={module.integrity + '/' + module.max_integrity}
+                  warn={module.integrity_warn}
+                />
+              ) : (
+                <ColorTextRow
+                  caption={module.name}
+                  value_text='Уничтожен'
+                  warn={true}
+                />
+              )}
+              {module.fire ? (
+                <BadColorButtonRow
+                  caption='Пожар'
+                  text='Пожаротушение'
+                  icon='fire-extinguisher'
+                  clicked={() => act('extinguish', { id: module.id })}
+                />
+              ) : ('')}
+              </>
+            ))}
+          </Table>
+        </Section>
+      </Stack.Item>
+    </Stack>
+  );
+};
+
+
 // MARK: Elements
 type ToggleButtonRowData = {
   caption: string;
@@ -627,6 +714,34 @@ const ButtonRow = (props: ButtonRowData) => {
         <Box pb={1}>
           <Button
               onClick={() => clicked()}
+          >
+              {text}
+          </Button>
+        </Box>
+      </Table.Cell>
+    </Table.Row>
+  )
+}
+
+type BadColorButtonRowData = {
+  caption: string;
+  text: string;
+  icon: string;
+  clicked: any;
+};
+
+const BadColorButtonRow = (props: BadColorButtonRowData) => {
+  const { caption, text, icon, clicked } = props;
+  return (
+    <Table.Row>
+      <Table.Cell bold width="50%">
+        <Box color='bad'>{caption}:</Box>
+      </Table.Cell>
+      <Table.Cell>
+        <Box pb={1}>
+          <Button
+            icon={icon}
+            onClick={() => clicked()}
           >
               {text}
           </Button>
