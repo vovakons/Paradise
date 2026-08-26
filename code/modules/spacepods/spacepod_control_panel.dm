@@ -17,6 +17,9 @@
 		return ..()
 	return GLOB.not_incapacitated_state
 
+/datum/ui_module/spacepod_control_panels/ui_host(mob/user)
+	return pod // Default src.
+
 /datum/ui_module/spacepod_control_panels/ui_interact(mob/user, datum/tgui/ui = null)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
@@ -268,12 +271,13 @@
 		module_data["integrity_warn"] = module.integrity < 0.25 * module.max_integrity
 		module_data["fire"] = module.fire
 		modules += list(module_data)
-	panel["modules"] = list(modules)
+	panel["modules"] = modules
 	return panel
 
 // MARK: ui_act
 /datum/ui_module/spacepod_control_panels/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
 	. = TRUE
+
 	switch(action)
 		if("select_tab")
 			selected_tab_id = params["tab"]
@@ -298,9 +302,11 @@
 			reload_weapon(id)
 		if("switch_airtank")
 			switch_airtank()
+		if("extinguish")
+			var/id = params["id"]
+			extinguish_module(id)
 		else
-			return ..()
-
+			return FALSE
 
 /datum/ui_module/spacepod_control_panels/proc/switch_powernet_link(id)
 	var/datum/spacepod_module/target_module = null
@@ -376,3 +382,7 @@
 
 /datum/ui_module/spacepod_control_panels/proc/switch_airtank()
 	pod.toggle_internal_tank(usr)
+
+/datum/ui_module/spacepod_control_panels/proc/extinguish_module(module_id)
+	//TODO implement later
+	return

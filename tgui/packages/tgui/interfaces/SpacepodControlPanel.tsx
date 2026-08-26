@@ -1,5 +1,13 @@
+import {
+  Box,
+  Button,
+  Dropdown,
+  Section,
+  Stack,
+  Table,
+  Tabs,
+} from 'tgui-core/components';
 import { useBackend } from '../backend';
-import { Tabs, Box, Section, Button, Table, Dropdown, Flex, Stack } from '../components';
 import { Window } from '../layouts';
 import { ComplexModal } from './common/ComplexModal';
 
@@ -50,7 +58,11 @@ export const SpacepodControlPanel = (props: unknown) => {
   const { selected_tab, tabs } = data;
 
   return (
-    <Window width={600} height={600} title="Панель управления космическим челноком">
+    <Window
+      width={600}
+      height={600}
+      title="Панель управления космическим челноком"
+    >
       <ComplexModal />
       <Window.Content scrollable>
         <Stack fill vertical>
@@ -73,8 +85,7 @@ export const SpacepodControlPanel = (props: unknown) => {
       </Window.Content>
     </Window>
   );
-}
-
+};
 
 // MARK: Electricity panel
 type ElectricityPanelData = {
@@ -102,54 +113,57 @@ const ElectricityPanel = (props: unknown) => {
       {/* Battery section */}
       <Stack.Item>
         {electricity.exists ? (
-          <Section title="Аккумуляторная батарея" ml='0' mr='0'>
+          <Section title="Аккумуляторная батарея" ml="0" mr="0">
             <Table>
               <ToggleButtonRow
-                caption='Соединение к электросети'
+                caption="Соединение к электросети"
                 enable={electricity.link}
-                enable_text='Подключено'
-                disable_text='Отключено'
-                clicked={() => act('switch_powernet_link', { id: electricity.battery_id })}
+                enable_text="Подключено"
+                disable_text="Отключено"
+                clicked={() =>
+                  act('switch_powernet_link', { id: electricity.battery_id })
+                }
               />
               <TextRow
-                caption='Заряд батареи'
-                value_text={electricity.power + ' Вт'}
+                caption="Заряд батареи"
+                value_text={`${electricity.power} Вт`}
               />
               <TextRow
-                caption='Емкость аккумулятора'
-                value_text={electricity.capacity + ' Вт·ч'}
+                caption="Емкость аккумулятора"
+                value_text={`${electricity.capacity} Вт·ч`}
               />
               <TextRow
-                caption='Заряд в процентах'
-                value_text={electricity.percent + '%'}
+                caption="Заряд в процентах"
+                value_text={`${electricity.percent} %`}
               />
             </Table>
           </Section>
         ) : (
-          <Box><b>Аккумуляторная батаерея отсутствует!</b></Box>
+          <Box>
+            <b>Аккумуляторная батаерея отсутствует!</b>
+          </Box>
         )}
       </Stack.Item>
       {/* Electricity consumers section */}
       <Stack.Item grow>
         <Section fill scrollable title="Потребители">
-            <Table>
-                {electricity.consumers.map(consumer => (
-                    <ToggleButtonRow
-                      key={consumer.id}
-                      caption={consumer.name}
-                      enable={consumer.link}
-                      enable_text='Подключено'
-                      disable_text='Отключено'
-                      clicked={() => act('switch_powernet_link', { id: consumer.id })}
-                    />
-                ))}
-            </Table>
+          <Table>
+            {electricity.consumers.map((consumer) => (
+              <ToggleButtonRow
+                key={consumer.id}
+                caption={consumer.name}
+                enable={consumer.link}
+                enable_text="Подключено"
+                disable_text="Отключено"
+                clicked={() => act('switch_powernet_link', { id: consumer.id })}
+              />
+            ))}
+          </Table>
         </Section>
       </Stack.Item>
     </Stack>
   );
 };
-
 
 // MARK: Engines panel
 type EnginesPanelData = {
@@ -195,69 +209,79 @@ const EnginesPanel = (props: unknown) => {
 
   return (
     <Stack vertical fill>
-      {engines.engines.map(engine => (
+      {engines.engines.map((engine) => (
         <Stack.Item key={engine.id}>
-          <Section title={engine.name} ml='0' mr='0'>
+          <Section title={engine.name} ml="0" mr="0">
             <Table>
               {engine.power_link !== null ? (
                 <TextStatusRow
-                  caption='Соединение к электросети'
+                  caption="Соединение к электросети"
                   enable={engine.power_link}
-                  enable_text='Подключено'
-                  disable_text='Отключено'
+                  enable_text="Подключено"
+                  disable_text="Отключено"
                 />
-              ) : ('')}
+              ) : (
+                ''
+              )}
               <ToggleButtonRow
-                caption='Состояние'
+                caption="Состояние"
                 enable={engine.enable}
-                enable_text='Запущено'
-                disable_text='Отключено'
+                enable_text="Запущено"
+                disable_text="Отключено"
                 clicked={() => act('switch_enable', { id: engine.id })}
               />
               <ColorTextRow
-                caption='Обороты'
-                value_text={engine.rpm + ' RPM'}
+                caption="Обороты"
+                value_text={`${engine.rpm} RPM`}
                 warn={engine.rpm_warn}
               />
               <ColorTextRow
-                caption='Мощность'
-                value_text={engine.rpm_percent + '%'}
+                caption="Мощность"
+                value_text={`${engine.rpm_percent}%`}
                 warn={engine.rpm_warn}
               />
               <ColorTextRow
-                caption='Давление топлива'
-                value_text={engine.fuel_pressure + '%'}
+                caption="Давление топлива"
+                value_text={`${engine.fuel_pressure}%`}
                 warn={engine.fuel_pressure_warn}
               />
               {engine.rpm_provide_engines !== null ? (
                 <Table.Row>
-                  <Table.Cell bold width='50%'>Передача крутящего момента:</Table.Cell>
+                  <Table.Cell bold width="50%">
+                    Передача крутящего момента:
+                  </Table.Cell>
                   <Box pb={1}>
                     <Dropdown
                       options={engine.rpm_provide_engines}
                       selected={engine.selected_rpm_provide_engine}
-                      onSelected={(value) => act('select_rpm_provider', {
+                      onSelected={(value) =>
+                        act('select_rpm_provider', {
                           id: engine.id,
-                          destination: value
-                      })}
+                          destination: value,
+                        })
+                      }
                     />
                   </Box>
                 </Table.Row>
-              ) : ('')}
+              ) : (
+                ''
+              )}
               <ToggleButtonRow
-                caption='Генератор'
+                caption="Генератор"
                 enable={engine.generator_enable}
-                enable_text='Запущено'
-                disable_text='Отключено'
-                clicked={() => act('switch_generator_enable', { id: engine.id })}
+                enable_text="Запущено"
+                disable_text="Отключено"
+                clicked={() =>
+                  act('switch_generator_enable', { id: engine.id })
+                }
               />
               <TextRow
-                caption='Генерация электричества'
-                value_text={engine.generated_power + ' ватт'}
+                caption="Генерация электричества"
+                value_text={`${engine.generated_power} Ватт`}
               />
               <ColorTextRow
-                caption='Температура'
-                value_text={engine.temperature + ' C'}
+                caption="Температура"
+                value_text={`${engine.temperature} C`}
                 warn={engine.temperature_warn}
               />
               <ErrorRow error_text={engine.error_text} />
@@ -267,46 +291,48 @@ const EnginesPanel = (props: unknown) => {
       ))}
       {engines.gyroscope !== null ? (
         <Stack.Item>
-          <Section title={engines.gyroscope.name} ml='0' mr='0'>
+          <Section title={engines.gyroscope.name} ml="0" mr="0">
             <Table>
               <TextStatusRow
-                caption='Соединение к электросети'
+                caption="Соединение к электросети"
                 enable={engines.gyroscope.power_link}
-                enable_text='Подключено'
-                disable_text='Отключено'
+                enable_text="Подключено"
+                disable_text="Отключено"
               />
               <ToggleButtonRow
-                caption='Состояние'
+                caption="Состояние"
                 enable={engines.gyroscope.enable}
-                enable_text='Запущено'
-                disable_text='Отключено'
-                clicked={() => act('switch_enable', { id: engines.gyroscope.id })}
+                enable_text="Запущено"
+                disable_text="Отключено"
+                clicked={() =>
+                  act('switch_enable', { id: engines.gyroscope.id })
+                }
               />
               <ColorTextRow
-                caption='Обороты'
-                value_text={engines.gyroscope.rpm + ' RPM'}
+                caption="Обороты"
+                value_text={`${engines.gyroscope.rpm} RPM`}
                 warn={engines.gyroscope.rpm_warn}
               />
               <ColorTextRow
-                caption='Мощность'
-                value_text={engines.gyroscope.rpm_percent + '%'}
+                caption="Мощность"
+                value_text={`${engines.gyroscope.rpm_percent}%'`}
                 warn={engines.gyroscope.rpm_warn}
               />
               <ColorTextRow
-                caption='Температура'
-                value_text={engines.gyroscope.temperature + ' C'}
+                caption="Температура"
+                value_text={`${engines.gyroscope.temperature} C`}
                 warn={engines.gyroscope.temperature_warn}
               />
               <ErrorRow error_text={engines.gyroscope.error_text} />
             </Table>
           </Section>
         </Stack.Item>
-      ) : ('')}
+      ) : (
+        ''
+      )}
     </Stack>
   );
 };
-
-
 
 // MARK: Fuel system panel
 type FuelSystemPanelData = {
@@ -340,22 +366,22 @@ const FuelSystemPanel = (props: unknown) => {
   return (
     <Stack vertical fill>
       {/* Fuel tanks section */}
-      {fuel.fuel_tanks.map(fuel_tank => (
+      {fuel.fuel_tanks.map((fuel_tank) => (
         <Stack.Item key={fuel_tank.id}>
-          <Section title={fuel_tank.name} ml='0' mr='0'>
+          <Section title={fuel_tank.name} ml="0" mr="0">
             <Table>
               <TextRow
-                caption='Емкость топлива'
-                value_text={fuel_tank.fuel_capacity + ' л.'}
+                caption="Емкость топлива"
+                value_text={`${fuel_tank.fuel_capacity} л.`}
               />
               <ColorTextRow
-                caption='Уровень топлива'
-                value_text={fuel_tank.fuel_amount + ' л.'}
+                caption="Уровень топлива"
+                value_text={`${fuel_tank.fuel_amount} л.`}
                 warn={fuel_tank.level_percent < 20}
               />
               <ColorTextRow
-                caption='Уровень в процентах'
-                value_text={fuel_tank.level_percent + '%'}
+                caption="Уровень в процентах"
+                value_text={`${fuel_tank.level_percent}%`}
                 warn={fuel_tank.level_percent < 20}
               />
             </Table>
@@ -363,30 +389,30 @@ const FuelSystemPanel = (props: unknown) => {
         </Stack.Item>
       ))}
       {/* Fuel pumps section */}
-      {fuel.fuel_pumps.map(fuel_pump => (
+      {fuel.fuel_pumps.map((fuel_pump) => (
         <Stack.Item key={fuel_pump.id}>
-          <Section title={fuel_pump.name} ml='0' mr='0'>
+          <Section title={fuel_pump.name} ml="0" mr="0">
             <Table>
               <TextStatusRow
-                caption='Соединение к электросети'
+                caption="Соединение к электросети"
                 enable={fuel_pump.power_link}
-                enable_text='Подключено'
-                disable_text='Отключено'
+                enable_text="Подключено"
+                disable_text="Отключено"
               />
               <ToggleButtonRow
-                caption='Состояние'
+                caption="Состояние"
                 enable={fuel_pump.enable}
-                enable_text='Запущено'
-                disable_text='Отключено'
+                enable_text="Запущено"
+                disable_text="Отключено"
                 clicked={() => act('switch_enable', { id: fuel_pump.id })}
               />
               <TextRow
-                caption='Скорость перекачки'
-                value_text={fuel_pump.pump_speed + ' литр/сек'}
+                caption="Скорость перекачки"
+                value_text={`${fuel_pump.pump_speed} литр/сек`}
               />
               <ColorTextRow
-                caption='Температура'
-                value_text={fuel_pump.temperature + ' C'}
+                caption="Температура"
+                value_text={`${fuel_pump.temperature} C`}
                 warn={fuel_pump.temperature_warn}
               />
               <ErrorRow error_text={fuel_pump.error_text} />
@@ -398,13 +424,11 @@ const FuelSystemPanel = (props: unknown) => {
   );
 };
 
-
 // MARK: Weapons panel
 type WeaponsPanelData = {
   module: WeaponModuleData;
   guns: GunData[];
 };
-
 
 type WeaponModuleData = {
   id: string;
@@ -426,14 +450,13 @@ type GunData = {
 };
 
 const get_gun_type_name = (type: number) => {
-  switch(type) {
+  switch (type) {
     case 1:
-      return "Баллистический"
+      return 'Баллистический';
     case 2:
-      return "Энергетический"
-    case 0:
-      return "Неизвестно"
+      return 'Энергетический';
   }
+  return 'Неизвестно';
 };
 
 const WeaponsPanel = (props: unknown) => {
@@ -443,21 +466,23 @@ const WeaponsPanel = (props: unknown) => {
   return (
     <Stack vertical fill>
       {/* Module section */}
-      {weapons.module === null ? ('') : (
+      {weapons.module === null ? (
+        ''
+      ) : (
         <Stack.Item>
-          <Section title={weapons.module.name} ml='0' mr='0'>
+          <Section title={weapons.module.name} ml="0" mr="0">
             <Table>
               <TextStatusRow
-                caption='Соединение к электросети'
+                caption="Соединение к электросети"
                 enable={weapons.module.power_link}
-                enable_text='Подключено'
-                disable_text='Отключено'
+                enable_text="Подключено"
+                disable_text="Отключено"
               />
               <ToggleButtonRow
-                caption='Состояние'
+                caption="Состояние"
                 enable={weapons.module.enable}
-                enable_text='Запущено'
-                disable_text='Отключено'
+                enable_text="Запущено"
+                disable_text="Отключено"
                 clicked={() => act('switch_enable', { id: weapons.module.id })}
               />
               <ErrorRow error_text={weapons.module.error_text} />
@@ -466,46 +491,47 @@ const WeaponsPanel = (props: unknown) => {
         </Stack.Item>
       )}
       {/* Attached guns section */}
-      {weapons.guns.map(gun => (
+      {weapons.guns.map((gun) => (
         <Stack.Item key={gun.id}>
-          <Section title={gun.name} ml='0' mr='0'>
+          <Section title={gun.name} ml="0" mr="0">
             <Table>
               <TextRow
-                caption='Слот'
+                caption="Слот"
                 value_text={gun.primary ? 'Основное' : 'Вторичное'}
               />
               <ToggleButtonRow
-                caption='Предохранитель'
+                caption="Предохранитель"
                 enable={gun.safety}
-                enable_text='Включено'
-                disable_text='Отключено'
+                enable_text="Включено"
+                disable_text="Отключено"
                 clicked={() => act('toggle_weapon_safety', { id: gun.id })}
               />
-              <TextRow
-                caption='Тип'
-                value_text={get_gun_type_name(gun.type)}
-              />
+              <TextRow caption="Тип" value_text={get_gun_type_name(gun.type)} />
               <ColorTextRow
-                caption='Боезапас'
-                value_text={gun.ammo + '/' + gun.capacity}
+                caption="Боезапас"
+                value_text={`${gun.ammo}/${gun.capacity}`}
                 warn={gun.ammo === 0}
               />
               {gun.type === 1 ? (
                 <ButtonRow
-                  caption='Зарядка'
-                  text='Перезарядить'
+                  caption="Зарядка"
+                  text="Перезарядить"
                   clicked={() => act('reload_weapon', { id: gun.id })}
                 />
-              ) : ('')}
+              ) : (
+                ''
+              )}
               {gun.type === 2 ? (
                 <ToggleButtonRow
-                  caption='Зарядка'
+                  caption="Зарядка"
                   enable={gun.charging}
-                  enable_text='Включено'
-                  disable_text='Отключено'
+                  enable_text="Включено"
+                  disable_text="Отключено"
                   clicked={() => act('reload_weapon', { id: gun.id })}
                 />
-              ) : ('')}
+              ) : (
+                ''
+              )}
             </Table>
           </Section>
         </Stack.Item>
@@ -513,7 +539,6 @@ const WeaponsPanel = (props: unknown) => {
     </Stack>
   );
 };
-
 
 // MARK: Life support panel
 type LifeSupportPanelData = {
@@ -545,38 +570,44 @@ const LifeSupportPanel = (props: unknown) => {
       <Stack.Item>
         <Table>
           <ColorTextRow
-            caption='Баллон'
-            value_text={life_support.airtank === null ? 'Отсутствует' : life_support.airtank.name }
+            caption="Баллон"
+            value_text={
+              life_support.airtank === null
+                ? 'Отсутствует'
+                : life_support.airtank.name
+            }
             warn={life_support.airtank === null}
           />
-          {life_support.airtank === null ? ('') : (
+          {life_support.airtank === null ? (
+            ''
+          ) : (
             <>
               <TextRow
-                caption='Объем'
+                caption="Объем"
                 value_text={life_support.airtank.volume}
               />
               <ColorTextRow
-                caption='Давление в баллоне'
-                value_text={life_support.airtank.pressure + ' Pa'}
+                caption="Давление в баллоне"
+                value_text={`${life_support.airtank.pressure} Pa`}
                 warn={life_support.airtank.low_pressure}
               />
               <ToggleButtonRow
-                caption='Подача кислорода с баллона'
+                caption="Подача кислорода с баллона"
                 enable={life_support.airtank.enable}
-                enable_text='Включено'
-                disable_text='Отключено'
+                enable_text="Включено"
+                disable_text="Отключено"
                 clicked={() => act('switch_airtank')}
               />
             </>
           )}
           <ColorTextRow
-            caption='Давление в кабине'
-            value_text={life_support.atmos.pressure + " Pa"}
+            caption="Давление в кабине"
+            value_text={`${life_support.atmos.pressure} Pa`}
             warn={life_support.atmos.low_pressure}
           />
           <ColorTextRow
-            caption='Температура в кабине'
-            value_text={life_support.atmos.temperature + ' K'}
+            caption="Температура в кабине"
+            value_text={`${life_support.atmos.temperature} K`}
             warn={life_support.atmos.low_temperature}
           />
         </Table>
@@ -584,7 +615,6 @@ const LifeSupportPanel = (props: unknown) => {
     </Stack>
   );
 };
-
 
 // MARK: Integrity panel
 type IntegrityPanelData = {
@@ -609,7 +639,6 @@ type ModuleIntegrityData = {
   fire: boolean;
 };
 
-
 const IntegrityPanel = (props: unknown) => {
   const { act, data } = useBackend<SpacepodControlPanelData>();
   const { integrity } = data;
@@ -618,16 +647,16 @@ const IntegrityPanel = (props: unknown) => {
     <Stack vertical fill>
       {/* Hull section */}
       <Stack.Item>
-        <Section title={integrity.hull.name} ml='0' mr='0'>
+        <Section title={integrity.hull.name} ml="0" mr="0">
           <Table>
             <ColorTextRow
-              caption='Прочность'
-              value_text={integrity.hull.integrity + '/' + integrity.hull.max_integrity}
+              caption="Прочность"
+              value_text={`${integrity.hull.integrity}/${integrity.hull.max_integrity}`}
               warn={integrity.hull.integrity_warn}
             />
             <ColorTextRow
-              caption='Количество зарядов системы пожаротушения'
-              value_text={'' + integrity.hull.extenguish_charges}
+              caption="Количество зарядов системы пожаротушения"
+              value_text={`${integrity.hull.extenguish_charges}`}
               warn={integrity.hull.extenguish_charges <= 0}
             />
           </Table>
@@ -635,31 +664,33 @@ const IntegrityPanel = (props: unknown) => {
       </Stack.Item>
       {/* Modules section */}
       <Stack.Item>
-        <Section title='Модули' ml='0' mr='0'>
+        <Section title="Модули" ml="0" mr="0">
           <Table>
-            {integrity.modules.map(module => (
+            {integrity.modules.map((module) => (
               <>
-              {module.integrity > 0 ? (
-                <ColorTextRow
-                  caption={module.name}
-                  value_text={module.integrity + '/' + module.max_integrity}
-                  warn={module.integrity_warn}
-                />
-              ) : (
-                <ColorTextRow
-                  caption={module.name}
-                  value_text='Уничтожен'
-                  warn={true}
-                />
-              )}
-              {module.fire ? (
-                <BadColorButtonRow
-                  caption='Пожар'
-                  text='Пожаротушение'
-                  icon='fire-extinguisher'
-                  clicked={() => act('extinguish', { id: module.id })}
-                />
-              ) : ('')}
+                {module.integrity > 0 ? (
+                  <ColorTextRow
+                    caption={module.name}
+                    value_text={`${module.integrity}/${module.max_integrity}`}
+                    warn={module.integrity_warn}
+                  />
+                ) : (
+                  <ColorTextRow
+                    caption={module.name}
+                    value_text="Уничтожен"
+                    warn={true}
+                  />
+                )}
+                {module.fire ? (
+                  <BadColorButtonRow
+                    caption="Пожар"
+                    text="Пожаротушение"
+                    icon="fire-extinguisher"
+                    clicked={() => act('extinguish', { id: module.id })}
+                  />
+                ) : (
+                  ''
+                )}
               </>
             ))}
           </Table>
@@ -668,7 +699,6 @@ const IntegrityPanel = (props: unknown) => {
     </Stack>
   );
 };
-
 
 // MARK: Elements
 type ToggleButtonRowData = {
@@ -683,21 +713,23 @@ const ToggleButtonRow = (props: ToggleButtonRowData) => {
   const { caption, enable, enable_text, disable_text, clicked } = props;
   return (
     <Table.Row>
-      <Table.Cell bold width="50%">{caption}:</Table.Cell>
+      <Table.Cell bold width="50%">
+        {caption}:
+      </Table.Cell>
       <Table.Cell>
         <Box pb={1}>
           <Button
-              selected={enable}
-              icon={enable ? 'toggle-on' : 'toggle-off'}
-              onClick={() => clicked()}
+            selected={enable}
+            icon={enable ? 'toggle-on' : 'toggle-off'}
+            onClick={() => clicked()}
           >
-              { enable ? enable_text : disable_text }
+            {enable ? enable_text : disable_text}
           </Button>
         </Box>
       </Table.Cell>
     </Table.Row>
-  )
-}
+  );
+};
 
 type ButtonRowData = {
   caption: string;
@@ -709,19 +741,17 @@ const ButtonRow = (props: ButtonRowData) => {
   const { caption, text, clicked } = props;
   return (
     <Table.Row>
-      <Table.Cell bold width="50%">{caption}:</Table.Cell>
+      <Table.Cell bold width="50%">
+        {caption}:
+      </Table.Cell>
       <Table.Cell>
         <Box pb={1}>
-          <Button
-              onClick={() => clicked()}
-          >
-              {text}
-          </Button>
+          <Button onClick={() => clicked()}>{text}</Button>
         </Box>
       </Table.Cell>
     </Table.Row>
-  )
-}
+  );
+};
 
 type BadColorButtonRowData = {
   caption: string;
@@ -735,22 +765,18 @@ const BadColorButtonRow = (props: BadColorButtonRowData) => {
   return (
     <Table.Row>
       <Table.Cell bold width="50%">
-        <Box color='bad'>{caption}:</Box>
+        <Box color="bad">{caption}:</Box>
       </Table.Cell>
       <Table.Cell>
         <Box pb={1}>
-          <Button
-            icon={icon}
-            onClick={() => clicked()}
-          >
-              {text}
+          <Button icon={icon} onClick={() => clicked()}>
+            {text}
           </Button>
         </Box>
       </Table.Cell>
     </Table.Row>
-  )
-}
-
+  );
+};
 
 type TextRowData = {
   caption: string;
@@ -761,12 +787,15 @@ const TextRow = (props: TextRowData) => {
   const { caption, value_text } = props;
   return (
     <Table.Row>
-        <Table.Cell bold width='50%'>{caption}:</Table.Cell>
-        <Table.Cell><b>{value_text}</b></Table.Cell>
+      <Table.Cell bold width="50%">
+        {caption}:
+      </Table.Cell>
+      <Table.Cell>
+        <b>{value_text}</b>
+      </Table.Cell>
     </Table.Row>
-  )
-}
-
+  );
+};
 
 type TextStatusRowData = {
   caption: string;
@@ -779,16 +808,17 @@ const TextStatusRow = (props: TextStatusRowData) => {
   const { caption, enable, enable_text, disable_text } = props;
   return (
     <Table.Row>
-      <Table.Cell bold width='50%'>{caption}:</Table.Cell>
+      <Table.Cell bold width="50%">
+        {caption}:
+      </Table.Cell>
       <Table.Cell>
         <Box inline mr={1} color={enable ? 'good' : 'bad'}>
-            { enable ? enable_text : disable_text }
+          {enable ? enable_text : disable_text}
         </Box>
       </Table.Cell>
     </Table.Row>
-  )
-}
-
+  );
+};
 
 type ColorTextRowData = {
   caption: string;
@@ -800,14 +830,15 @@ const ColorTextRow = (props: ColorTextRowData) => {
   const { caption, value_text, warn } = props;
   return (
     <Table.Row>
-      <Table.Cell bold width="50%">{caption}:</Table.Cell>
+      <Table.Cell bold width="50%">
+        {caption}:
+      </Table.Cell>
       <Box inline mr={1} color={warn ? 'bad' : 'good'}>
-          {value_text}
+        {value_text}
       </Box>
     </Table.Row>
-  )
-}
-
+  );
+};
 
 type ErrorRowData = {
   error_text: string;
@@ -815,14 +846,15 @@ type ErrorRowData = {
 
 const ErrorRow = (props: ErrorRowData) => {
   const { error_text } = props;
-  if(error_text !== null) {
+  if (error_text !== null) {
     return (
       <Table.Row>
         <Table.Cell bold>Ошибка:</Table.Cell>
-        <Box inline mr={1} color='bad'>
+        <Box inline mr={1} color="bad">
           {error_text}
         </Box>
-    </Table.Row>)
+      </Table.Row>
+    );
   }
-  return ('')
-}
+  return '';
+};
