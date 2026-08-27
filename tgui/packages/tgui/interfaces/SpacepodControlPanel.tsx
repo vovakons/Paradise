@@ -1,13 +1,17 @@
 import {
   Box,
   Button,
+  Divider,
+  //DmIcon,
   Dropdown,
   Icon,
+  Image,
   Section,
   Stack,
   Table,
   Tabs,
 } from 'tgui-core/components';
+import { resolveAsset } from '../assets';
 import { useBackend } from '../backend';
 import { Window } from '../layouts';
 import { ComplexModal } from './common/ComplexModal';
@@ -21,6 +25,7 @@ type SpacepodControlPanelData = {
   weapons: WeaponsPanelData;
   life_support: LifeSupportPanelData;
   integrity: IntegrityPanelData;
+  instrumental: InstrumentalPanelData;
 };
 
 type SpacepodControlPanelTabsData = {
@@ -43,6 +48,8 @@ const decideTab = (tab_id: string) => {
       return <WeaponsPanel />;
     case 'integrity':
       return <IntegrityPanel />;
+    case 'instrumental':
+      return <InstrumentalPanel />;
     default:
       return (
         <Section>
@@ -60,14 +67,14 @@ export const SpacepodControlPanel = (props: unknown) => {
 
   return (
     <Window
-      width={700}
-      height={600}
+      width={1020}
+      height={800}
       title="Панель управления космическим челноком"
     >
       <ComplexModal />
       <Window.Content>
         <Stack fill vertical={false}>
-          <Stack.Item width="25%">
+          <Stack.Item width="5%">
             <Tabs fluid vertical>
               {tabs.map((tab) => (
                 <Tabs.Tab
@@ -77,12 +84,12 @@ export const SpacepodControlPanel = (props: unknown) => {
                   onClick={() => act('select_tab', { tab: tab.id })}
                   height="50px"
                 >
-                  {tab.name}
+                  {/* {tab.name} */}
                 </Tabs.Tab>
               ))}
             </Tabs>
           </Stack.Item>
-          <Stack.Item width="75%">
+          <Stack.Item width="95%">
             <Section fill scrollable>
               {decideTab(selected_tab)}
             </Section>
@@ -98,14 +105,15 @@ type ElectricityPanelData = {
   exists: boolean;
   link: boolean;
   battery_id: string;
-  power: string;
-  capacity: string;
-  percent: string;
+  power: number;
+  capacity: number;
+  percent: number;
   consumers: ElectricityConsumerData[];
 };
 
 type ElectricityConsumerData = {
   id: string;
+  caption: string;
   name: string;
   link: boolean;
 };
@@ -179,6 +187,7 @@ type EnginesPanelData = {
 
 type EngineData = {
   id: string;
+  caption: string;
   name: string;
   power_link: boolean;
   enable: boolean;
@@ -349,6 +358,7 @@ type FuelSystemPanelData = {
 
 type FuelTankData = {
   id: string;
+  caption: string;
   name: string;
   fuel_amount: number;
   fuel_capacity: number;
@@ -357,6 +367,7 @@ type FuelTankData = {
 
 type FuelPumpData = {
   id: string;
+  caption: string;
   name: string;
   power_link: boolean;
   enable: boolean;
@@ -643,6 +654,7 @@ type HullIntegrityData = {
 
 type ModuleIntegrityData = {
   id: string;
+  caption: string;
   name: string;
   integrity: number;
   max_integrity: number;
@@ -718,6 +730,201 @@ const IntegrityPanel = (props: unknown) => {
             ))}
           </Table>
         </Section>
+      </Stack.Item>
+    </Stack>
+  );
+};
+
+// MARK: Instrumental panel
+type InstrumentalPanelData = {
+  engines: EngineInstrumentData[];
+};
+
+type EngineInstrumentData = {
+  id: string;
+  caption: string;
+  icon: string;
+};
+
+type PowerConsumerInstrumentData = {
+  id: string;
+  caption: string;
+  enable: boolean;
+};
+
+type FuelPumpInstrumentData = {
+  id: string;
+  caption: string;
+  enable: boolean;
+};
+
+const InstrumentalPanel = (props: unknown) => {
+  const { act, data } = useBackend<SpacepodControlPanelData>();
+  const { electricity, engines, instrumental, fuel } = data;
+
+  return (
+    <Stack vertical fill width="100%">
+      {/* Electricity control */}
+      <Stack.Item>
+        <Box align="center">
+          <Stack fill inlineFlex={true}>
+            <Stack.Item>
+              <Box pb="5px"> BATT </Box>
+              <TextMeter
+                caption="CHRG"
+                text={`${electricity.exists ? electricity.power : 0} W`}
+                percent={electricity.exists ? electricity.percent : 0}
+                warn={!electricity.exists || electricity.percent < 25}
+              />
+            </Stack.Item>
+            <Stack.Item>
+              <Box pb="5px">PWR STAT</Box>
+              <Stack wrap>
+                <Stack.Item>
+                  <TumblerButton
+                    caption="MAIN BATT"
+                    enable={electricity.link}
+                    clicked={() =>
+                      act('switch_powernet_link', {
+                        id: electricity.battery_id,
+                      })
+                    }
+                  />
+                </Stack.Item>
+                {electricity.consumers.map((consumer) => (
+                  <Stack.Item key={consumer.id}>
+                    <TumblerButton
+                      caption={consumer.caption}
+                      enable={consumer.link}
+                      clicked={() =>
+                        act('switch_powernet_link', { id: consumer.id })
+                      }
+                    />
+                  </Stack.Item>
+                ))}
+              </Stack>
+            </Stack.Item>
+          </Stack>
+          <Divider />
+        </Box>
+      </Stack.Item>
+      {/* Fuel control */}
+      <Stack.Item>
+        <Box align="center">
+          <Stack fill inlineFlex={true}>
+            <Stack.Item>
+              <Box pb="5px">FUEL TANKS</Box>
+              <Stack wrap>
+                <Stack.Item grow />
+                {fuel.fuel_tanks.map((fuel_tank) => (
+                  <Stack.Item key={fuel_tank.id}>
+                    <TextMeter
+                      caption={fuel_tank.caption}
+                      text={`${fuel_tank.fuel_amount} L`}
+                      percent={fuel_tank.level_percent}
+                      warn={fuel_tank.level_percent < 25}
+                    />
+                  </Stack.Item>
+                ))}
+                <Stack.Item grow />
+              </Stack>
+            </Stack.Item>
+            <Stack.Item>
+              <Box pb="5px">FUEL PUMPS</Box>
+              <Stack wrap>
+                <Stack.Item grow />
+                {fuel.fuel_pumps.map((pump) => (
+                  <Stack.Item key={pump.id}>
+                    <TumblerButton
+                      caption={pump.caption}
+                      enable={pump.enable}
+                      clicked={() => act('switch_enable', { id: pump.id })}
+                    />
+                  </Stack.Item>
+                ))}
+                <Stack.Item grow />
+              </Stack>
+            </Stack.Item>
+          </Stack>
+        </Box>
+        <Divider />
+      </Stack.Item>
+      {/* Engines control */}
+      <Stack.Item>
+        <Box align="center" width="100%">
+          <Stack fill inlineFlex={true}>
+            <Stack.Item>
+              <Box pb="5px">ENG START</Box>
+              <Stack>
+                {instrumental.engines.map((engine) => (
+                  <Stack.Item key={engine.id}>
+                    <EngineButton
+                      caption={engine.caption}
+                      icon={`${engine.icon}.png`}
+                      clicked={() => act('ignite_engine', { id: engine.id })}
+                    />
+                  </Stack.Item>
+                ))}
+              </Stack>
+            </Stack.Item>
+            <Divider />
+            <Stack.Item>
+              <Box pb="5px">ENG STAT</Box>
+              <Stack>
+                {engines.engines.map((engine) => (
+                  <Stack.Item key={engine.id}>
+                    <TextMeter
+                      caption={engine.caption}
+                      text={`${engine.rpm} RPM`}
+                      percent={engine.rpm_percent}
+                      warn={engine.rpm_warn}
+                    />
+                  </Stack.Item>
+                ))}
+              </Stack>
+            </Stack.Item>
+            <Divider />
+            <Stack.Item>
+              <Box pb="5px">ENG GEN</Box>
+              <Stack>
+                {engines.engines.map((engine) => (
+                  <Stack.Item key={engine.id}>
+                    <TumblerButton
+                      caption={engine.caption}
+                      enable={engine.generator_enable}
+                      clicked={() =>
+                        act('switch_generator_enable', { id: engine.id })
+                      }
+                    />
+                  </Stack.Item>
+                ))}
+              </Stack>
+            </Stack.Item>
+            <Divider />
+            <Stack.Item>
+              <Box pb="5px">GYRO</Box>
+              <Stack>
+                <Stack.Item>
+                  <TumblerButton
+                    caption="PWR"
+                    enable={engines.gyroscope.enable}
+                    clicked={() =>
+                      act('switch_enable', { id: engines.gyroscope.id })
+                    }
+                  />
+                </Stack.Item>
+                <Stack.Item>
+                  <TextMeter
+                    caption="STAT"
+                    text={`${engines.gyroscope.rpm} RPM`}
+                    percent={engines.gyroscope.rpm_percent}
+                    warn={engines.gyroscope.rpm_warn}
+                  />
+                </Stack.Item>
+              </Stack>
+            </Stack.Item>
+          </Stack>
+        </Box>
       </Stack.Item>
     </Stack>
   );
@@ -880,4 +1087,187 @@ const ErrorRow = (props: ErrorRowData) => {
     );
   }
   return '';
+};
+
+type EngineButtonData = {
+  caption: string;
+  icon: string;
+  clicked: any;
+};
+
+const EngineButton = (props: EngineButtonData) => {
+  const { caption, icon, clicked } = props;
+  return (
+    <Table style={{ borderCollapse: 'separate', borderSpacing: '0px' }}>
+      {/* Строка с заголовком */}
+      <Table.Row>
+        <Table.Cell
+          textAlign="center"
+          height="28px"
+          verticalAlign="center"
+          backgroundColor="#414141" // Добавляем верхний левый и верхний правый радиусы
+          style={{
+            borderRadius: '8px 8px 0 0',
+            padding: '4px',
+          }}
+        >
+          {caption}
+        </Table.Cell>
+      </Table.Row>
+      {/* Строка с тумблером */}
+      <Table.Row>
+        <Table.Cell
+          backgroundColor="#414141" // Добавляем нижний левый и нижний правый радиусы
+          style={{
+            borderRadius: '0 0 8px 8px', // Обязательно добавляем padding, иначе контент прилипнет к краям фона
+            padding: '4px',
+            display: 'flex',
+            justifyContent: 'center', // Центрируем картинку горизонтально
+          }}
+        >
+          <Image
+            src={resolveAsset(icon)}
+            onClick={() => clicked()}
+            style={{
+              width: '64px',
+              height: '64px',
+            }}
+          />
+        </Table.Cell>
+      </Table.Row>
+    </Table>
+  );
+};
+
+type TumblerButtonData = {
+  caption: string;
+  enable: boolean;
+  clicked: any;
+};
+
+const TumblerButton = (props: TumblerButtonData) => {
+  const { caption, enable, clicked } = props;
+  return (
+    <Table style={{ borderCollapse: 'separate', borderSpacing: '0px' }}>
+      {/* Строка с заголовком */}
+      <Table.Row>
+        <Table.Cell
+          textAlign="center"
+          verticalAlign="center"
+          backgroundColor="#414141" // Добавляем верхний левый и верхний правый радиусы
+          style={{
+            borderRadius: '8px 8px 0 0',
+            padding: '4px',
+          }}
+        >
+          <Box
+            width="64px"
+            height="24px"
+            textAlign="center"
+            verticalAlign="center"
+          >
+            {caption}
+          </Box>
+        </Table.Cell>
+      </Table.Row>
+      {/* Строка с тумблером */}
+      <Table.Row>
+        <Table.Cell
+          backgroundColor="#414141" // Добавляем нижний левый и нижний правый радиусы
+          style={{
+            borderRadius: '0 0 8px 8px', // Обязательно добавляем padding, иначе контент прилипнет к краям фона
+            padding: '4px',
+            display: 'flex',
+            justifyContent: 'center', // Центрируем картинку горизонтально
+          }}
+        >
+          <Image
+            src={resolveAsset(enable ? 'eng-on.png' : 'eng-off-top.png')}
+            onClick={() => clicked()}
+            style={{
+              width: '64px',
+              height: '64px',
+            }}
+          />
+        </Table.Cell>
+      </Table.Row>
+    </Table>
+  );
+};
+
+type TextMeterData = {
+  caption: string;
+  text: string;
+  percent: number;
+  warn: boolean;
+};
+
+const TextMeter = (props: TextMeterData) => {
+  const { caption, text, percent, warn } = props;
+  return (
+    <Table style={{ borderCollapse: 'separate', borderSpacing: '0px' }}>
+      {/* Строка с заголовком */}
+      <Table.Row backgroundColor={warn ? '#7c2f2f' : '#414141'}>
+        <Table.Cell
+          textAlign="center"
+          verticalAlign="center"
+          backgroundColor={warn ? '#7c2f2f' : '#414141'}
+          style={{
+            borderRadius: '8px 8px 0 0',
+            padding: '4px',
+          }}
+        >
+          <Box
+            width="64px"
+            height="32px"
+            textAlign="center"
+            verticalAlign="center"
+          >
+            {caption}
+          </Box>
+        </Table.Cell>
+      </Table.Row>
+      {/* Строка с литрами */}
+      <Table.Row>
+        <Table.Cell
+          textAlign="center"
+          verticalAlign="center"
+          backgroundColor={warn ? '#7c2f2f' : '#414141'}
+          style={{
+            padding: '4px',
+          }}
+        >
+          <Box
+            width="64px"
+            height="24px"
+            textAlign="center"
+            verticalAlign="center"
+          >
+            {text}
+          </Box>
+        </Table.Cell>
+      </Table.Row>
+      {/* Строка с процентами */}
+      <Table.Row>
+        <Table.Cell
+          textAlign="center"
+          verticalAlign="center"
+          backgroundColor={warn ? '#7c2f2f' : '#414141'}
+          style={{
+            borderRadius: '0 0 8px 8px',
+            padding: '4px',
+          }}
+        >
+          <Box
+            width="64px"
+            height="24px"
+            textAlign="center"
+            verticalAlign="center"
+          >
+            {percent}%
+          </Box>
+        </Table.Cell>
+      </Table.Row>
+    </Table>
+  );
 };

@@ -44,6 +44,7 @@
 	// fueltank
 	var/obj/item/spacepod_module/fuel_tank/large/central_fuel_tank = new /obj/item/spacepod_module/fuel_tank/large/full(src)
 	central_fuel_tank.id = "central_fueltank"
+	central_fuel_tank.caption = "CENT TK"
 	central_fuel_tank.name = "Центральный топливный бак"
 	systems.add_module(src, central_fuel_tank)
 	// engines
@@ -54,6 +55,7 @@
 	// central fueltank - apu
 	var/obj/item/spacepod_module/fuel_pump/pump_apu = new(src)
 	pump_apu.id = "pump_central_fueltanktank_to_apu"
+	pump_apu.caption = "APU PUMP"
 	pump_apu.name = "Топливный насос из центрального бака в ВСУ"
 	pump_apu.source_tank = central_fuel_tank
 	pump_apu.destination_tank = apu
@@ -61,6 +63,7 @@
 	// central fueltank - central engine
 	var/obj/item/spacepod_module/fuel_pump/pump_central_engine = new(src)
 	pump_central_engine.id = "pump_central_fueltank_to_engine_central"
+	pump_central_engine.caption = "ENG PUMP"
 	pump_central_engine.name = "Топливный насос из центрального бака в центральный двигатель"
 	pump_central_engine.source_tank = central_fuel_tank
 	pump_central_engine.destination_tank = central_engine
@@ -89,29 +92,35 @@
 /obj/spacepod2/template/two_engine/create_fuel_and_engines()
 	// fuel tanks
 	var/obj/item/spacepod_module/fuel_tank/large/fuel_tank_central = new /obj/item/spacepod_module/fuel_tank/large/full(src)
-	fuel_tank_central.id = "fueltank_left"
+	fuel_tank_central.id = "fueltank_center"
+	fuel_tank_central.caption = "CENT TK"
 	fuel_tank_central.name = "Центральный топливный бак"
 	systems.add_module(src, fuel_tank_central)
 	var/obj/item/spacepod_module/fuel_tank/fuel_tank_right = new /obj/item/spacepod_module/fuel_tank/full(src)
 	fuel_tank_right.id = "fueltank_right"
+	fuel_tank_right.caption = "R TK"
 	fuel_tank_right.name = "Правый топливный бак"
 	systems.add_module(src, fuel_tank_right)
 	var/obj/item/spacepod_module/fuel_tank/fuel_tank_left = new /obj/item/spacepod_module/fuel_tank/full(src)
 	fuel_tank_left.id = "fueltank_left"
+	fuel_tank_left.caption = "L TK"
 	fuel_tank_left.name = "Левый топливный бак"
 	systems.add_module(src, fuel_tank_left)
 	// Engines
 	var/obj/item/spacepod_module/fuel_tank/engine/apu/apu = new(src)
 	var/obj/item/spacepod_module/fuel_tank/engine/engine_right = new(src)
 	engine_right.id = "engine_right"
+	engine_right.caption = "R ENG"
 	engine_right.name = "Правый двигатель"
 	var/obj/item/spacepod_module/fuel_tank/engine/engine_left = new(src)
 	engine_left.id = "engine_left"
+	engine_left.caption = "L ENG"
 	engine_left.name = "Левый двигатель"
 	// Fuel pumps
 	// central fueltank - apu
 	var/obj/item/spacepod_module/fuel_pump/pump_central_to_apu = new(src)
 	pump_central_to_apu.id = "pump_central_fueltanktank_to_apu"
+	pump_central_to_apu.caption = "APU PUMP"
 	pump_central_to_apu.name = "Топливный насос из центрального бака в ВСУ"
 	pump_central_to_apu.source_tank = fuel_tank_central
 	pump_central_to_apu.destination_tank = apu
@@ -119,6 +128,7 @@
 	// central fueltank - right engine
 	var/obj/item/spacepod_module/fuel_pump/pump_central_to_right_engine = new(src)
 	pump_central_to_right_engine.id = "pump_central_fueltank_to_engine_right"
+	pump_central_to_right_engine.caption = "CR ENG PUMP"
 	pump_central_to_right_engine.name = "Топливный насос из центрального бака в правый двигатель"
 	pump_central_to_right_engine.source_tank = fuel_tank_central
 	pump_central_to_right_engine.destination_tank = engine_right
@@ -126,6 +136,7 @@
 	// central fueltank - left engine
 	var/obj/item/spacepod_module/fuel_pump/pump_central_to_left_engine = new(src)
 	pump_central_to_left_engine.id = "pump_central_fueltank_to_engine_left"
+	pump_central_to_left_engine.caption = "CL ENG PUMP"
 	pump_central_to_left_engine.name = "Топливный насос из центрального бака в левый двигатель"
 	pump_central_to_left_engine.source_tank = fuel_tank_central
 	pump_central_to_left_engine.destination_tank = engine_left
@@ -133,6 +144,7 @@
 	// right fueltank - central fueltank
 	var/obj/item/spacepod_module/fuel_pump/pump_right_to_central = new(src)
 	pump_right_to_central.id = "pump_right_fueltank_to_central_fueltank"
+	pump_right_to_central.caption = "RC TK PUMP"
 	pump_right_to_central.name = "Топливный насос из правого бака в центральный бак"
 	pump_right_to_central.source_tank = fuel_tank_right
 	pump_right_to_central.destination_tank = fuel_tank_central
@@ -140,6 +152,7 @@
 	// left fueltank - central fueltank
 	var/obj/item/spacepod_module/fuel_pump/pump_left_to_central = new(src)
 	pump_left_to_central.id = "pump_left_fueltank_to_central_fueltank"
+	pump_left_to_central.caption = "LC TK PUMP"
 	pump_left_to_central.name = "Топливный насос из левого бака в центральный бак"
 	pump_left_to_central.source_tank = fuel_tank_left
 	pump_left_to_central.destination_tank = fuel_tank_central
@@ -147,6 +160,7 @@
 	// right fueltank - right engine
 	var/obj/item/spacepod_module/fuel_pump/pump_right_to_right_engine = new(src)
 	pump_right_to_right_engine.id = "pump_right_fueltank_to_right_engine"
+	pump_right_to_right_engine.caption = "R ENG PUMP"
 	pump_right_to_right_engine.name = "Топливный насос из правого бака в правый двигатель"
 	pump_right_to_right_engine.source_tank = fuel_tank_right
 	pump_right_to_right_engine.destination_tank = engine_right
@@ -154,6 +168,7 @@
 	// left fueltank - left engine
 	var/obj/item/spacepod_module/fuel_pump/pump_left_to_left_engine = new(src)
 	pump_left_to_left_engine.id = "pump_left_fueltank_to_left_engine"
+	pump_left_to_left_engine.caption = "L ENG PUMP"
 	pump_left_to_left_engine.name = "Топливный насос из левого бака в левый двигатель"
 	pump_left_to_left_engine.source_tank = fuel_tank_left
 	pump_left_to_left_engine.destination_tank = engine_left

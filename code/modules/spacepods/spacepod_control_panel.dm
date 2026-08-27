@@ -4,6 +4,7 @@
 #define TAB_WEAPONS "weapons"
 #define TAB_LIFE_SUPPORT "life_support"
 #define TAB_INTEGRITY "integrity"
+#define TAB_INSTRUMENTAL "instrumental"
 
 #define NOT_SELECTED_RPM_PROVIDER "Не передавать"
 
@@ -39,10 +40,16 @@
 	data["weapons"] = create_weapons_panel_data()
 	data["life_support"] = create_life_support_data()
 	data["integrity"] = create_integrity_panel_data()
+	data["instrumental"] = create_instrumental_panel_data()
 	return data
 
 /datum/ui_module/spacepod_control_panels/proc/create_tabs_data()
 	var/tabs = list()
+	tabs += list(list(
+		"id" = TAB_INSTRUMENTAL,
+		"name" = "Панель инструментов",
+		"icon" = "bolt",
+	))
 	tabs += list(list(
 		"id" = TAB_ELECTRICITY,
 		"name" = "Электропитание",
@@ -92,6 +99,7 @@
 		if(module.consume_power > 0)
 			var/list/consumer = list()
 			consumer["id"] = module.id
+			consumer["caption"] = module.caption
 			consumer["name"] = module.name
 			consumer["link"] = module.connection_power_net
 			consumers += list(consumer)
@@ -104,11 +112,12 @@
 	for(var/obj/item/spacepod_module/fuel_tank/engine/engine in pod.systems.engines)
 		var/list/engine_data= list()
 		engine_data["id"] = engine.id
+		engine_data["caption"] = engine.caption
 		engine_data["name"] = engine.name
 		engine_data["enable"] = engine.enable
 		engine_data["rpm"] = engine.current_rpm
 		engine_data["rpm_percent"] = round(engine.current_rpm / engine.max_rpm * 100, 1)
-		engine_data["rpm_warn"] = engine_data["rpm_percent"] < 10 || engine_data["rpm_percent"] > 120
+		engine_data["rpm_warn"] = engine_data["rpm_percent"] > 0 && (engine_data["rpm_percent"] < 25 || engine_data["rpm_percent"] > 120)
 		engine_data["fuel_pressure"] = round(engine.fuel_amount / engine.fuel_capacity * 100, 1)
 		engine_data["fuel_pressure_warn"] = engine_data["fuel_pressure"] <= 30
 		if(istype(engine, /obj/item/spacepod_module/fuel_tank/engine/apu))
@@ -157,6 +166,7 @@
 		var/tank_data = list()
 		tank_data["id"] = fuel_tank.id
 		tank_data["name"] = fuel_tank.name
+		tank_data["caption"] = fuel_tank.caption
 		tank_data["fuel_amount"] = fuel_tank.fuel_amount
 		tank_data["fuel_capacity"] = fuel_tank.fuel_capacity
 		tank_data["level_percent"] = round(fuel_tank.fuel_amount / fuel_tank.fuel_capacity * 100, 1)
@@ -167,6 +177,7 @@
 		var/pump_data = list()
 		pump_data["id"] = pump.id
 		pump_data["name"] = pump.name
+		pump_data["caption"] = pump.caption
 		pump_data["enable"] = pump.enable
 		pump_data["power_link"] = pump.connection_power_net
 		pump_data["pump_speed"] = pump.enable ? pump.pump_speed : 0
@@ -267,6 +278,7 @@
 	for(var/obj/item/spacepod_module/module in pod.systems.modules)
 		var/module_data = list()
 		module_data["id"] = module.id
+		module_data["caption"] = module.caption
 		module_data["name"] = module.name
 		module_data["integrity"] = module.integrity
 		module_data["max_integrity"] = module.max_integrity
@@ -275,6 +287,41 @@
 		modules += list(module_data)
 	panel["modules"] = modules
 	return panel
+
+/datum/ui_module/spacepod_control_panels/proc/create_instrumental_panel_data()
+	var/list/panel = list()
+	var/engines = list()
+	for(var/obj/item/spacepod_module/fuel_tank/engine/engine in pod.systems.engines)
+		var/list/engine_data= list()
+		engine_data["id"] = engine.id
+		engine_data["caption"] = engine.caption
+		if(engine.enable)
+			engine_data["icon"] = "eng-on"
+		else if(engine.error_text == null)
+			engine_data["icon"] = "eng-off"
+		else
+			engine_data["icon"] = "eng-fail"
+		engines += list(engine_data)
+	panel["engines"] = engines
+	return panel
+
+//MARK: assets
+/datum/asset/simple/spacepod_panel
+	assets = list(
+		"eng-idle.png" = 'icons/ui_icons/spacepod_panel/engine-idle.png',
+		"eng-on.png" = 'icons/ui_icons/spacepod_panel/engine-on.png',
+		"eng-off.png" = 'icons/ui_icons/spacepod_panel/engine-off.png',
+		"eng-off-top.png" = 'icons/ui_icons/spacepod_panel/engine-off-top.png',
+		"eng-fail.png" = 'icons/ui_icons/spacepod_panel/engine-fail.png',
+		"tumbler-on.png" = 'icons/ui_icons/spacepod_panel/tumbler-on.png',
+		"tumbler-off.png" = 'icons/ui_icons/spacepod_panel/tumbler-off.png',
+	)
+
+/datum/ui_module/spacepod_control_panels/ui_assets(mob/user)
+	return list(
+		get_asset_datum(/datum/asset/simple/spacepod_panel),
+	)
+
 
 // MARK: ui_act
 /datum/ui_module/spacepod_control_panels/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
@@ -289,6 +336,9 @@
 		if("switch_enable")
 			var/id = params["id"]
 			switch_enable(id)
+		if("ignite_engine")
+			var/id = params["id"]
+			ignite_engine(id)
 		if("switch_generator_enable")
 			var/id = params["id"]
 			switch_generator_enable(id)
@@ -333,6 +383,28 @@
 	else
 		target_module.turn_on()
 
+/datum/ui_module/spacepod_control_panels/proc/ignite_engine(id)
+	var/apu_id = null
+	var/obj/item/spacepod_module/fuel_tank/engine/target_engine = null
+	for(var/obj/item/spacepod_module/fuel_tank/engine/engine in pod.systems.engines)
+		if(id == engine.id)
+			target_engine = engine
+		if(engine.is_apu())
+			apu_id = engine.id
+	if(!target_engine || apu_id == null)
+		return
+	if(target_engine.enable)
+		target_engine.turn_off()
+		return
+	if(target_engine.is_apu())
+		target_engine.turn_on()
+		return
+	select_engine_rpm_provider_by_id(apu_id, id)
+	addtimer(CALLBACK(src, PROC_REF(post_ignite_engine), target_engine), 3 SECONDS)
+
+/datum/ui_module/spacepod_control_panels/proc/post_ignite_engine(obj/item/spacepod_module/fuel_tank/engine/target_engine)
+	target_engine.turn_on()
+
 /datum/ui_module/spacepod_control_panels/proc/switch_generator_enable(id)
 	var/obj/item/spacepod_module/fuel_tank/engine/target_engine = null
 	for(var/obj/item/spacepod_module/fuel_tank/engine/engine in pod.systems.engines)
@@ -357,6 +429,20 @@
 	if(!target_engine)
 		return
 	if(destination_engine_name == NOT_SELECTED_RPM_PROVIDER || destination_engine == null)
+		destination_engine = null
+	target_engine.select_rpm_destination_engine(destination_engine)
+
+/datum/ui_module/spacepod_control_panels/proc/select_engine_rpm_provider_by_id(id, destination_engine_id)
+	var/obj/item/spacepod_module/fuel_tank/engine/apu/target_engine = null
+	var/obj/item/spacepod_module/fuel_tank/engine/destination_engine = null
+	for(var/obj/item/spacepod_module/fuel_tank/engine/engine in pod.systems.engines)
+		if(id == engine.id && istype(engine, /obj/item/spacepod_module/fuel_tank/engine/apu))
+			target_engine = engine
+		if(destination_engine_id == engine.id)
+			destination_engine = engine
+	if(!target_engine)
+		return
+	if(destination_engine_id == null || destination_engine == null)
 		destination_engine = null
 	target_engine.select_rpm_destination_engine(destination_engine)
 

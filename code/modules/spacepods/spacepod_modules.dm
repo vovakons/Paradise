@@ -1,6 +1,7 @@
 // MARK: Basic module
 /obj/item/spacepod_module
 	var/id = "unknown"
+	var/caption = "???"
 	name = "Модуль челнока"
 	icon = 'icons/obj/spacepod.dmi'
 	icon_state = "weapon_burst_taser"
@@ -86,6 +87,7 @@
 // MARK: Fuel tank
 /obj/item/spacepod_module/fuel_tank
 	id = "fuel_tank"
+	caption = "TK"
 	name = "Топливный бак"
 	max_integrity = 200
 	hit_weight = POD_MODULE_HIT_CHANCE_LARGE
@@ -132,6 +134,7 @@
 // MARK: Battery
 /obj/item/spacepod_module/battery
 	id = "battery"
+	caption = "BATT"
 	name = "Аккумуляторная батарея"
 	max_integrity = 200
 	fire_on_hit_chance = 10
@@ -168,6 +171,7 @@
 // MARK: Fuel pump
 /obj/item/spacepod_module/fuel_pump
 	id = "fuel_pump"
+	caption = "PUMP"
 	name = "Топливный насос"
 	max_integrity = 50
 	hit_weight = POD_MODULE_HIT_CHANCE_SMALL
@@ -226,6 +230,7 @@
 /obj/item/spacepod_module/fuel_tank/engine
 	id = "engine"
 	name = "Двигатель"
+	caption = "ENG"
 	hit_weight = POD_MODULE_HIT_CHANCE_LARGE
 	max_integrity = 300
 	fire_damage_mod = 1
@@ -306,6 +311,7 @@
 // MARK: APU
 /obj/item/spacepod_module/fuel_tank/engine/apu
 	id = "apu"
+	caption = "APU"
 	name = "Вспомогательная силовая установка"
 	consume_power = 1000
 	generate_power = 50
@@ -365,6 +371,7 @@
 /obj/item/spacepod_module/gyroscope
 	id = "gyroscope"
 	name = "Гироскопический стабилизатор"
+	caption = "GYRO"
 	hit_weight = POD_MODULE_HIT_CHANCE_LARGE
 	max_integrity = 250
 	consume_power = 50
@@ -406,6 +413,7 @@
 /obj/item/spacepod_module/weapon
 	id = "weapon"
 	name = "Модуль вооружения"
+	caption = "WPN"
 	hit_weight = POD_MODULE_HIT_CHANCE_LARGE
 	max_integrity = 250
 	consume_power = 5
@@ -519,6 +527,7 @@
 // MARK: Armor
 /obj/item/spacepod_module/armor
 	id = "armor"
+	caption = "ARM"
 	hit_weight = POD_MODULE_HIT_CHANCE_EXTRA_LARGE
 	max_integrity = 200
 
@@ -541,6 +550,7 @@
 // MARK: Misc modules
 /obj/item/spacepod_module/passenger_seat
 	id = "passenger_seat"
+	caption = "SEAT"
 	name = "Пассажирское сиденье"
 	hit_weight = 0
 
@@ -559,6 +569,7 @@
 
 /obj/item/spacepod_module/fire_extingusher
 	id = "fire_extinguisher"
+	caption = "FIRE"
 	name = "Модуль пожаротушения"
 	hit_weight = 0
 	var/charges = 3
