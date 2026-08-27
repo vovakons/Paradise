@@ -1,18 +1,3 @@
-/// Basic pod speed
-#define POD_LOW_THRUST_DELAY (0.85 SECONDS)
-#define POD_BASE_MOVE_DELAY (0.15 SECONDS)
-#define POD_SPEED_HIGH (0.12 SECONDS)
-#define POD_SPEED_NORMAL (0.15 SECONDS)
-#define POD_SPEED_SLOW (0.18 SECONDS)
-/// Speed modifier for gravity area
-#define POD_GRAVITY_SPEED_MOD 2.5 // basic 0.4 seconds
-/// Eject occupant from spacepod from outside by grab attack
-#define POD_OCCUPANT_EJECT_DURATION (5 SECONDS)
-/// Passenger loading from outside by drag and drop
-#define POD_OCCUPANT_INSERT_DURATION (5 SECONDS)
-/// Passenger or pilot enter into spacepod duration
-#define POD_ENTER_DURATION (4 SECONDS)
-
 // MARK: Basic spacepod
 /obj/spacepod2
 	name = "not complete spacepod"
@@ -685,7 +670,3 @@
 	lights_action.Remove(user)
 	//fire_action.Remove(user)
 	panel_action.Remove(user)
-
-
-#undef POD_GRAVITY_SPEED_MOD
-#undef POD_OCCUPANT_EJECT_DURATION
