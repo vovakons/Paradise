@@ -5,18 +5,21 @@
 #define POD_MODULE_HIT_CHANCE_EXTRA_LARGE 40
 #define POD_HULL_HIT_CHANCE 25
 
+#define ARMOR_PLATE_BY_ENGINE 3
+#define PASSENGERS_BY_ENGINE 1
+
 // MARK: Spacepod systems
 /datum/spacepod_systems
-	var/list/datum/spacepod_module/modules = list()
-	var/datum/spacepod_module/battery/battery = null
-	var/list/datum/spacepod_module/fuel_tank/fuel_tanks = list()
-	var/list/datum/spacepod_module/fuel_pump/fuel_pumps = list()
-	var/datum/spacepod_module/fuel_tank/engine/apu/apu = null
-	var/list/datum/spacepod_module/fuel_tank/engine/engines = list()
-	var/datum/spacepod_module/gyroscope/gyroscope = null
-	var/datum/spacepod_module/weapon/weapon = null
-	var/list/datum/spacepod_module/armor/armors = list()
-	var/datum/spacepod_module/fire_extingusher/fire_extenguisher = null
+	var/list/obj/item/spacepod_module/modules = list()
+	var/obj/item/spacepod_module/battery/battery = null
+	var/list/obj/item/spacepod_module/fuel_tank/fuel_tanks = list()
+	var/list/obj/item/spacepod_module/fuel_pump/fuel_pumps = list()
+	var/obj/item/spacepod_module/fuel_tank/engine/apu/apu = null
+	var/list/obj/item/spacepod_module/fuel_tank/engine/engines = list()
+	var/obj/item/spacepod_module/gyroscope/gyroscope = null
+	var/obj/item/spacepod_module/weapon/weapon = null
+	var/list/obj/item/spacepod_module/armor/armors = list()
+	var/obj/item/spacepod_module/fire_extingusher/fire_extenguisher = null
 
 /datum/spacepod_systems/Destroy(force)
 	. = ..()
@@ -38,7 +41,7 @@
 		. += span_notice("Отсутствуют топливные насосы.")
 	var/exists_engine = FALSE
 	if(engines)
-		for(var/datum/spacepod_module/fuel_tank/engine/engine in engines)
+		for(var/obj/item/spacepod_module/fuel_tank/engine/engine in engines)
 			if(!engine.is_apu())
 				exists_engine = TRUE
 				break
@@ -49,70 +52,70 @@
 	if(gyroscope == null)
 		. += span_notice("Отсутствует гироскопический стабилизатор.")
 
-/datum/spacepod_systems/proc/add_module(obj/spacepod2/pod, datum/spacepod_module/module)
+/datum/spacepod_systems/proc/add_module(obj/spacepod2/pod, obj/item/spacepod_module/module)
 	module.systems = src
 	modules += module
-	if(istype(module, /datum/spacepod_module/battery))
+	if(istype(module, /obj/item/spacepod_module/battery))
 		battery = module
-	if(istype(module, /datum/spacepod_module/fuel_pump))
+	if(istype(module, /obj/item/spacepod_module/fuel_pump))
 		fuel_pumps += module
-	if(istype(module, /datum/spacepod_module/fuel_tank/engine/apu))
+	if(istype(module, /obj/item/spacepod_module/fuel_tank/engine/apu))
 		apu = module
 		engines += module
-	else if(istype(module, /datum/spacepod_module/fuel_tank/engine))
+	else if(istype(module, /obj/item/spacepod_module/fuel_tank/engine))
 		engines += module
-	else if(istype(module, /datum/spacepod_module/fuel_tank))
+	else if(istype(module, /obj/item/spacepod_module/fuel_tank))
 		fuel_tanks += module
-	if(istype(module, /datum/spacepod_module/gyroscope))
+	if(istype(module, /obj/item/spacepod_module/gyroscope))
 		gyroscope = module
-	if(istype(module, /datum/spacepod_module/weapon))
+	if(istype(module, /obj/item/spacepod_module/weapon))
 		weapon = module
-	if(istype(module, /datum/spacepod_module/armor))
+	if(istype(module, /obj/item/spacepod_module/armor))
 		armors += module
-	if(istype(module, /datum/spacepod_module/fire_extingusher))
+	if(istype(module, /obj/item/spacepod_module/fire_extingusher))
 		fire_extenguisher = module
 	module.on_install(pod)
 
-/datum/spacepod_systems/proc/remove_module(obj/spacepod2/pod, datum/spacepod_module/module)
+/datum/spacepod_systems/proc/remove_module(obj/spacepod2/pod, obj/item/spacepod_module/module)
 	module.on_remove(pod)
 	module.enable = FALSE
 	module.fire = FALSE
 	module.connection_power_net = FALSE
 	module.systems = null
 	modules -= module
-	if(istype(module, /datum/spacepod_module/battery))
+	if(istype(module, /obj/item/spacepod_module/battery))
 		battery = null
-	if(istype(module, /datum/spacepod_module/fuel_pump))
+	if(istype(module, /obj/item/spacepod_module/fuel_pump))
 		fuel_pumps -= module
-	if(istype(module, /datum/spacepod_module/fuel_tank/engine/apu))
+	if(istype(module, /obj/item/spacepod_module/fuel_tank/engine/apu))
 		remove_fuel_tank_from_pumps(module)
 		apu.select_rpm_destination_engine(null)
 		apu = null
 		engines -= module
-	else if(istype(module, /datum/spacepod_module/fuel_tank/engine))
+	else if(istype(module, /obj/item/spacepod_module/fuel_tank/engine))
 		remove_fuel_tank_from_pumps(module)
 		engines -= module
-	else if(istype(module, /datum/spacepod_module/fuel_tank))
+	else if(istype(module, /obj/item/spacepod_module/fuel_tank))
 		remove_fuel_tank_from_pumps(module)
 		fuel_tanks -= module
-	if(istype(module, /datum/spacepod_module/gyroscope))
+	if(istype(module, /obj/item/spacepod_module/gyroscope))
 		gyroscope = null
-	if(istype(module, /datum/spacepod_module/weapon))
+	if(istype(module, /obj/item/spacepod_module/weapon))
 		weapon = null
-	if(istype(module, /datum/spacepod_module/armor))
+	if(istype(module, /obj/item/spacepod_module/armor))
 		armors -= module
-	if(istype(module, /datum/spacepod_module/fire_extingusher))
+	if(istype(module, /obj/item/spacepod_module/fire_extingusher))
 		fire_extenguisher = null
 
-/datum/spacepod_systems/proc/remove_fuel_tank_from_pumps(datum/spacepod_module/fuel_tank/tank)
-	for(var/datum/spacepod_module/fuel_pump/pump in fuel_pumps)
+/datum/spacepod_systems/proc/remove_fuel_tank_from_pumps(obj/item/spacepod_module/fuel_tank/tank)
+	for(var/obj/item/spacepod_module/fuel_pump/pump in fuel_pumps)
 		if(pump.source_tank == tank)
 			pump.source_tank = null
 		if(pump.destination_tank == tank)
 			pump.destination_tank = null
 
 /datum/spacepod_systems/proc/process_work(seconds_per_tick, obj/spacepod2/pod)
-	for(var/datum/spacepod_module/module as anything in modules)
+	for(var/obj/item/spacepod_module/module as anything in modules)
 		if(module.fire)
 			module.fire_process()
 		module.process_work(seconds_per_tick)
@@ -122,7 +125,7 @@
 		return 0
 	var/total_thrust = 0
 	var/max_thrust = 0
-	for(var/datum/spacepod_module/fuel_tank/engine/engine as anything in engines)
+	for(var/obj/item/spacepod_module/fuel_tank/engine/engine as anything in engines)
 		if(engine.is_apu())
 			continue
 		total_thrust += engine.current_rpm / engine.max_rpm
@@ -137,7 +140,7 @@
 	return gyroscope.is_working()
 
 /datum/spacepod_systems/proc/fill_fuel_tanks(fuel_amount)
-	for(var/datum/spacepod_module/fuel_tank/tank in fuel_tanks)
+	for(var/obj/item/spacepod_module/fuel_tank/tank in fuel_tanks)
 		var/fill_fuel_amount = tank.fuel_capacity - tank.fuel_amount
 		if(fill_fuel_amount <= 0)
 			continue
@@ -150,12 +153,12 @@
 
 /datum/spacepod_systems/proc/damage_modules(damage_amount)
 	var/hit_chance_summ = 0
-	for(var/datum/spacepod_module/module in modules)
+	for(var/obj/item/spacepod_module/module in modules)
 		hit_chance_summ += module.hit_weight
 	hit_chance_summ += POD_HULL_HIT_CHANCE
 	// randomize target module or hull
 	var/random_value = rand(0, hit_chance_summ - 1)
-	for(var/datum/spacepod_module/module in modules)
+	for(var/obj/item/spacepod_module/module in modules)
 		if(random_value < module.hit_weight)
 			return module.deal_damage(damage_amount)
 		random_value -= module.hit_weight
@@ -164,15 +167,18 @@
 
 
 // MARK: Basic module
-/datum/spacepod_module
+/obj/item/spacepod_module
 	var/id = "unknown"
-	var/name = "Модуль челнока"
+	name = "Модуль челнока"
+	icon = 'icons/obj/spacepod.dmi'
+	icon_state = "weapon_burst_taser"
+	origin_tech = "programming=2;materials=2;engineering=2"
 	var/datum/spacepod_systems/systems = null
 
 	/// Current module integrity
 	var/integrity
 	/// Maximal module integrity
-	var/max_integrity = 100
+	max_integrity = 100
 	/// Hit chance weight
 	var/hit_weight = POD_MODULE_HIT_CHANCE_NORMAL
 	/// Enable status flag
@@ -188,21 +194,21 @@
 	var/consume_power = 0
 	/// Error detail data
 	var/error_text = null
-	/// Linked module item
-	var/obj/item/spacepod_module/module_item = null
 
-/datum/spacepod_module/New(id)
+/obj/item/spacepod_module/Initialize(mapload)
 	. = ..()
-	src.id = id
 	integrity = max_integrity
 
-/datum/spacepod_module/proc/on_install(obj/spacepod2/pod)
+/obj/item/spacepod_module/proc/install_to(mob/living/user, obj/spacepod2/pod)
+	return FALSE
+
+/obj/item/spacepod_module/proc/on_install(obj/spacepod2/pod)
 	return TRUE
 
-/datum/spacepod_module/proc/on_remove(obj/spacepod2/pod)
+/obj/item/spacepod_module/proc/on_remove(obj/spacepod2/pod)
 	return TRUE
 
-/datum/spacepod_module/proc/fire_process()
+/obj/item/spacepod_module/proc/fire_process()
 	if(!fire)
 		return FALSE
 	if(integrity == 0)
@@ -214,17 +220,17 @@
 
 	return integrity > 0
 
-/datum/spacepod_module/proc/process_power(seconds_per_tick)
+/obj/item/spacepod_module/proc/process_power(seconds_per_tick)
 	if(!connection_power_net)
 		return FALSE
 	if(!systems || !systems.battery)
 		return FALSE
 	return systems.battery.consume_power(consume_power * seconds_per_tick)
 
-/datum/spacepod_module/proc/process_work(seconds_per_tick)
+/obj/item/spacepod_module/proc/process_work(seconds_per_tick)
 	return enable
 
-/datum/spacepod_module/proc/turn_on()
+/obj/item/spacepod_module/proc/turn_on()
 	if(integrity <= 0)
 		error_text = "Модуль уничтожен"
 		enable = FALSE
@@ -232,10 +238,10 @@
 	error_text = null
 	enable = TRUE
 
-/datum/spacepod_module/proc/turn_off()
+/obj/item/spacepod_module/proc/turn_off()
 	enable = FALSE
 
-/datum/spacepod_module/proc/deal_damage(damage_amount)
+/obj/item/spacepod_module/proc/deal_damage(damage_amount)
 	var/absorbed_damage = min(integrity, damage_amount)
 	integrity -= absorbed_damage
 	if(integrity > 0 && fire_on_hit_chance > 0 && prob(damage_amount * fire_on_hit_chance / 100))
@@ -246,7 +252,8 @@
 
 
 // MARK: Fuel tank
-/datum/spacepod_module/fuel_tank
+/obj/item/spacepod_module/fuel_tank
+	id = "fuel_tank"
 	name = "Топливный бак"
 	max_integrity = 200
 	hit_weight = POD_MODULE_HIT_CHANCE_LARGE
@@ -257,30 +264,40 @@
 	/// Current fuel level in units
 	var/fuel_amount = 0
 
-/datum/spacepod_module/fuel_tank/proc/consume_fuel(amount)
+/obj/item/spacepod_module/fuel_tank/proc/consume_fuel(amount)
 	if(amount > fuel_amount)
 		amount = fuel_amount
 
 	fuel_amount -= amount
 	return amount
 
-/datum/spacepod_module/fuel_tank/full/New(id)
+/obj/item/spacepod_module/fuel_tank/full/New(id)
 	. = ..()
 	fuel_amount = fuel_capacity
 
-/datum/spacepod_module/fuel_tank/large
+/obj/item/spacepod_module/fuel_tank/large
 	name = "Большой топливный бак"
 	max_integrity = 300
 	hit_weight = POD_MODULE_HIT_CHANCE_EXTRA_LARGE
 	fuel_capacity = 2000
 
-/datum/spacepod_module/fuel_tank/large/full/New(id)
+/obj/item/spacepod_module/fuel_tank/large/full/New(id)
 	. = ..()
 	fuel_amount = fuel_capacity
 
+/obj/item/spacepod_module/fuel_tank/install_to(mob/living/user, obj/spacepod2/pod)
+	var/fueltank_id = "fueltank_[length(pod.systems.fuel_tanks) + 1]"
+	var/fueltank_name = tgui_input_text(user, "Название топливного бака", "Назвать топливный бак", max_length = MAX_NAME_LEN, encode = TRUE)
+	if(QDELETED(src))
+		return FALSE
+	src.id = fueltank_id
+	src.name = fueltank_name
+	return TRUE
+
 
 // MARK: Battery
-/datum/spacepod_module/battery
+/obj/item/spacepod_module/battery
+	id = "battery"
 	name = "Аккумуляторная батарея"
 	max_integrity = 200
 	fire_on_hit_chance = 10
@@ -290,11 +307,17 @@
 	/// Current power level in watt
 	var/power = 0
 
-/datum/spacepod_module/battery/full/New(id)
+/obj/item/spacepod_module/battery/full/New(id)
 	. = ..()
 	power = power_capacity
 
-/datum/spacepod_module/battery/proc/consume_power(amount)
+/obj/item/spacepod_module/battery/install_to(mob/living/user, obj/spacepod2/pod)
+	if(pod.systems.battery != null)
+		to_chat(user, span_notice("Аккумуляторная батарея уже установлена в космическом челноке!"))
+		return FALSE
+	return TRUE
+
+/obj/item/spacepod_module/battery/proc/consume_power(amount)
 	if(!connection_power_net)
 		return FALSE
 	if(!enable)
@@ -304,12 +327,13 @@
 	power -= amount
 	return TRUE
 
-/datum/spacepod_module/battery/proc/accumulate_power(amount)
+/obj/item/spacepod_module/battery/proc/accumulate_power(amount)
 	power = min(power + amount, power_capacity)
 
 
 // MARK: Fuel pump
-/datum/spacepod_module/fuel_pump
+/obj/item/spacepod_module/fuel_pump
+	id = "fuel_pump"
 	name = "Топливный насос"
 	max_integrity = 50
 	hit_weight = POD_MODULE_HIT_CHANCE_SMALL
@@ -318,10 +342,26 @@
 	consume_power = 10
 	/// Fuel pumping speed in units per tick
 	var/pump_speed = 10 //units per tick
-	var/datum/spacepod_module/fuel_tank/source_tank
-	var/datum/spacepod_module/fuel_tank/destination_tank
+	var/obj/item/spacepod_module/fuel_tank/source_tank
+	var/obj/item/spacepod_module/fuel_tank/destination_tank
 
-/datum/spacepod_module/fuel_pump/process_work(seconds_per_tick)
+/obj/item/spacepod_module/fuel_pump/install_to(mob/living/user, obj/spacepod2/pod)
+	if(length(pod.systems.fuel_tanks) == 0)
+		to_chat(user, span_notice("Чтобы установить топливный насос, сначала установите топливный бак!"))
+		return null
+	var/obj/item/spacepod_module/fuel_tank/source_fueltank = tgui_input_list(user, "Выберите откуда насос будет качать топливо:", "Выбор источника топлива", pod.systems.fuel_tanks)
+	var/obj/item/spacepod_module/fuel_tank/destination_fueltank = tgui_input_list(user, "Выберите куда насос будет качать топливо:", "Выбор назначения топлива", pod.systems.fuel_tanks | pod.systems.engines)
+	var/pump_id = "fuelpump_[length(pod.systems.fuel_pumps) + 1]"
+	var/pump_name = tgui_input_text(user, "Название топливного насоса", "Назвать топливный насос", max_length = MAX_NAME_LEN, encode = TRUE)
+	if(QDELETED(src))
+		return FALSE
+	src.id = pump_id
+	src.name = pump_name
+	src.source_tank = source_fueltank
+	src.destination_tank = destination_fueltank
+	return TRUE
+
+/obj/item/spacepod_module/fuel_pump/process_work(seconds_per_tick)
 	. = ..()
 	if(!.)
 		return
@@ -349,7 +389,8 @@
 
 
 // MARK: Engines
-/datum/spacepod_module/fuel_tank/engine
+/obj/item/spacepod_module/fuel_tank/engine
+	id = "engine"
 	name = "Двигатель"
 	hit_weight = POD_MODULE_HIT_CHANCE_LARGE
 	max_integrity = 300
@@ -372,14 +413,22 @@
 	/// Receiving external rotation
 	var/external_rotation = FALSE
 
-/datum/spacepod_module/fuel_tank/engine/proc/get_rpm_percent()
+
+/obj/item/spacepod_module/fuel_tank/engine/install_to(mob/living/user, obj/spacepod2/pod)
+	var/engine_id = "engine_[length(pod.systems.engines) + 1]"
+	var/engine_name = tgui_input_text(user, "Название двигателя", "Назвать двигатель", max_length = MAX_NAME_LEN, encode = TRUE)
+	src.id = engine_id
+	src.name = engine_name
+	return TRUE
+
+/obj/item/spacepod_module/fuel_tank/engine/proc/get_rpm_percent()
 	return round(current_rpm / max_rpm * 100, 1)
 
-/datum/spacepod_module/fuel_tank/engine/turn_on()
+/obj/item/spacepod_module/fuel_tank/engine/turn_on()
 	error_text = null
 	ignite()
 
-/datum/spacepod_module/fuel_tank/engine/proc/ignite()
+/obj/item/spacepod_module/fuel_tank/engine/proc/ignite()
 	if(enable)
 		return FALSE
 	if(current_rpm <= 0) //no rotation - no ignition, provde rotations from apu
@@ -389,16 +438,16 @@
 	external_rotation = FALSE
 	return TRUE
 
-/datum/spacepod_module/fuel_tank/engine/proc/enable_power_generator()
+/obj/item/spacepod_module/fuel_tank/engine/proc/enable_power_generator()
 	if(current_rpm > 0)
 		generator_enable = TRUE
 	else
 		error_text = "Нет оборотов двигателя для запуска генератора"
 
-/datum/spacepod_module/fuel_tank/engine/proc/is_apu()
+/obj/item/spacepod_module/fuel_tank/engine/proc/is_apu()
 	return FALSE
 
-/datum/spacepod_module/fuel_tank/engine/process_work(seconds_per_tick)
+/obj/item/spacepod_module/fuel_tank/engine/process_work(seconds_per_tick)
 	if(generator_enable)
 		var/rpm_mod = current_rpm / max_rpm
 		if(systems && systems.battery)
@@ -419,16 +468,24 @@
 	current_rpm = min(current_rpm + ignition_acceleration * seconds_per_tick, max_rpm)
 
 // MARK: APU
-/datum/spacepod_module/fuel_tank/engine/apu
+/obj/item/spacepod_module/fuel_tank/engine/apu
+	id = "apu"
 	name = "Вспомогательная силовая установка"
 	consume_power = 1000
 	generate_power = 50
-	var/datum/spacepod_module/fuel_tank/engine/rpm_destination_engine = null
+	var/obj/item/spacepod_module/fuel_tank/engine/rpm_destination_engine = null
 
-/datum/spacepod_module/fuel_tank/engine/apu/is_apu()
+/obj/item/spacepod_module/fuel_tank/engine/apu/is_apu()
 	return TRUE
 
-/datum/spacepod_module/fuel_tank/engine/apu/ignite()
+
+/obj/item/spacepod_module/fuel_tank/engine/apu/install_to(mob/living/user, obj/spacepod2/pod)
+	if(pod.systems.apu != null)
+		to_chat(user, span_notice("Вспомогательная силовая установка уже установлена в космическом челноке!"))
+		return FALSE
+	return TRUE
+
+/obj/item/spacepod_module/fuel_tank/engine/apu/ignite()
 	if(enable || current_rpm > 0)
 		return FALSE
 	if(!process_power(1)) // can not ignite, because low power
@@ -440,12 +497,12 @@
 	enable = TRUE
 	return TRUE
 
-/datum/spacepod_module/fuel_tank/engine/apu/turn_off()
+/obj/item/spacepod_module/fuel_tank/engine/apu/turn_off()
 	. = ..()
 	if(rpm_destination_engine != null)
 		select_rpm_destination_engine(null)
 
-/datum/spacepod_module/fuel_tank/engine/apu/process_work(seconds_per_tick)
+/obj/item/spacepod_module/fuel_tank/engine/apu/process_work(seconds_per_tick)
 	. = ..()
 	if(current_rpm <= 0 || !rpm_destination_engine)
 		return
@@ -458,7 +515,7 @@
 		error_text = "Низкие обороты"
 		turn_off()
 
-/datum/spacepod_module/fuel_tank/engine/apu/proc/select_rpm_destination_engine(datum/spacepod_module/fuel_tank/engine/destination)
+/obj/item/spacepod_module/fuel_tank/engine/apu/proc/select_rpm_destination_engine(obj/item/spacepod_module/fuel_tank/engine/destination)
 	if(!enable && destination)
 		return
 	if(rpm_destination_engine)
@@ -469,7 +526,8 @@
 
 
 // MARK: Gyroscope
-/datum/spacepod_module/gyroscope
+/obj/item/spacepod_module/gyroscope
+	id = "gyroscope"
 	name = "Гироскопический стабилизатор"
 	hit_weight = POD_MODULE_HIT_CHANCE_LARGE
 	max_integrity = 250
@@ -481,7 +539,7 @@
 	/// Ignition acceleration (rpm increase per units)
 	var/ignition_acceleration = 1000
 
-/datum/spacepod_module/gyroscope/process_work(seconds_per_tick)
+/obj/item/spacepod_module/gyroscope/process_work(seconds_per_tick)
 	if(!enable) // slowly stoping
 		if(current_rpm == 0)
 			return
@@ -498,12 +556,19 @@
 		return
 	current_rpm = min(current_rpm + ignition_acceleration * seconds_per_tick, max_rpm)
 
-/datum/spacepod_module/gyroscope/proc/is_working()
+/obj/item/spacepod_module/gyroscope/install_to(mob/living/user, obj/spacepod2/pod)
+	if(pod.systems.gyroscope != null)
+		to_chat(user, span_notice("Стабилизирующий гироскоп уже установлен в космическом челноке!"))
+		return FALSE
+	return TRUE
+
+/obj/item/spacepod_module/gyroscope/proc/is_working()
 	return current_rpm > max_rpm / 2
 
 
 // MARK: Weapon
-/datum/spacepod_module/weapon
+/obj/item/spacepod_module/weapon
+	id = "weapon"
 	name = "Модуль вооружения"
 	hit_weight = POD_MODULE_HIT_CHANCE_LARGE
 	max_integrity = 250
@@ -512,12 +577,18 @@
 	var/datum/spacepod_weapon_slot/primary = new("primary", "Основное")
 	var/datum/spacepod_weapon_slot/secondary = new("secondary", "Дополнительное")
 
-/datum/spacepod_module/weapon/Destroy(force)
+/obj/item/spacepod_module/weapon/Destroy(force)
 	QDEL_NULL(primary)
 	QDEL_NULL(secondary)
 	. = ..()
 
-/datum/spacepod_module/weapon/proc/install_gun(obj/item/gun/installed_gun)
+/obj/item/spacepod_module/weapon/install_to(mob/living/user, obj/spacepod2/pod)
+	if(pod.systems.weapon != null)
+		to_chat(user, span_notice("Модуль вооружения уже установлен в космическом челноке!"))
+		return FALSE
+	return TRUE
+
+/obj/item/spacepod_module/weapon/proc/install_gun(obj/item/gun/installed_gun)
 	if(primary.weapon == null)
 		primary.weapon = installed_gun
 		return TRUE
@@ -526,7 +597,7 @@
 		return TRUE
 	return FALSE
 
-/datum/spacepod_module/weapon/proc/remove_gun(obj/item/gun/selected_gun)
+/obj/item/spacepod_module/weapon/proc/remove_gun(obj/item/gun/selected_gun)
 	if(primary.weapon == selected_gun)
 		primary.weapon = null
 		primary.charging = FALSE
@@ -574,7 +645,7 @@
 			gun_magazine.update_appearance()
 			return
 
-/datum/spacepod_weapon_slot/proc/process_charge(datum/spacepod_module/weapon/module)
+/datum/spacepod_weapon_slot/proc/process_charge(obj/item/spacepod_module/weapon/module)
 	if(weapon == null)
 		return
 	if(!charging)
@@ -585,7 +656,7 @@
 	if(module.systems.battery.consume_power(recharge_rate))
 		energy_gun.cell.give(recharge_rate)
 
-/datum/spacepod_module/weapon/process_work(seconds_per_tick)
+/obj/item/spacepod_module/weapon/process_work(seconds_per_tick)
 	if(!enable)
 		return
 	if(!process_power(seconds_per_tick))
@@ -599,38 +670,66 @@
 	secondary.process_charge(src)
 
 
-/datum/spacepod_module/weapon/course
+/obj/item/spacepod_module/weapon/course
+	id = "weapon_course"
 	name = "Модуль курсового вооружения"
 	only_course_fire = TRUE
 
-/datum/spacepod_module/weapon/turret
+/obj/item/spacepod_module/weapon/turret
+	id = "weapon_turret"
 	name = "Модуль турельного вооружения"
 
+
 // MARK: Armor
-/datum/spacepod_module/armor
+/obj/item/spacepod_module/armor
+	id = "armor"
 	hit_weight = POD_MODULE_HIT_CHANCE_EXTRA_LARGE
 	max_integrity = 200
 
-/datum/spacepod_module/armor/light
+/obj/item/spacepod_module/armor/install_to(mob/living/user, obj/spacepod2/pod)
+	if(length(pod.systems.armors) >= ARMOR_PLATE_BY_ENGINE * length(pod.systems.engines))
+		to_chat(user, span_notice("Установлено максимальное количество модулей брони в космическом челноке!"))
+		return FALSE
+	return TRUE
+
+/obj/item/spacepod_module/armor/light
+	id = "armor_light"
 	name = "Модуль лёгкой брони"
 
-/datum/spacepod_module/armor/heavy
+/obj/item/spacepod_module/armor/heavy
+	id = "armor_heavy"
 	name = "Модуль тяжёлой брони"
 	max_integrity = 350
 
 
 // MARK: Misc modules
-/datum/spacepod_module/passenger_seat
+/obj/item/spacepod_module/passenger_seat
+	id = "passenger_seat"
 	name = "Пассажирское сиденье"
 	hit_weight = 0
 
-/datum/spacepod_module/passenger_seat/on_install(obj/spacepod2/pod)
+/obj/item/spacepod_module/passenger_seat/install_to(mob/living/user, obj/spacepod2/pod)
+	if(pod.max_passengers >= PASSENGERS_BY_ENGINE * length(pod.systems.engines))
+		to_chat(user, span_notice("Установлено максимальное количество пассажирский сидений в космическом челноке!"))
+		return FALSE
+	src.id = "passenger_seat_[pod.max_passengers]"
+	return TRUE
+
+/obj/item/spacepod_module/passenger_seat/on_install(obj/spacepod2/pod)
 	pod.max_passengers += 1
 
-/datum/spacepod_module/passenger_seat/on_remove(obj/spacepod2/pod)
+/obj/item/spacepod_module/passenger_seat/on_remove(obj/spacepod2/pod)
 	pod.max_passengers -= 1
 
-/datum/spacepod_module/fire_extingusher
+/obj/item/spacepod_module/fire_extingusher
+	id = "fire_extinguisher"
 	name = "Модуль пожаротушения"
 	hit_weight = 0
 	var/charges = 3
+
+
+/obj/item/spacepod_module/passenger_seat/install_to(mob/living/user, obj/spacepod2/pod)
+	if(pod.systems.fire_extenguisher != null)
+		to_chat(user, span_notice("Модуль пожаротушения уже установлен в космическом челноке!"))
+		return FALSE
+	return TRUE

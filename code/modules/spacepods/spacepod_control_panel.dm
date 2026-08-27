@@ -88,7 +88,7 @@
 	else
 		panel["exists"] = FALSE
 	var/list/consumers = list()
-	for(var/datum/spacepod_module/module in pod.systems.modules)
+	for(var/obj/item/spacepod_module/module in pod.systems.modules)
 		if(module.consume_power > 0)
 			var/list/consumer = list()
 			consumer["id"] = module.id
@@ -101,7 +101,7 @@
 /datum/ui_module/spacepod_control_panels/proc/create_engines_panel_data()
 	var/list/panel = list()
 	var/list/engines = list()
-	for(var/datum/spacepod_module/fuel_tank/engine/engine in pod.systems.engines)
+	for(var/obj/item/spacepod_module/fuel_tank/engine/engine in pod.systems.engines)
 		var/list/engine_data= list()
 		engine_data["id"] = engine.id
 		engine_data["name"] = engine.name
@@ -111,13 +111,13 @@
 		engine_data["rpm_warn"] = engine_data["rpm_percent"] < 10 || engine_data["rpm_percent"] > 120
 		engine_data["fuel_pressure"] = round(engine.fuel_amount / engine.fuel_capacity * 100, 1)
 		engine_data["fuel_pressure_warn"] = engine_data["fuel_pressure"] <= 30
-		if(istype(engine, /datum/spacepod_module/fuel_tank/engine/apu))
-			var/datum/spacepod_module/fuel_tank/engine/apu/apu_engine = engine
+		if(istype(engine, /obj/item/spacepod_module/fuel_tank/engine/apu))
+			var/obj/item/spacepod_module/fuel_tank/engine/apu/apu_engine = engine
 			engine_data["power_link"] = apu_engine.connection_power_net
 			engine_data["selected_rpm_provide_engine"] = apu_engine.rpm_destination_engine ? apu_engine.rpm_destination_engine.name : NOT_SELECTED_RPM_PROVIDER
 			var/rpm_destinations = list()
 			rpm_destinations += NOT_SELECTED_RPM_PROVIDER
-			for(var/datum/spacepod_module/fuel_tank/engine/dest_engine in pod.systems.engines)
+			for(var/obj/item/spacepod_module/fuel_tank/engine/dest_engine in pod.systems.engines)
 				if(engine == dest_engine)
 					continue
 				rpm_destinations += dest_engine.name
@@ -153,7 +153,7 @@
 /datum/ui_module/spacepod_control_panels/proc/create_fuel_panel_data()
 	var/list/panel = list()
 	var/fuel_tanks = list()
-	for(var/datum/spacepod_module/fuel_tank/fuel_tank in pod.systems.fuel_tanks)
+	for(var/obj/item/spacepod_module/fuel_tank/fuel_tank in pod.systems.fuel_tanks)
 		var/tank_data = list()
 		tank_data["id"] = fuel_tank.id
 		tank_data["name"] = fuel_tank.name
@@ -163,7 +163,7 @@
 		fuel_tanks += list(tank_data)
 	panel["fuel_tanks"] = fuel_tanks
 	var/fuel_pumps = list()
-	for(var/datum/spacepod_module/fuel_pump/pump in pod.systems.fuel_pumps)
+	for(var/obj/item/spacepod_module/fuel_pump/pump in pod.systems.fuel_pumps)
 		var/pump_data = list()
 		pump_data["id"] = pump.id
 		pump_data["name"] = pump.name
@@ -264,7 +264,7 @@
 		hull["extenguish_charges"] = pod.systems.fire_extenguisher.charges
 	panel["hull"] = hull
 	var/modules = list()
-	for(var/datum/spacepod_module/module in pod.systems.modules)
+	for(var/obj/item/spacepod_module/module in pod.systems.modules)
 		var/module_data = list()
 		module_data["id"] = module.id
 		module_data["name"] = module.name
@@ -311,8 +311,8 @@
 			return FALSE
 
 /datum/ui_module/spacepod_control_panels/proc/switch_powernet_link(id)
-	var/datum/spacepod_module/target_module = null
-	for(var/datum/spacepod_module/module in pod.systems.modules)
+	var/obj/item/spacepod_module/target_module = null
+	for(var/obj/item/spacepod_module/module in pod.systems.modules)
 		if(id == module.id)
 			target_module = module
 			break
@@ -321,8 +321,8 @@
 	target_module.connection_power_net = !target_module.connection_power_net
 
 /datum/ui_module/spacepod_control_panels/proc/switch_enable(id)
-	var/datum/spacepod_module/target_module = null
-	for(var/datum/spacepod_module/module in pod.systems.modules)
+	var/obj/item/spacepod_module/target_module = null
+	for(var/obj/item/spacepod_module/module in pod.systems.modules)
 		if(id == module.id)
 			target_module = module
 			break
@@ -334,8 +334,8 @@
 		target_module.turn_on()
 
 /datum/ui_module/spacepod_control_panels/proc/switch_generator_enable(id)
-	var/datum/spacepod_module/fuel_tank/engine/target_engine = null
-	for(var/datum/spacepod_module/fuel_tank/engine/engine in pod.systems.engines)
+	var/obj/item/spacepod_module/fuel_tank/engine/target_engine = null
+	for(var/obj/item/spacepod_module/fuel_tank/engine/engine in pod.systems.engines)
 		if(id == engine.id)
 			target_engine = engine
 			break
@@ -347,10 +347,10 @@
 		target_engine.generator_enable = FALSE
 
 /datum/ui_module/spacepod_control_panels/proc/select_engine_rpm_provider(id, destination_engine_name)
-	var/datum/spacepod_module/fuel_tank/engine/apu/target_engine = null
-	var/datum/spacepod_module/fuel_tank/engine/destination_engine = null
-	for(var/datum/spacepod_module/fuel_tank/engine/engine in pod.systems.engines)
-		if(id == engine.id && istype(engine, /datum/spacepod_module/fuel_tank/engine/apu))
+	var/obj/item/spacepod_module/fuel_tank/engine/apu/target_engine = null
+	var/obj/item/spacepod_module/fuel_tank/engine/destination_engine = null
+	for(var/obj/item/spacepod_module/fuel_tank/engine/engine in pod.systems.engines)
+		if(id == engine.id && istype(engine, /obj/item/spacepod_module/fuel_tank/engine/apu))
 			target_engine = engine
 		if(destination_engine_name == engine.name)
 			destination_engine = engine
@@ -361,7 +361,7 @@
 	target_engine.select_rpm_destination_engine(destination_engine)
 
 /datum/ui_module/spacepod_control_panels/proc/toggle_weapon_safety(id)
-	var/datum/spacepod_module/weapon/weapon_module = pod.systems.weapon
+	var/obj/item/spacepod_module/weapon/weapon_module = pod.systems.weapon
 	var/datum/spacepod_weapon_slot/weapon_slot = null
 	if(weapon_module.primary.id == id)
 		weapon_slot = weapon_module.primary
@@ -372,7 +372,7 @@
 	weapon_slot.safety = !weapon_slot.safety
 
 /datum/ui_module/spacepod_control_panels/proc/reload_weapon(id)
-	var/datum/spacepod_module/weapon/weapon_module = pod.systems.weapon
+	var/obj/item/spacepod_module/weapon/weapon_module = pod.systems.weapon
 	var/datum/spacepod_weapon_slot/weapon_slot = null
 	if(weapon_module.primary.id == id)
 		weapon_slot = weapon_module.primary
@@ -386,8 +386,8 @@
 	pod.toggle_internal_tank(usr)
 
 /datum/ui_module/spacepod_control_panels/proc/extinguish_module(module_id)
-	var/datum/spacepod_module/target_module = null
-	for(var/datum/spacepod_module/module in pod.systems.modules)
+	var/obj/item/spacepod_module/target_module = null
+	for(var/obj/item/spacepod_module/module in pod.systems.modules)
 		if(module_id == module.id)
 			target_module = module
 			break
