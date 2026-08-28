@@ -11,7 +11,7 @@
 /datum/ui_module/spacepod_control_panels
 	name = "Панель управления космическим челноком"
 	var/obj/spacepod2/pod
-	var/selected_tab_id = TAB_ELECTRICITY
+	var/selected_tab_id = TAB_INSTRUMENTAL
 
 /datum/ui_module/spacepod_control_panels/ui_state(mob/user)
 	if(isobserver(user))
@@ -40,7 +40,6 @@
 	data["weapons"] = create_weapons_panel_data()
 	data["life_support"] = create_life_support_data()
 	data["integrity"] = create_integrity_panel_data()
-	data["instrumental"] = create_instrumental_panel_data()
 	return data
 
 /datum/ui_module/spacepod_control_panels/proc/create_tabs_data()
@@ -191,6 +190,8 @@
 /datum/ui_module/spacepod_control_panels/proc/create_weapons_panel_data()
 	var/list/panel = list()
 	if(pod.systems.weapon == null)
+		panel["module"] = null
+		panel["guns"] = list()
 		return panel
 	var/module = list()
 	module["id"] = pod.systems.weapon.id
@@ -288,22 +289,6 @@
 	panel["modules"] = modules
 	return panel
 
-/datum/ui_module/spacepod_control_panels/proc/create_instrumental_panel_data()
-	var/list/panel = list()
-	var/engines = list()
-	for(var/obj/item/spacepod_module/fuel_tank/engine/engine in pod.systems.engines)
-		var/list/engine_data= list()
-		engine_data["id"] = engine.id
-		engine_data["caption"] = engine.caption
-		if(engine.enable)
-			engine_data["icon"] = "eng-on"
-		else if(engine.error_text == null)
-			engine_data["icon"] = "eng-off"
-		else
-			engine_data["icon"] = "eng-fail"
-		engines += list(engine_data)
-	panel["engines"] = engines
-	return panel
 
 //MARK: assets
 /datum/asset/simple/spacepod_panel

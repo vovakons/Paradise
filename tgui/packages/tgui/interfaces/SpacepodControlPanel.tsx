@@ -25,7 +25,6 @@ type SpacepodControlPanelData = {
   weapons: WeaponsPanelData;
   life_support: LifeSupportPanelData;
   integrity: IntegrityPanelData;
-  instrumental: InstrumentalPanelData;
 };
 
 type SpacepodControlPanelTabsData = {
@@ -736,31 +735,9 @@ const IntegrityPanel = (props: unknown) => {
 };
 
 // MARK: Instrumental panel
-type InstrumentalPanelData = {
-  engines: EngineInstrumentData[];
-};
-
-type EngineInstrumentData = {
-  id: string;
-  caption: string;
-  icon: string;
-};
-
-type PowerConsumerInstrumentData = {
-  id: string;
-  caption: string;
-  enable: boolean;
-};
-
-type FuelPumpInstrumentData = {
-  id: string;
-  caption: string;
-  enable: boolean;
-};
-
 const InstrumentalPanel = (props: unknown) => {
   const { act, data } = useBackend<SpacepodControlPanelData>();
-  const { electricity, engines, instrumental, fuel } = data;
+  const { electricity, engines, fuel, life_support, weapons } = data;
 
   return (
     <Stack vertical fill width="100%">
@@ -772,8 +749,8 @@ const InstrumentalPanel = (props: unknown) => {
               <Box pb="5px"> BATT </Box>
               <TextMeter
                 caption="CHRG"
-                text={`${electricity.exists ? electricity.power : 0} W`}
-                percent={electricity.exists ? electricity.percent : 0}
+                text_upper={`${electricity.exists ? electricity.power : 0} W`}
+                text_lower={`${electricity.exists ? electricity.percent : 0}%`}
                 warn={!electricity.exists || electricity.percent < 25}
               />
             </Stack.Item>
@@ -820,8 +797,8 @@ const InstrumentalPanel = (props: unknown) => {
                   <Stack.Item key={fuel_tank.id}>
                     <TextMeter
                       caption={fuel_tank.caption}
-                      text={`${fuel_tank.fuel_amount} L`}
-                      percent={fuel_tank.level_percent}
+                      text_upper={`${fuel_tank.fuel_amount} L`}
+                      text_lower={`${fuel_tank.level_percent}%`}
                       warn={fuel_tank.level_percent < 25}
                     />
                   </Stack.Item>
@@ -856,11 +833,12 @@ const InstrumentalPanel = (props: unknown) => {
             <Stack.Item>
               <Box pb="5px">ENG START</Box>
               <Stack>
-                {instrumental.engines.map((engine) => (
+                {engines.engines.map((engine) => (
                   <Stack.Item key={engine.id}>
                     <EngineButton
                       caption={engine.caption}
-                      icon={`${engine.icon}.png`}
+                      enable={engine.enable}
+                      failure={engine.error_text != null}
                       clicked={() => act('ignite_engine', { id: engine.id })}
                     />
                   </Stack.Item>
@@ -875,8 +853,8 @@ const InstrumentalPanel = (props: unknown) => {
                   <Stack.Item key={engine.id}>
                     <TextMeter
                       caption={engine.caption}
-                      text={`${engine.rpm} RPM`}
-                      percent={engine.rpm_percent}
+                      text_upper={`${engine.rpm} RPM`}
+                      text_lower={`${engine.rpm_percent}%`}
                       warn={engine.rpm_warn}
                     />
                   </Stack.Item>
@@ -890,7 +868,7 @@ const InstrumentalPanel = (props: unknown) => {
                 {engines.engines.map((engine) => (
                   <Stack.Item key={engine.id}>
                     <TumblerButton
-                      caption={engine.caption}
+                      caption={`${engine.caption} GEN`}
                       enable={engine.generator_enable}
                       clicked={() =>
                         act('switch_generator_enable', { id: engine.id })
@@ -901,28 +879,140 @@ const InstrumentalPanel = (props: unknown) => {
               </Stack>
             </Stack.Item>
             <Divider />
+            {engines.gyroscope === null ? (
+              ''
+            ) : (
+              <Stack.Item>
+                <Box pb="5px">GYRO</Box>
+                <Stack>
+                  <Stack.Item>
+                    <TumblerButton
+                      caption="PWR"
+                      enable={engines.gyroscope.enable}
+                      clicked={() =>
+                        act('switch_enable', { id: engines.gyroscope.id })
+                      }
+                    />
+                  </Stack.Item>
+                  <Stack.Item>
+                    <TextMeter
+                      caption="STAT"
+                      text_upper={`${engines.gyroscope.rpm} RPM`}
+                      text_lower={`${engines.gyroscope.rpm_percent}%`}
+                      warn={
+                        engines.gyroscope.rpm_percent > 0 &&
+                        engines.gyroscope.rpm_warn
+                      }
+                    />
+                  </Stack.Item>
+                </Stack>
+              </Stack.Item>
+            )}
+          </Stack>
+        </Box>
+        <Divider />
+      </Stack.Item>
+      <Stack.Item>
+        {/* Life support and weapons control */}
+        <Box align="center" width="100%">
+          <Stack fill inlineFlex={true}>
             <Stack.Item>
-              <Box pb="5px">GYRO</Box>
+              <Box pb="5px">AIR</Box>
               <Stack>
                 <Stack.Item>
-                  <TumblerButton
-                    caption="PWR"
-                    enable={engines.gyroscope.enable}
-                    clicked={() =>
-                      act('switch_enable', { id: engines.gyroscope.id })
+                  <TextMeter
+                    caption="PRESS"
+                    text_upper={`${life_support.atmos.pressure} Pa`}
+                    text_lower={`${life_support.atmos.temperature} C`}
+                    warn={
+                      life_support.atmos.low_pressure ||
+                      life_support.atmos.low_temperature
                     }
                   />
                 </Stack.Item>
                 <Stack.Item>
-                  <TextMeter
-                    caption="STAT"
-                    text={`${engines.gyroscope.rpm} RPM`}
-                    percent={engines.gyroscope.rpm_percent}
-                    warn={engines.gyroscope.rpm_warn}
+                  <TumblerButton
+                    caption="PWR"
+                    enable={
+                      life_support.airtank === null
+                        ? false
+                        : life_support.airtank.enable
+                    }
+                    clicked={() => act('switch_airtank')}
                   />
                 </Stack.Item>
               </Stack>
             </Stack.Item>
+            <Divider />
+            {weapons.module ? (
+              <>
+                <Stack.Item>
+                  <Box>WEAPON</Box>
+                  <Stack>
+                    <Stack.Item>
+                      <TumblerButton
+                        caption="PWR"
+                        enable={weapons.module.enable}
+                        clicked={() =>
+                          act('switch_enable', { id: weapons.module.id })
+                        }
+                      />
+                    </Stack.Item>
+                  </Stack>
+                </Stack.Item>
+                <Divider />
+              </>
+            ) : (
+              ''
+            )}
+            {weapons.module &&
+              weapons.guns.map((gun) => (
+                <>
+                  <Stack.Item key={gun.id}>
+                    <Box>{gun.primary ? 'PRIMARY' : 'SECONDARY'}</Box>
+                    <Stack>
+                      <Stack.Item>
+                        <TumblerButton
+                          caption="ARM"
+                          enable={!gun.safety}
+                          clicked={() =>
+                            act('toggle_weapon_safety', { id: gun.id })
+                          }
+                        />
+                      </Stack.Item>
+                      <Stack.Item>
+                        <TextMeter
+                          caption="AMMO"
+                          text_upper={`CUR: ${gun.ammo}`}
+                          text_lower={`MAX: ${gun.capacity}`}
+                          warn={gun.ammo === 0}
+                        />
+                      </Stack.Item>
+                      <Stack.Item>
+                        {gun.type === 1 ? (
+                          <SimpleButton
+                            caption="REL"
+                            failure={false}
+                            clicked={() => act('reload_weapon', { id: gun.id })}
+                          />
+                        ) : (
+                          ''
+                        )}
+                        {gun.type === 2 ? (
+                          <TumblerButton
+                            caption="CHRG"
+                            enable={gun.charging}
+                            clicked={() => act('reload_weapon', { id: gun.id })}
+                          />
+                        ) : (
+                          ''
+                        )}
+                      </Stack.Item>
+                    </Stack>
+                  </Stack.Item>
+                  <Divider />
+                </>
+              ))}
           </Stack>
         </Box>
       </Stack.Item>
@@ -1091,12 +1181,13 @@ const ErrorRow = (props: ErrorRowData) => {
 
 type EngineButtonData = {
   caption: string;
-  icon: string;
+  enable: boolean;
+  failure: boolean;
   clicked: any;
 };
 
 const EngineButton = (props: EngineButtonData) => {
-  const { caption, icon, clicked } = props;
+  const { caption, enable, failure, clicked } = props;
   return (
     <Table style={{ borderCollapse: 'separate', borderSpacing: '0px' }}>
       {/* Строка с заголовком */}
@@ -1126,7 +1217,59 @@ const EngineButton = (props: EngineButtonData) => {
           }}
         >
           <Image
-            src={resolveAsset(icon)}
+            src={resolveAsset(
+              failure ? 'eng-fail.png' : enable ? 'eng-on.png' : 'eng-off.png',
+            )}
+            onClick={() => clicked()}
+            style={{
+              width: '64px',
+              height: '64px',
+            }}
+          />
+        </Table.Cell>
+      </Table.Row>
+    </Table>
+  );
+};
+
+type SimpleButtonData = {
+  caption: string;
+  failure: boolean;
+  clicked: any;
+};
+
+const SimpleButton = (props: SimpleButtonData) => {
+  const { caption, failure, clicked } = props;
+  return (
+    <Table style={{ borderCollapse: 'separate', borderSpacing: '0px' }}>
+      {/* Строка с заголовком */}
+      <Table.Row>
+        <Table.Cell
+          textAlign="center"
+          height="28px"
+          verticalAlign="center"
+          backgroundColor="#414141" // Добавляем верхний левый и верхний правый радиусы
+          style={{
+            borderRadius: '8px 8px 0 0',
+            padding: '4px',
+          }}
+        >
+          {caption}
+        </Table.Cell>
+      </Table.Row>
+      {/* Строка с тумблером */}
+      <Table.Row>
+        <Table.Cell
+          backgroundColor="#414141" // Добавляем нижний левый и нижний правый радиусы
+          style={{
+            borderRadius: '0 0 8px 8px', // Обязательно добавляем padding, иначе контент прилипнет к краям фона
+            padding: '4px',
+            display: 'flex',
+            justifyContent: 'center', // Центрируем картинку горизонтально
+          }}
+        >
+          <Image
+            src={resolveAsset(failure ? 'eng-fail.png' : 'eng-idle.png')}
             onClick={() => clicked()}
             style={{
               width: '64px',
@@ -1197,13 +1340,13 @@ const TumblerButton = (props: TumblerButtonData) => {
 
 type TextMeterData = {
   caption: string;
-  text: string;
-  percent: number;
+  text_upper: string;
+  text_lower: string;
   warn: boolean;
 };
 
 const TextMeter = (props: TextMeterData) => {
-  const { caption, text, percent, warn } = props;
+  const { caption, text_upper, text_lower, warn } = props;
   return (
     <Table style={{ borderCollapse: 'separate', borderSpacing: '0px' }}>
       {/* Строка с заголовком */}
@@ -1243,7 +1386,7 @@ const TextMeter = (props: TextMeterData) => {
             textAlign="center"
             verticalAlign="center"
           >
-            {text}
+            {text_upper}
           </Box>
         </Table.Cell>
       </Table.Row>
@@ -1264,7 +1407,7 @@ const TextMeter = (props: TextMeterData) => {
             textAlign="center"
             verticalAlign="center"
           >
-            {percent}%
+            {text_lower}
           </Box>
         </Table.Cell>
       </Table.Row>
