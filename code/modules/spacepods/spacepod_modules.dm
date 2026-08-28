@@ -14,6 +14,8 @@
 	max_integrity = 100
 	/// Hit chance weight
 	var/hit_weight = POD_MODULE_HIT_CHANCE_NORMAL
+	/// Mass of module on kg
+	var/mass = 0
 	/// Enable status flag
 	var/enable = FALSE
 	/// Fire process
@@ -93,6 +95,7 @@
 	hit_weight = POD_MODULE_HIT_CHANCE_LARGE
 	fire_damage_mod = 2
 	fire_on_hit_chance = 25
+	mass = 120
 	/// Fuel capacity in units
 	var/fuel_capacity = 1000 //units
 	/// Current fuel level in units
@@ -113,6 +116,7 @@
 	name = "Большой топливный бак"
 	max_integrity = 300
 	hit_weight = POD_MODULE_HIT_CHANCE_EXTRA_LARGE
+	mass = 250
 	fuel_capacity = 2000
 
 /obj/item/spacepod_module/fuel_tank/large/full/New(id)
@@ -123,10 +127,15 @@
 	if(length(pod.systems.fuel_tanks) >= POD_MAX_FUEL_TANKS)
 		return FALSE
 	var/fueltank_id = "fueltank_[length(pod.systems.fuel_tanks) + 1]"
-	var/fueltank_name = tgui_input_text(user, "Название топливного бака", "Назвать топливный бак", max_length = MAX_NAME_LEN, encode = TRUE)
-	if(QDELETED(src))
+	var/fueltank_name = tgui_input_text(user, "Название топливного бака", "Назвать топливный бак", default=fueltank_id, max_length = MAX_NAME_LEN, encode = TRUE)
+	if(fueltank_name == null)
+		return FALSE
+	var/caption = "TK [length(pod.systems.fuel_tanks) + 1]"
+	caption = tgui_input_text(user, "Сокращенный код бака", "Указать код топливный бак", default=caption, max_length = MAX_NAME_LEN, encode = TRUE)
+	if(QDELETED(src) || caption == null)
 		return FALSE
 	src.id = fueltank_id
+	src.caption = caption
 	src.name = fueltank_name
 	return TRUE
 
@@ -138,6 +147,7 @@
 	name = "Аккумуляторная батарея"
 	max_integrity = 200
 	fire_on_hit_chance = 10
+	mass = 80
 	enable = TRUE
 	/// Battery capacity in watt
 	var/power_capacity = 5000 //watt
@@ -178,6 +188,7 @@
 	fire_damage_mod = 5
 	fire_on_hit_chance = 20
 	consume_power = 10
+	mass = 45
 	/// Fuel pumping speed in units per tick
 	var/pump_speed = 10 //units per tick
 	var/obj/item/spacepod_module/fuel_tank/source_tank
@@ -186,14 +197,19 @@
 /obj/item/spacepod_module/fuel_pump/install_to(mob/living/user, obj/spacepod2/pod)
 	if(length(pod.systems.fuel_tanks) == 0)
 		to_chat(user, span_notice("Чтобы установить топливный насос, сначала установите топливный бак!"))
-		return null
+		return FALSE
 	var/obj/item/spacepod_module/fuel_tank/source_fueltank = tgui_input_list(user, "Выберите откуда насос будет качать топливо:", "Выбор источника топлива", pod.systems.fuel_tanks)
 	var/obj/item/spacepod_module/fuel_tank/destination_fueltank = tgui_input_list(user, "Выберите куда насос будет качать топливо:", "Выбор назначения топлива", pod.systems.fuel_tanks | pod.systems.engines)
 	var/pump_id = "fuelpump_[length(pod.systems.fuel_pumps) + 1]"
-	var/pump_name = tgui_input_text(user, "Название топливного насоса", "Назвать топливный насос", max_length = MAX_NAME_LEN, encode = TRUE)
-	if(QDELETED(src))
+	var/pump_name = tgui_input_text(user, "Название топливного насоса", "Назвать топливный насос", default=pump_id, max_length = MAX_NAME_LEN, encode = TRUE)
+	if(pump_name == null)
+		return FALSE
+	var/caption = "PUMP [length(pod.systems.fuel_pumps) + 1]"
+	caption = tgui_input_text(user, "Сокращенный код топливного насоса", "Указать код топливного насоса", default=caption, max_length = MAX_NAME_LEN, encode = TRUE)
+	if(QDELETED(src) || caption == null)
 		return FALSE
 	src.id = pump_id
+	src.caption = caption
 	src.name = pump_name
 	src.source_tank = source_fueltank
 	src.destination_tank = destination_fueltank
@@ -235,9 +251,11 @@
 	max_integrity = 300
 	fire_damage_mod = 1
 	fire_on_hit_chance = 15
+	mass = 150
 	fuel_capacity = 30
+	var/thrust = 3500
 	/// How many fuel consume in units per tick on 100% of power
-	var/fuel_consume_amount = 2
+	var/fuel_consume_amount = 1
 	/// Maximal rotations per minutes
 	var/max_rpm = 15000
 	/// Current rotations per minutes
@@ -257,8 +275,15 @@
 	if(length(pod.systems.engines) >= POD_MAX_ENGINES)
 		return FALSE
 	var/engine_id = "engine_[length(pod.systems.engines) + 1]"
-	var/engine_name = tgui_input_text(user, "Название двигателя", "Назвать двигатель", max_length = MAX_NAME_LEN, encode = TRUE)
+	var/engine_name = tgui_input_text(user, "Название двигателя", "Назвать двигатель", default=engine_id, max_length = MAX_NAME_LEN, encode = TRUE)
+	if(engine_name == null)
+		return FALSE
+	var/caption = "ENG [length(pod.systems.engines) + 1]"
+	caption = tgui_input_text(user, "Сокращенный код двигателя", "Указать код двигателя", default=caption, max_length = MAX_NAME_LEN, encode = TRUE)
+	if(QDELETED(src) || caption == null)
+		return FALSE
 	src.id = engine_id
+	src.caption = caption
 	src.name = engine_name
 	return TRUE
 
@@ -308,11 +333,19 @@
 		return
 	current_rpm = min(current_rpm + ignition_acceleration * seconds_per_tick, max_rpm)
 
+/obj/item/spacepod_module/fuel_tank/engine/heavy
+	name = "Форсажный двигатель"
+	thrust = 6000
+	fuel_consume_amount = 2
+	mass = 170
+
 // MARK: APU
 /obj/item/spacepod_module/fuel_tank/engine/apu
 	id = "apu"
 	caption = "APU"
 	name = "Вспомогательная силовая установка"
+	thrust = 0
+	mass = 100
 	consume_power = 1000
 	generate_power = 50
 	var/obj/item/spacepod_module/fuel_tank/engine/rpm_destination_engine = null
@@ -375,6 +408,7 @@
 	hit_weight = POD_MODULE_HIT_CHANCE_LARGE
 	max_integrity = 250
 	consume_power = 50
+	mass = 100
 	/// Maximal rotations per minutes
 	var/max_rpm = 50000
 	/// Current rotations per minutes
@@ -417,6 +451,7 @@
 	hit_weight = POD_MODULE_HIT_CHANCE_LARGE
 	max_integrity = 250
 	consume_power = 5
+	mass = 250
 	var/only_course_fire = FALSE
 	var/datum/spacepod_weapon_slot/primary = new("primary", "Основное")
 	var/datum/spacepod_weapon_slot/secondary = new("secondary", "Дополнительное")
@@ -530,11 +565,19 @@
 	caption = "ARM"
 	hit_weight = POD_MODULE_HIT_CHANCE_EXTRA_LARGE
 	max_integrity = 200
+	mass = 60
 
 /obj/item/spacepod_module/armor/install_to(mob/living/user, obj/spacepod2/pod)
 	if(length(pod.systems.armors) >= POD_ARMOR_PLATE_BY_ENGINE * length(pod.systems.engines))
 		to_chat(user, span_notice("Установлено максимальное количество модулей брони в космическом челноке!"))
 		return FALSE
+	var/armor_id = "armor_[length(pod.systems.armors) + 1]"
+	var/name = tgui_input_text(user, "Название бронеэлемента", "Указать название бронеэлемента", default=armor_id, max_length = MAX_NAME_LEN, encode = TRUE)
+	if(QDELETED(src) || name == null)
+		return FALSE
+	src.name = name
+	src.id = armor_id
+	src.caption = "ARM [length(pod.systems.armors) + 1]"
 	return TRUE
 
 /obj/item/spacepod_module/armor/light
@@ -545,6 +588,7 @@
 	id = "armor_heavy"
 	name = "Модуль тяжёлой брони"
 	max_integrity = 350
+	mass = 150
 
 
 // MARK: Misc modules
@@ -553,6 +597,7 @@
 	caption = "SEAT"
 	name = "Пассажирское сиденье"
 	hit_weight = 0
+	mass = 220
 
 /obj/item/spacepod_module/passenger_seat/install_to(mob/living/user, obj/spacepod2/pod)
 	if(pod.max_passengers >= POD_PASSENGERS_BY_ENGINE * length(pod.systems.engines))
@@ -573,6 +618,7 @@
 	name = "Модуль пожаротушения"
 	hit_weight = 0
 	var/charges = 3
+	mass = 180
 
 /obj/item/spacepod_module/fire_extingusher/five_charges
 	charges = 5

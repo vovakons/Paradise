@@ -157,3 +157,19 @@
 		random_value -= module.hit_weight
 	// otherwise - full damage to hull
 	return damage_amount
+
+/datum/spacepod_systems/proc/get_total_mass()
+	var/total_mass = POD_FRAME_MASS
+	for(var/obj/item/spacepod_module/module in modules)
+		total_mass += module.mass
+	return total_mass
+
+/datum/spacepod_systems/proc/get_total_thrust()
+	if(!length(engines))
+		return 0
+	var/total_thrust = 0
+	for(var/obj/item/spacepod_module/fuel_tank/engine/engine as anything in engines)
+		if(engine.is_apu())
+			continue
+		total_thrust += engine.thrust * engine.current_rpm / engine.max_rpm
+	return total_thrust

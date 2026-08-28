@@ -317,6 +317,17 @@
 	build_path = /obj/item/spacepod_module/fuel_tank/engine
 	category = list(POD_FAB_CATEGORY_PARTS)
 
+/datum/design/pod_engine
+	construction_time = 300
+	name = "Формажный двигатель челнока"
+	desc = "Плазменный реактивно-импульсный двигатель космического челнока. Двигатель с куда большей тягой, но и с большим расходом топлива."
+	id = "pod_engine"
+	req_tech = list(RESEARCH_TREE_MATERIALS = 3, RESEARCH_TREE_ENGINEERING = 4, RESEARCH_TREE_MAGNETS = 5, RESEARCH_TREE_PROGRAMMING = 3)
+	build_type = PODFAB
+	materials = list(MAT_METAL = 25000, MAT_GLASS = 5000, MAT_PLASMA = 10000)
+	build_path = /obj/item/spacepod_module/fuel_tank/engine/heavy
+	category = list(POD_FAB_CATEGORY_PARTS)
+
 /datum/design/pod_apu
 	construction_time = 150
 	name = "Вспомогательная силовая установка челнока"

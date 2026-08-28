@@ -25365,6 +25365,10 @@
 	dir = 1;
 	network = list("SS13","Security")
 	},
+/obj/item/tank/internals/plasma/full,
+/obj/item/tank/internals/plasma/full,
+/obj/item/tank/internals/plasma/full,
+/obj/item/tank/internals/plasma/full,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -26125,6 +26129,13 @@
 	pixel_y = -32
 	},
 /obj/structure/closet/toolcloset,
+/obj/item/spacepod_module/battery/full,
+/obj/item/spacepod_module/fuel_tank/engine,
+/obj/item/spacepod_module/fuel_tank/engine/apu,
+/obj/item/spacepod_module/fuel_tank,
+/obj/item/spacepod_module/gyroscope,
+/obj/item/spacepod_module/fuel_pump,
+/obj/item/spacepod_module/fuel_pump,
 /turf/simulated/floor/plasteel{
 	dir = 10;
 	icon_state = "yellow"
@@ -52055,6 +52066,13 @@
 	},
 /turf/simulated/floor/plating,
 /area/station/maintenance/asmaint4)
+"kes" = (
+/obj/machinery/portable_atmospherics/canister/toxins,
+/turf/simulated/floor/plasteel{
+	dir = 10;
+	icon_state = "darkyellow"
+	},
+/area/station/engineering/mechanic_workshop/hangar)
 "ket" = (
 /obj/machinery/door/window{
 	dir = 1
@@ -85470,6 +85488,12 @@
 /area/station/security/prison/visit)
 "qkc" = (
 /obj/item/radio/intercom/directional/south,
+/obj/structure/rack,
+/obj/item/tank/internals/plasma/full,
+/obj/item/tank/internals/plasma/full,
+/obj/item/tank/internals/plasma/full,
+/obj/item/tank/internals/plasma/full,
+/obj/item/tank/internals/plasma/full,
 /turf/simulated/floor/plasteel{
 	icon_state = "darkyellow"
 	},
@@ -129743,10 +129767,8 @@
 /obj/item/spacepod_equipment/key{
 	id = 100000
 	},
-/obj/item/spacepod_equipment/weaponry/laser,
 /obj/item/clothing/suit/jacket/pilot,
 /obj/item/clothing/head/beret/sec,
-/obj/item/spacepod_equipment/weaponry/burst_taser,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},
@@ -172094,7 +172116,7 @@ mzD
 nrO
 wMF
 xsc
-trh
+kes
 geg
 axZ
 iQV

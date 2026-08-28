@@ -41,6 +41,8 @@
 	desc = "Однодвигательный космический челнок."
 
 /obj/spacepod2/template/one_engine/create_fuel_and_engines()
+	// Total mass: 1090 кг
+	// Total thrust: 3500
 	// fueltank
 	var/obj/item/spacepod_module/fuel_tank/large/central_fuel_tank = new /obj/item/spacepod_module/fuel_tank/large/full(src)
 	central_fuel_tank.id = "central_fueltank"
@@ -87,9 +89,10 @@
 /obj/spacepod2/template/two_engine
 	name = "two engine spacepod"
 	desc = "Двухдвигательный космический челнок."
-	move_delay = POD_SPEED_HIGH
 
 /obj/spacepod2/template/two_engine/create_fuel_and_engines()
+	// Total mass: 2825 кг
+	// Total thrust: 12000
 	// fuel tanks
 	var/obj/item/spacepod_module/fuel_tank/large/fuel_tank_central = new /obj/item/spacepod_module/fuel_tank/large/full(src)
 	fuel_tank_central.id = "fueltank_center"
@@ -108,11 +111,11 @@
 	systems.add_module(src, fuel_tank_left)
 	// Engines
 	var/obj/item/spacepod_module/fuel_tank/engine/apu/apu = new(src)
-	var/obj/item/spacepod_module/fuel_tank/engine/engine_right = new(src)
+	var/obj/item/spacepod_module/fuel_tank/engine/engine_right = new /obj/item/spacepod_module/fuel_tank/engine/heavy(src)
 	engine_right.id = "engine_right"
 	engine_right.caption = "R ENG"
 	engine_right.name = "Правый двигатель"
-	var/obj/item/spacepod_module/fuel_tank/engine/engine_left = new(src)
+	var/obj/item/spacepod_module/fuel_tank/engine/engine_left = new /obj/item/spacepod_module/fuel_tank/engine/heavy(src)
 	engine_left.id = "engine_left"
 	engine_left.caption = "L ENG"
 	engine_left.name = "Левый двигатель"

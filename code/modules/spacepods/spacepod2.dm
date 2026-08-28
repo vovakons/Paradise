@@ -44,8 +44,8 @@
 	/// Hant state flag
 	var/hatch_opened = FALSE
 
-	/// Movement delay (use smaller value for higher speed)
-	var/move_delay = POD_SPEED_NORMAL
+	/// Movement speed coefficient (use smaller value for higher speed)
+	var/pod_speed_coeff = POD_SPEED_COEFF
 	/// Movement cooldown
 	COOLDOWN_DECLARE(spacepod_move_cooldown)
 	/// Ion trail effect
@@ -624,8 +624,8 @@
 
 	. = TRUE
 
-	var/speed_mod = systems.get_total_speed_mod()
-	if(speed_mod <= 0)
+	var/thrust = systems.get_total_thrust()
+	if(thrust <= 0)
 		. = FALSE
 
 	if(!.)
@@ -640,11 +640,9 @@
 	else
 		var/turf/next_step = get_step(src, direction)
 		if(!next_step)
-			COOLDOWN_START(src, spacepod_move_cooldown, 0.25 SECONDS)
+			COOLDOWN_START(src, spacepod_move_cooldown, 0.1 SECONDS)
 			return FALSE
-		var/calculated_move_delay = move_delay + POD_LOW_THRUST_DELAY * (1 - speed_mod)
-		if(!no_gravity(loc))
-			calculated_move_delay *=  POD_GRAVITY_SPEED_MOD
+		var/calculated_move_delay = get_current_speed_delay(thrust)
 		set_dir_on_move = systems.can_maneuver()
 		. = Move(next_step, direction)
 		if(ISDIAGONALDIR(direction) && loc == next_step)
@@ -657,6 +655,15 @@
 	// 		for(var/obj/item/item in pod_loc.contents)
 	// 			equipment_system.cargo_system.passover(item)
 
+/obj/spacepod2/proc/get_current_speed_delay(thrust)
+	if(thrust <= 0)
+		return POD_MOVE_MAX_DELAY
+	var/mass = systems.get_total_mass()
+	var/thrust_ratio = mass / thrust
+	var/move_delay = clamp(pod_speed_coeff * thrust_ratio, POD_MOVE_MIN_DELAY, POD_MOVE_MAX_DELAY)
+	if(!no_gravity(loc))
+		move_delay *=  POD_GRAVITY_SPEED_MOD
+	return move_delay
 
 // MARK: Actions
 /obj/spacepod2/proc/GrantPilotActions(mob/living/user)

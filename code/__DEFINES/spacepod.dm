@@ -1,16 +1,10 @@
-/// Pod move delay with low thrust
-#define POD_LOW_THRUST_DELAY (0.85 SECONDS)
-/// Basic pod move delay
-#define POD_BASE_MOVE_DELAY (0.15 SECONDS)
-
-/// Hight fly pod speed
-#define POD_SPEED_HIGH (0.12 SECONDS)
-/// Normal fly pod speed
-#define POD_SPEED_NORMAL (0.15 SECONDS)
-/// Slow fly pod speed
-#define POD_SPEED_SLOW (0.18 SECONDS)
 /// Speed modifier for gravity area
-#define POD_GRAVITY_SPEED_MOD 2.5 // basic 0.4 seconds
+#define POD_GRAVITY_SPEED_MOD 2 // multiplayer (2x slowler)
+/// Slow fly pod speed
+#define POD_MOVE_MIN_DELAY (0.1 SECONDS)
+#define POD_MOVE_MAX_DELAY (2.5 SECONDS)
+/// Speed coefficient for calculate current speed from thrust and mass (lesser - high speed, greater - slow speed)
+#define POD_SPEED_COEFF 7
 
 /// Eject occupant from spacepod from outside by grab attack
 #define POD_OCCUPANT_EJECT_DURATION (5 SECONDS)
@@ -34,3 +28,6 @@
 #define POD_MAX_ENGINES 3
 /// Max fuel tanks for pod
 #define POD_MAX_FUEL_TANKS 4
+
+/// Spacepod frame mass in kg
+#define POD_FRAME_MASS 300

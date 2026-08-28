@@ -66,8 +66,8 @@ export const SpacepodControlPanel = (props: unknown) => {
 
   return (
     <Window
-      width={1020}
-      height={800}
+      width={1030}
+      height={650}
       title="Панель управления космическим челноком"
     >
       <ComplexModal />
