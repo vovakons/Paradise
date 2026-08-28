@@ -119,7 +119,7 @@ GLOBAL_VAR_INIT(refid_filter, TYPEID(filter(type="angular_blur")))
 
 #define isvampirecoffin(A) (istype(A, /obj/structure/closet/coffin/vampire))
 
-#define isspacepod(A) (istype(A, /obj/spacepod))
+#define isspacepod(A) (istype(A, /obj/spacepod2))
 
 #define iseffect(A) (istype(A, /obj/effect))
 

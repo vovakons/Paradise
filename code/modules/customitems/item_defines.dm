@@ -1448,15 +1448,12 @@ GAME_VERB_SRC(/obj/item/clothing/under/fluff/jane_sidsuit, toggle_zipper, usr, "
 		return
 
 	to_chat(user, span_notice("You modify the appearance of [target] based on the kit blueprints."))
-	var/obj/spacepod/pod = target
+	var/obj/spacepod2/pod = target
 	pod.icon = 'icons/48x48/custom_pod.dmi'
 	pod.icon_state = "pod_dece"
 	pod.name = "sleek spacepod"
 	pod.desc = "A modified varient of a space pod."
-	pod.pod_paint_effect = null
-	pod.can_paint = FALSE
-	pod.has_paint = FALSE
-	pod.update_icons()
+	pod.update_icon()
 	used = 1
 	qdel(src)
 

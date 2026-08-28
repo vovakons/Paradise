@@ -84488,7 +84488,7 @@
 	},
 /area/station/cargo/miningdock)
 "qdY" = (
-/obj/spacepod/sec{
+/obj/spacepod2/template/two_engine/raptor{
 	dir = 4
 	},
 /obj/structure/cable{

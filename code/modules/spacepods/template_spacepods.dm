@@ -205,6 +205,14 @@
 		PREPOSITIONAL = "космическом челноке \"Странник\"",
 	)
 
+/obj/spacepod2/template/one_engine/civilian/damaged
+	desc = "Сильно поврежденный космический челнок \"Странник\""
+
+/obj/spacepod2/template/one_engine/civilian/damaged/Initialize(mapload)
+	. = ..()
+	take_damage(250, BRUTE)
+	update_icon()
+
 
 // MARK: Security spacepod
 /obj/spacepod2/template/two_engine/raptor
@@ -263,7 +271,7 @@
 	name = "cobra spacepod"
 	desc = "Челнок, окрашенный в цвета \"Синдиката\"."
 	icon_state = "pod_synd"
-	max_integrity = 450
+	max_integrity = 400
 
 /obj/spacepod2/template/two_engine/cobra/get_ru_names()
 	return alist(

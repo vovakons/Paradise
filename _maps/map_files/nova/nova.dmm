@@ -37201,7 +37201,7 @@
 	},
 /area/station/medical/morgue)
 "fUR" = (
-/obj/spacepod/sec,
+/obj/spacepod2/template/two_engine/raptor,
 /turf/simulated/floor/plasteel{
 	icon_state = "dark"
 	},

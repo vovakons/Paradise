@@ -202,11 +202,11 @@
 		if(!user.drop_transfer_item_to_loc(item, src))
 			return ..()
 		var/obj/item/spacepod_module/installed_module = module_obj.install_to(user, src)
-		if(installed_module == null)
+		if(!installed_module)
 			item.forceMove(src.loc)
 			return ..()
-		systems.add_module(src, installed_module)
-		to_chat(user, span_notice("Модуль [installed_module.name] установлен."))
+		systems.add_module(src, module_obj)
+		to_chat(user, span_notice("Модуль [module_obj.name] установлен."))
 		update_icon(UPDATE_ICON_STATE)
 		return ATTACK_CHAIN_BLOCKED_ALL
 

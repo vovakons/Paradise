@@ -79184,7 +79184,7 @@
 	},
 /area/station/science/xenobiology)
 "peh" = (
-/obj/spacepod/sec{
+/obj/spacepod2/template/two_engine/raptor{
 	dir = 4
 	},
 /obj/structure/cable{

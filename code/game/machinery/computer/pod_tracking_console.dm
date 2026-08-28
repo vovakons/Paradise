@@ -26,7 +26,7 @@
 	var/list/data = list()
 	var/list/pods = list()
 	for(var/obj/item/spacepod_equipment/misc/tracker/TR in GLOB.pod_trackers)
-		var/obj/spacepod/my_pod = TR.my_atom
+		var/obj/spacepod2/my_pod = TR.my_atom
 		var/podname
 		var/pilot
 		var/list/passengers

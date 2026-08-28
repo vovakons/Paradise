@@ -701,7 +701,7 @@
 /turf/simulated/floor/plasteel,
 /area/station/security/podbay)
 "aeD" = (
-/obj/spacepod/sec{
+/obj/spacepod2/template/two_engine/raptor{
 	req_access = list(71)
 	},
 /turf/simulated/floor/engine,
