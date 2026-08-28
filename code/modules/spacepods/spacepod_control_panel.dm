@@ -47,7 +47,7 @@
 	tabs += list(list(
 		"id" = TAB_INSTRUMENTAL,
 		"name" = "Панель инструментов",
-		"icon" = "bolt",
+		"icon" = "plane",
 	))
 	tabs += list(list(
 		"id" = TAB_ELECTRICITY,
@@ -312,6 +312,7 @@
 /datum/ui_module/spacepod_control_panels/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
 	. = TRUE
 
+	playsound(pod.loc, SFX_TERMINAL_TYPE, 25, TRUE)
 	switch(action)
 		if("select_tab")
 			selected_tab_id = params["tab"]
