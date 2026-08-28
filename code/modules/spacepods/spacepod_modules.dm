@@ -574,6 +574,9 @@
 	hit_weight = 0
 	var/charges = 3
 
+/obj/item/spacepod_module/fire_extingusher/five_charges
+	charges = 5
+
 /obj/item/spacepod_module/passenger_seat/install_to(mob/living/user, obj/spacepod2/pod)
 	if(pod.systems.fire_extenguisher != null)
 		to_chat(user, span_notice("Модуль пожаротушения уже установлен в космическом челноке!"))

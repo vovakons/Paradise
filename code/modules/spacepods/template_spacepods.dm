@@ -256,3 +256,64 @@
 	starboard_side_armor.id = "starboard_side_armor"
 	starboard_side_armor.name = "Броня правого борта"
 	systems.add_module(src, starboard_side_armor)
+
+
+// MARK: Syndicate spacepod
+/obj/spacepod2/template/two_engine/cobra
+	name = "cobra spacepod"
+	desc = "Челнок, окрашенный в цвета \"Синдиката\"."
+	icon_state = "pod_synd"
+	max_integrity = 450
+
+/obj/spacepod2/template/two_engine/cobra/get_ru_names()
+	return alist(
+		NOMINATIVE = "космический челнок \"Кобра\"",
+		GENITIVE = "космического челнока \"Кобра\"",
+		DATIVE = "космическому челноку \"Кобра\"",
+		ACCUSATIVE = "космический челнок \"Кобра\"",
+		INSTRUMENTAL = "космическим челноком \"Кобра\"",
+		PREPOSITIONAL = "космическом челноке \"Кобра\"",
+	)
+
+/obj/spacepod2/template/two_engine/cobra/create_weapon()
+	var/obj/item/spacepod_module/weapon/turret/gun_turret = new(src)
+	systems.add_module(src, gun_turret)
+	// Primary weapon - C-20rm SMG
+	var/obj/item/gun/projectile/automatic/smg/c20r/auto/primary = new(src)
+	gun_turret.install_gun(primary)
+	// Secondary weapon - Buldog shotgun
+	var/obj/item/gun/projectile/automatic/shotgun/bulldog/secondary = new(src)
+	gun_turret.install_gun(secondary)
+
+/obj/spacepod2/template/two_engine/raptor/create_armor()
+	var/obj/item/spacepod_module/armor/fore_armor = new /obj/item/spacepod_module/armor/heavy(src)
+	fore_armor.id = "fore_armor"
+	fore_armor.name = "Носовая броня"
+	systems.add_module(src, fore_armor)
+	var/obj/item/spacepod_module/armor/aft_armor = new /obj/item/spacepod_module/armor/heavy(src)
+	aft_armor.id = "aft_armor"
+	aft_armor.name = "Кормовая броня"
+	systems.add_module(src, aft_armor)
+	var/obj/item/spacepod_module/armor/port_side_armor = new /obj/item/spacepod_module/armor/heavy(src)
+	port_side_armor.id = "port_side_armor"
+	port_side_armor.name = "Броня левого борта"
+	systems.add_module(src, port_side_armor)
+	var/obj/item/spacepod_module/armor/starboard_side_armor = new /obj/item/spacepod_module/armor/heavy(src)
+	starboard_side_armor.id = "starboard_side_armor"
+	starboard_side_armor.name = "Броня правого борта"
+	systems.add_module(src, starboard_side_armor)
+	var/obj/item/spacepod_module/armor/top_side_armor = new /obj/item/spacepod_module/armor/heavy(src)
+	top_side_armor.id = "top_side_armor"
+	top_side_armor.name = "Броня крыши"
+	systems.add_module(src, top_side_armor)
+	var/obj/item/spacepod_module/armor/bottom_side_armor = new /obj/item/spacepod_module/armor/heavy(src)
+	bottom_side_armor.id = "bottom_side_armor"
+	bottom_side_armor.name = "Броня днища"
+	systems.add_module(src, bottom_side_armor)
+
+/obj/spacepod2/template/two_engine/raptor/create_misc_modules()
+	systems.add_module(src, new /obj/item/spacepod_module/fire_extingusher/five_charges(src))
+
+/obj/spacepod2/template/two_engine/cobra/no_weapon/create_weapon()
+	var/obj/item/spacepod_module/weapon/turret/gun_turret = new(src)
+	systems.add_module(src, gun_turret)
