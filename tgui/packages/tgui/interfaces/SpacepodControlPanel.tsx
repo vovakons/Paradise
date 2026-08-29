@@ -25,6 +25,7 @@ type SpacepodControlPanelData = {
   weapons: WeaponsPanelData;
   life_support: LifeSupportPanelData;
   integrity: IntegrityPanelData;
+  misc: MiscPanelData;
 };
 
 type SpacepodControlPanelTabsData = {
@@ -49,6 +50,8 @@ const decideTab = (tab_id: string) => {
       return <IntegrityPanel />;
     case 'instrumental':
       return <InstrumentalPanel />;
+    case 'misc':
+      return <MiscPanel />;
     default:
       return (
         <Section>
@@ -734,10 +737,47 @@ const IntegrityPanel = (props: unknown) => {
   );
 };
 
+// MARK: Integrity panel
+type MiscPanelData = {
+  key_lock: KeyLockData;
+};
+
+type KeyLockData = {
+  locked: boolean;
+};
+
+const MiscPanel = (props: unknown) => {
+  const { act, data } = useBackend<SpacepodControlPanelData>();
+  const { misc } = data;
+
+  return (
+    <Stack vertical fill width="100%">
+      {/* Key lock section */}
+      {misc.key_lock !== null ? (
+        <Stack.Item>
+          <Section title="Модуль замка" ml="0" mr="0">
+            <Table>
+              <ToggleButtonRow
+                caption="Замок"
+                enable={misc.key_lock.locked}
+                enable_text="Закрыт"
+                disable_text="Открыт"
+                clicked={() => act('toggle_lock')}
+              />
+            </Table>
+          </Section>
+        </Stack.Item>
+      ) : (
+        ''
+      )}
+    </Stack>
+  );
+};
+
 // MARK: Instrumental panel
 const InstrumentalPanel = (props: unknown) => {
   const { act, data } = useBackend<SpacepodControlPanelData>();
-  const { electricity, engines, fuel, life_support, weapons } = data;
+  const { electricity, engines, fuel, life_support, weapons, misc } = data;
 
   return (
     <Stack vertical fill width="100%">
@@ -1013,6 +1053,33 @@ const InstrumentalPanel = (props: unknown) => {
                   <Divider />
                 </>
               ))}
+          </Stack>
+        </Box>
+      </Stack.Item>
+      <Stack.Item>
+        {/* Misc */}
+        <Box align="center" width="100%">
+          <Stack fill inlineFlex={true}>
+            {/* Key lock */}
+            {misc.key_lock !== null ? (
+              <>
+                <Stack.Item>
+                  <Box pb="5px">LOCK</Box>
+                  <Stack>
+                    <Stack.Item>
+                      <TumblerButton
+                        caption="LOCK"
+                        enable={misc.key_lock.locked}
+                        clicked={() => act('toggle_lock')}
+                      />
+                    </Stack.Item>
+                  </Stack>
+                </Stack.Item>
+                <Divider />
+              </>
+            ) : (
+              ''
+            )}
           </Stack>
         </Box>
       </Stack.Item>

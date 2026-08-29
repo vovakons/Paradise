@@ -628,3 +628,37 @@
 		to_chat(user, span_notice("Модуль пожаротушения уже установлен в космическом челноке!"))
 		return FALSE
 	return TRUE
+
+/obj/item/spacepod_module/key_lock
+	id = "key_lock"
+	caption = "LOCK"
+	name = "Модуль замка"
+	hit_weight = POD_MODULE_HIT_CHANCE_SMALL
+	mass = 30
+	var/key_id
+
+/obj/item/spacepod_module/key_lock/auto_id
+	var/static/id_source = 0
+
+/obj/item/spacepod_module/key_lock/auto_id/Initialize(mapload)
+	. = ..()
+	key_id = ++id_source
+
+/obj/item/spacepod_module/key_lock/install_to(mob/living/user, obj/spacepod2/pod)
+	if(pod.systems.key_lock != null)
+		to_chat(user, span_notice("Модуль замка уже установлен в космическом челноке!"))
+		return FALSE
+	return TRUE
+
+/obj/item/spacepod_module/key_lock/attackby(obj/item/item, mob/user, params)
+	if(istype(item, /obj/item/spacepod_equipment/key))
+		add_fingerprint(user)
+		var/obj/item/spacepod_equipment/key/key = item
+		if(key.id)
+			to_chat(user, span_warning("Этот ключ уже используется."))
+			return ATTACK_CHAIN_PROCEED
+		key.id = key_id
+		to_chat(user, span_notice("Вы заточили заготовку ключа под замок."))
+		return ATTACK_CHAIN_PROCEED_SUCCESS
+
+	return ..()

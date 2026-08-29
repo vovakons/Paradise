@@ -5,6 +5,7 @@
 #define TAB_LIFE_SUPPORT "life_support"
 #define TAB_INTEGRITY "integrity"
 #define TAB_INSTRUMENTAL "instrumental"
+#define TAB_MISC "misc"
 
 #define NOT_SELECTED_RPM_PROVIDER "Не передавать"
 
@@ -46,6 +47,7 @@
 	data["weapons"] = create_weapons_panel_data()
 	data["life_support"] = create_life_support_data()
 	data["integrity"] = create_integrity_panel_data()
+	data["misc"] = create_misc_panel_data()
 	return data
 
 /datum/ui_module/spacepod_control_panels/proc/create_tabs_data()
@@ -85,6 +87,11 @@
 		"id" = TAB_INTEGRITY,
 		"name" = "Прочность",
 		"icon" = "heart",
+	))
+	tabs += list(list(
+		"id" = TAB_MISC,
+		"name" = "Прочие",
+		"icon" = "plus",
 	))
 	return tabs
 
@@ -295,6 +302,16 @@
 	panel["modules"] = modules
 	return panel
 
+/datum/ui_module/spacepod_control_panels/proc/create_misc_panel_data()
+	var/list/panel = list()
+	if(pod.systems.key_lock != null)
+		var/lock_data = list()
+		lock_data["locked"] = !pod.unlocked
+		panel["key_lock"] = lock_data
+	else
+		panel["key_lock"] = null
+	return panel
+
 
 //MARK: assets
 /datum/asset/simple/spacepod_panel
@@ -349,6 +366,8 @@
 		if("extinguish")
 			var/id = params["id"]
 			extinguish_module(id)
+		if("toggle_lock")
+			pod.toggle_lock(usr)
 		else
 			return FALSE
 

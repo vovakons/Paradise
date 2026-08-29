@@ -13,15 +13,20 @@
 	var/obj/item/spacepod_module/weapon/weapon = null
 	var/list/obj/item/spacepod_module/armor/armors = list()
 	var/obj/item/spacepod_module/fire_extingusher/fire_extenguisher = null
+	var/obj/item/spacepod_module/key_lock/key_lock = null
 
 /datum/spacepod_systems/Destroy(force)
 	. = ..()
 	battery = null
-	fuel_tanks = null
-	fuel_pumps = null
+	fuel_tanks.Cut()
+	fuel_pumps.Cut()
 	apu = null
-	engines = null
+	engines.Cut()
 	gyroscope = null
+	weapon = null
+	armors.Cut()
+	fire_extenguisher = null
+	key_lock = null
 	QDEL_LIST(modules)
 
 /datum/spacepod_systems/proc/check_complete()
@@ -67,6 +72,8 @@
 		armors += module
 	if(istype(module, /obj/item/spacepod_module/fire_extingusher))
 		fire_extenguisher = module
+	if(istype(module, /obj/item/spacepod_module/key_lock))
+		key_lock = module
 	module.on_install(pod)
 
 /datum/spacepod_systems/proc/remove_module(obj/spacepod2/pod, obj/item/spacepod_module/module)
@@ -99,6 +106,8 @@
 		armors -= module
 	if(istype(module, /obj/item/spacepod_module/fire_extingusher))
 		fire_extenguisher = null
+	if(istype(module, /obj/item/spacepod_module/key_lock))
+		key_lock = null
 
 /datum/spacepod_systems/proc/remove_fuel_tank_from_pumps(obj/item/spacepod_module/fuel_tank/tank)
 	for(var/obj/item/spacepod_module/fuel_pump/pump in fuel_pumps)

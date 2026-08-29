@@ -249,6 +249,10 @@
 	systems.add_module(src, new /obj/item/spacepod_module/passenger_seat(src))
 	// Fire extinguish module
 	systems.add_module(src, new /obj/item/spacepod_module/fire_extingusher(src))
+	// Key lock module
+	var/obj/item/spacepod_module/key_lock/lock = new /obj/item/spacepod_module/key_lock(src)
+	lock.key_id = 100000 //default key id for security spacepod
+	systems.add_module(src, lock)
 
 /obj/spacepod2/template/two_engine/raptor/create_armor()
 	var/obj/item/spacepod_module/armor/fore_armor = new /obj/item/spacepod_module/armor/heavy(src)

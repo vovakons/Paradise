@@ -181,20 +181,33 @@
 		to_chat(user, span_notice("Модуль [extracted_module.name] извлечен."))
 
 	if(!unlocked)
+		balloon_alert(user, "Замок закрыт")
 		return ..()
 
 	. = TRUE
 	if(hatch_opened)
 		hatch_opened = FALSE
-		to_chat(user, span_notice("Люк техобслуживания закрыт."))
+		balloon_alert(user, "Люк техобслуживания закрыт")
 	else
 		hatch_opened = TRUE
-		to_chat(user, span_notice("Люк техобслуживания открыт."))
+		balloon_alert(user, "Люк техобслуживания открыт")
 
-
+//MARK: attackby
 /obj/spacepod2/attackby(obj/item/item, mob/living/user, list/modifiers)
 	if(user.a_intent == INTENT_HARM)
 		return ..()
+
+	if(istype(item, /obj/item/spacepod_equipment/key))
+		add_fingerprint(user)
+		if(!systems.key_lock)
+			balloon_alert(user, "нет замка!")
+			return ATTACK_CHAIN_PROCEED
+		var/obj/item/spacepod_equipment/key/key = item
+		if(key.id != systems.key_lock.key_id)
+			balloon_alert(user, "неправильный ключ!")
+			return ATTACK_CHAIN_PROCEED
+		toggle_lock(user)
+		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	if(assemble_process && istype(item, /obj/item/spacepod_module))
 		var/obj/item/spacepod_module/module_obj = item
@@ -253,6 +266,17 @@
 
 	return ..()
 
+/obj/spacepod2/proc/toggle_lock(mob/user)
+	if(!systems.key_lock)
+		return
+	unlocked = !unlocked
+	if(unlocked)
+		balloon_alert(user, "Замок открыт")
+	else
+		balloon_alert(user, "Замок закрыт")
+
+
+//MARK: Attack hand
 #define ACTION_CARGO_ACCESS "Доступ к хранилищу"
 #define ACTION_REMOVE_PRIMARY_WEAPON "Извлечь основное вооружение"
 #define ACTION_REMOVE_SECONDARY_WEAPON "Извлечь дополнительное вооружение"
