@@ -393,6 +393,7 @@
 /obj/spacepod2/proc/eject_pilot()
 	pilot.forceMove(get_turf(src))
 	RemovePilotActions(pilot)
+	control_panels.ui_close(pilot)
 	pilot = null
 
 /obj/spacepod2/proc/eject_passenger(mob/living/passenger)

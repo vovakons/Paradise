@@ -27,6 +27,12 @@
 		ui = new(user, src, "SpacepodControlPanel", name)
 		ui.open()
 
+/datum/ui_module/spacepod_control_panels/ui_close(mob/user)
+	var/datum/tgui/ui = SStgui.get_open_ui(user, src)
+	if(!ui)
+		return
+	ui.close(TRUE)
+
 
 // MARK: ui_data
 /datum/ui_module/spacepod_control_panels/ui_data(mob/user)
