@@ -10,6 +10,7 @@
 	var/obj/item/spacepod_module/fuel_tank/engine/apu/apu = null
 	var/list/obj/item/spacepod_module/fuel_tank/engine/engines = list()
 	var/obj/item/spacepod_module/gyroscope/gyroscope = null
+	var/obj/item/spacepod_module/life_support/life_support = null
 	var/obj/item/spacepod_module/weapon/weapon = null
 	var/list/obj/item/spacepod_module/armor/armors = list()
 	var/obj/item/spacepod_module/fire_extingusher/fire_extenguisher = null
@@ -23,6 +24,7 @@
 	apu = null
 	engines.Cut()
 	gyroscope = null
+	life_support = null
 	weapon = null
 	armors.Cut()
 	fire_extenguisher = null
@@ -66,6 +68,8 @@
 		fuel_tanks += module
 	if(istype(module, /obj/item/spacepod_module/gyroscope))
 		gyroscope = module
+	if(istype(module, /obj/item/spacepod_module/life_support))
+		life_support = module
 	if(istype(module, /obj/item/spacepod_module/weapon))
 		weapon = module
 	if(istype(module, /obj/item/spacepod_module/armor))
@@ -100,6 +104,8 @@
 		fuel_tanks -= module
 	if(istype(module, /obj/item/spacepod_module/gyroscope))
 		gyroscope = null
+	if(istype(module, /obj/item/spacepod_module/life_support))
+		life_support = null
 	if(istype(module, /obj/item/spacepod_module/weapon))
 		weapon = null
 	if(istype(module, /obj/item/spacepod_module/armor))

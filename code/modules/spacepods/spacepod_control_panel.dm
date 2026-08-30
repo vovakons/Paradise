@@ -72,11 +72,12 @@
 		"name" = "Топливо",
 		"icon" = "tint",
 	))
-	tabs += list(list(
-		"id" = TAB_LIFE_SUPPORT,
-		"name" = "Жизнеобеспечение",
-		"icon" = "thermometer-full",
-	))
+	if(pod.systems.life_support != null)
+		tabs += list(list(
+			"id" = TAB_LIFE_SUPPORT,
+			"name" = "Жизнеобеспечение",
+			"icon" = "thermometer-full",
+		))
 	if(pod.systems.weapon != null)
 		tabs += list(list(
 			"id" = TAB_WEAPONS,
@@ -249,10 +250,11 @@
 
 /datum/ui_module/spacepod_control_panels/proc/create_life_support_data()
 	var/list/panel = list()
+	panel["exists"] = pod.systems.life_support != null
 	if(pod.internal_tank != null)
 		var/list/airtank = list()
 		airtank["name"] = pod.internal_tank.declent_ru(NOMINATIVE)
-		airtank["enable"] = pod.use_internal_tank
+		airtank["enable"] = pod.systems.life_support != null && pod.systems.life_support.enable
 		airtank["volume"] = pod.internal_tank.volume
 		airtank["pressure"] = pod.internal_tank.return_pressure()
 		airtank["low_pressure"] = pod.internal_tank.return_pressure() < 0.25 * pod.internal_tank.maximum_pressure
@@ -260,7 +262,7 @@
 	else
 		panel["airtank"] = null
 	var/list/atmos = list()
-	if(pod.use_internal_tank)
+	if(pod.systems.life_support != null && pod.systems.life_support.enable)
 		atmos["pressure"] = pod.cabin_air.return_pressure()
 		atmos["low_pressure"] = pod.cabin_air.return_pressure() < 0.8 * ONE_ATMOSPHERE
 		var/temperature = pod.cabin_air.temperature()
@@ -480,7 +482,10 @@
 	weapon_slot.reload(pod, usr)
 
 /datum/ui_module/spacepod_control_panels/proc/switch_airtank()
-	pod.toggle_internal_tank(usr)
+	if(pod.systems.life_support == null)
+		return
+	pod.systems.life_support.enable = !pod.systems.life_support.enable
+	to_chat(usr, span_notice("Подача воздуха: [pod.systems.life_support.enable ? "из баллона" : "снаружи"]."))
 
 /datum/ui_module/spacepod_control_panels/proc/extinguish_module(module_id)
 	var/obj/item/spacepod_module/target_module = null

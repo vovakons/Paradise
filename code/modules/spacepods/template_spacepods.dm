@@ -245,6 +245,8 @@
 	gun_turret.install_gun(laser_gun)
 
 /obj/spacepod2/template/two_engine/raptor/create_misc_modules()
+	// Life support module
+	systems.add_module(src, new /obj/item/spacepod_module/life_support(src))
 	// Passenger seat for arrests
 	systems.add_module(src, new /obj/item/spacepod_module/passenger_seat(src))
 	// Fire extinguish module
@@ -326,7 +328,8 @@
 	bottom_side_armor.name = "Броня днища"
 	systems.add_module(src, bottom_side_armor)
 
-/obj/spacepod2/template/two_engine/raptor/create_misc_modules()
+/obj/spacepod2/template/two_engine/cobra/create_misc_modules()
+	systems.add_module(src, new /obj/item/spacepod_module/life_support(src))
 	systems.add_module(src, new /obj/item/spacepod_module/fire_extingusher/five_charges(src))
 
 /obj/spacepod2/template/two_engine/cobra/no_weapon/create_weapon()

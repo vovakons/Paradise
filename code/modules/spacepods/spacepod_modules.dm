@@ -591,6 +591,35 @@
 	mass = 150
 
 
+// MARK: Life support
+/obj/item/spacepod_module/life_support
+	id = "life_support"
+	caption = "AIR"
+	name = "Модуль жизнеобеспечения"
+	hit_weight = POD_MODULE_HIT_CHANCE_NORMAL
+	max_integrity = 100
+	mass = 40
+	consume_power = 50
+
+/obj/item/spacepod_module/life_support/install_to(mob/living/user, obj/spacepod2/pod)
+	if(pod.systems.life_support != null)
+		to_chat(user, span_notice("Модуль жизнеобеспечения уже установлен в космическом челноке!"))
+		return FALSE
+	return TRUE
+
+/obj/item/spacepod_module/life_support/process_work(seconds_per_tick)
+	if(!enable)
+		return
+	if(process_power(seconds_per_tick))
+		return
+
+	if(!connection_power_net)
+		error_text = "Нет подключения к электросети для работы жизнеобеспечения"
+	else
+		error_text = "Не хватает электричества для работы жизнеобеспечения"
+	turn_off()
+
+
 // MARK: Misc modules
 /obj/item/spacepod_module/passenger_seat
 	id = "passenger_seat"

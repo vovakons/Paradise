@@ -28,8 +28,6 @@
 	var/datum/gas_mixture/cabin_air
 	/// Air tank for cabin
 	var/obj/machinery/portable_atmospherics/canister/internal_tank
-	/// Enable internal tank flag
-	var/use_internal_tank = FALSE
 
 	/// Frame integrity
 	max_integrity = 300
@@ -325,9 +323,10 @@
 
 // MARK: Process (update)
 /obj/spacepod2/process(seconds_per_tick)
-	give_air()
-	regulate_temp()
 	systems.process_work(seconds_per_tick, src)
+	if(systems && systems.life_support && systems.life_support.enable)
+		give_air()
+		regulate_temp()
 
 /obj/spacepod2/proc/give_air()
 	if(!internal_tank)
@@ -598,9 +597,9 @@
 // MARK: Environment
 /obj/spacepod2/return_obj_air()
 	RETURN_TYPE(/datum/gas_mixture)
-	if(!use_internal_tank)
-		return null
-	return cabin_air
+	if(systems && systems.life_support && systems.life_support.enable)
+		return cabin_air
+	return null
 
 /obj/spacepod2/proc/play_sound_to_riders(mysound)
 	if(length(passengers | pilot) == 0)
@@ -625,13 +624,6 @@
 /obj/spacepod2/hear_message(mob/user, msg)
 	cargo_hold.hear_message(user, msg)
 	..()
-
-/obj/spacepod2/proc/toggle_internal_tank(mob/user)
-	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
-		return
-
-	use_internal_tank = !use_internal_tank
-	to_chat(user, span_notice("Подача воздуха: [use_internal_tank ? "из баллона" : "снаружи"]."))
 
 
 // MARK: Movement

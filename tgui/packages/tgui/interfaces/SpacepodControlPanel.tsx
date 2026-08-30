@@ -564,6 +564,7 @@ const WeaponsPanel = (props: unknown) => {
 
 // MARK: Life support panel
 type LifeSupportPanelData = {
+  exists: boolean;
   airtank: AirtankData;
   atmos: AtmosData;
 };
@@ -956,34 +957,40 @@ const InstrumentalPanel = (props: unknown) => {
         {/* Life support and weapons control */}
         <Box align="center" width="100%">
           <Stack fill inlineFlex={true}>
-            <Stack.Item>
-              <Box pb="5px">AIR</Box>
-              <Stack>
+            {life_support.exists ? (
+              <>
                 <Stack.Item>
-                  <TextMeter
-                    caption="PRESS"
-                    text_upper={`${life_support.atmos.pressure} Pa`}
-                    text_lower={`${life_support.atmos.temperature} C`}
-                    warn={
-                      life_support.atmos.low_pressure ||
-                      life_support.atmos.low_temperature
-                    }
-                  />
+                  <Box pb="5px">AIR</Box>
+                  <Stack>
+                    <Stack.Item>
+                      <TextMeter
+                        caption="PRESS"
+                        text_upper={`${life_support.atmos.pressure} Pa`}
+                        text_lower={`${life_support.atmos.temperature} C`}
+                        warn={
+                          life_support.atmos.low_pressure ||
+                          life_support.atmos.low_temperature
+                        }
+                      />
+                    </Stack.Item>
+                    <Stack.Item>
+                      <TumblerButton
+                        caption="PWR"
+                        enable={
+                          life_support.airtank === null
+                            ? false
+                            : life_support.airtank.enable
+                        }
+                        clicked={() => act('switch_airtank')}
+                      />
+                    </Stack.Item>
+                  </Stack>
                 </Stack.Item>
-                <Stack.Item>
-                  <TumblerButton
-                    caption="PWR"
-                    enable={
-                      life_support.airtank === null
-                        ? false
-                        : life_support.airtank.enable
-                    }
-                    clicked={() => act('switch_airtank')}
-                  />
-                </Stack.Item>
-              </Stack>
-            </Stack.Item>
-            <Divider />
+                <Divider />
+              </>
+            ) : (
+              ''
+            )}
             {weapons.module ? (
               <>
                 <Stack.Item>
