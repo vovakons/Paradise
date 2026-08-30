@@ -960,7 +960,7 @@ const InstrumentalPanel = (props: unknown) => {
             {life_support.exists ? (
               <>
                 <Stack.Item>
-                  <Box pb="5px">AIR</Box>
+                  <Box>AIR</Box>
                   <Stack>
                     <Stack.Item>
                       <TextMeter
