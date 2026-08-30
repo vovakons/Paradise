@@ -738,13 +738,19 @@ const IntegrityPanel = (props: unknown) => {
   );
 };
 
-// MARK: Integrity panel
+// MARK: Misc panel
 type MiscPanelData = {
   key_lock: KeyLockData;
+  catapult: CatapultData;
 };
 
 type KeyLockData = {
   locked: boolean;
+};
+
+type CatapultData = {
+  id: string;
+  enable: boolean;
 };
 
 const MiscPanel = (props: unknown) => {
@@ -764,6 +770,29 @@ const MiscPanel = (props: unknown) => {
                 enable_text="Закрыт"
                 disable_text="Открыт"
                 clicked={() => act('toggle_lock')}
+              />
+            </Table>
+          </Section>
+        </Stack.Item>
+      ) : (
+        ''
+      )}
+      {/* Catapult section */}
+      {misc.catapult !== null ? (
+        <Stack.Item>
+          <Section title="Модуль аварийного катапультирования" ml="0" mr="0">
+            <Table>
+              <ToggleButtonRow
+                caption="Автоматическое катапультирование"
+                enable={misc.catapult.enable}
+                enable_text="Включен"
+                disable_text="Выключен"
+                clicked={() => act('switch_enable', { id: misc.catapult.id })}
+              />
+              <ButtonRow
+                caption="Ручное катапультирование"
+                text="Активировать"
+                clicked={() => act('catapult_pilot')}
               />
             </Table>
           </Section>
@@ -1078,6 +1107,35 @@ const InstrumentalPanel = (props: unknown) => {
                         caption="LOCK"
                         enable={misc.key_lock.locked}
                         clicked={() => act('toggle_lock')}
+                      />
+                    </Stack.Item>
+                  </Stack>
+                </Stack.Item>
+                <Divider />
+              </>
+            ) : (
+              ''
+            )}
+            {/* Catapult */}
+            {misc.catapult !== null ? (
+              <>
+                <Stack.Item>
+                  <Box pb="5px">CAT</Box>
+                  <Stack>
+                    <Stack.Item>
+                      <TumblerButton
+                        caption="AUTO"
+                        enable={misc.catapult.enable}
+                        clicked={() =>
+                          act('switch_enable', { id: misc.catapult.id })
+                        }
+                      />
+                    </Stack.Item>
+                    <Stack.Item>
+                      <SimpleButton
+                        caption="MAN"
+                        failure={false}
+                        clicked={() => act('catapult_pilot')}
                       />
                     </Stack.Item>
                   </Stack>

@@ -15,6 +15,7 @@
 	var/list/obj/item/spacepod_module/armor/armors = list()
 	var/obj/item/spacepod_module/fire_extingusher/fire_extenguisher = null
 	var/obj/item/spacepod_module/key_lock/key_lock = null
+	var/obj/item/spacepod_module/catapult_module/catapult = null
 
 /datum/spacepod_systems/Destroy(force)
 	. = ..()
@@ -29,6 +30,7 @@
 	armors.Cut()
 	fire_extenguisher = null
 	key_lock = null
+	catapult = null
 	QDEL_LIST(modules)
 
 /datum/spacepod_systems/proc/check_complete()
@@ -78,6 +80,8 @@
 		fire_extenguisher = module
 	if(istype(module, /obj/item/spacepod_module/key_lock))
 		key_lock = module
+	if(istype(module, /obj/item/spacepod_module/catapult_module))
+		catapult = module
 	module.on_install(pod)
 
 /datum/spacepod_systems/proc/remove_module(obj/spacepod2/pod, obj/item/spacepod_module/module)
@@ -114,6 +118,8 @@
 		fire_extenguisher = null
 	if(istype(module, /obj/item/spacepod_module/key_lock))
 		key_lock = null
+	if(istype(module, /obj/item/spacepod_module/catapult_module))
+		catapult = null
 
 /datum/spacepod_systems/proc/remove_fuel_tank_from_pumps(obj/item/spacepod_module/fuel_tank/tank)
 	for(var/obj/item/spacepod_module/fuel_pump/pump in fuel_pumps)

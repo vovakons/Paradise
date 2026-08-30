@@ -561,6 +561,19 @@
 
 	to_chat(user, span_notice("Вы выбрались из [declent_ru(GENITIVE)]."))
 
+/obj/spacepod2/proc/catapult_pilot(force = FALSE)
+	if(!pilot)
+		return
+	if(!systems.catapult || (!force && !systems.catapult.enable))
+		return
+	var/mob/pilot_user = pilot
+	eject_pilot()
+	var/opposite_dir = dir ^ (NORTH|SOUTH|EAST|WEST)
+	//var/atom/target = get_edge_target_turf(src, opposite_dir)
+	var/turf/target = get_distant_turf(get_turf(src), opposite_dir, 7)
+	var/turf/start = get_distant_turf(get_turf(src), opposite_dir, 1)
+	pilot_user.loc = start
+	pilot_user.throw_at(target, 4, 2, src, TRUE, FALSE)
 
 // MARK: Attack procs
 /obj/spacepod2/proc/click_action(atom/target, mob/user, list/modifiers)
@@ -592,7 +605,12 @@
 
 	// damage modules, and return remaining damage to frame
 	damage_amount = systems.damage_modules(damage_amount)
-	return ..(damage_amount, damage_type, damage_flag, sound_effect, attack_dir, armour_penetration)
+	. = ..(damage_amount, damage_type, damage_flag, sound_effect, attack_dir, armour_penetration)
+
+/obj/spacepod2/obj_destruction(damage_flag)
+	catapult_pilot()
+	. = ..()
+
 
 // MARK: Environment
 /obj/spacepod2/return_obj_air()

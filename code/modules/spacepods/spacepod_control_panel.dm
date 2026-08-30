@@ -312,6 +312,13 @@
 		panel["key_lock"] = lock_data
 	else
 		panel["key_lock"] = null
+	if(pod.systems.catapult != null)
+		var/catapult = list()
+		catapult["id"] = pod.systems.catapult.id
+		catapult["enable"] = pod.systems.catapult.enable
+		panel["catapult"] = catapult
+	else
+		panel["catapult"] = null
 	return panel
 
 
@@ -370,6 +377,8 @@
 			extinguish_module(id)
 		if("toggle_lock")
 			pod.toggle_lock(usr)
+		if("catapult_pilot")
+			pod.catapult_pilot(TRUE)
 		else
 			return FALSE
 

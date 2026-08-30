@@ -85,167 +85,141 @@
 	materials = list(MAT_METAL=15000,MAT_GLASS=5000,MAT_PLASMA=10000)
 
 
-// MARK: Spacepod guns
+// // MARK: Spacepod guns
 
-/datum/design/pod_gun_taser
-	construction_time = 200
-	name = "Spacepod Equipment (Disabler)"
-	desc = "Allows for the construction of a spacepod mounted disabler."
-	id = "podgun_taser"
-	build_type = PODFAB
-	req_tech = list(RESEARCH_TREE_MATERIALS = 2, RESEARCH_TREE_COMBAT = 2)
-	build_path = /obj/item/spacepod_equipment/weaponry/taser
-	category = list(POD_FAB_CATEGORY_WEAPONRY)
-	materials = list(MAT_METAL = 15000)
-	locked = 1
+// /datum/design/pod_gun_taser
+// 	construction_time = 200
+// 	name = "Spacepod Equipment (Disabler)"
+// 	desc = "Allows for the construction of a spacepod mounted disabler."
+// 	id = "podgun_taser"
+// 	build_type = PODFAB
+// 	req_tech = list(RESEARCH_TREE_MATERIALS = 2, RESEARCH_TREE_COMBAT = 2)
+// 	build_path = /obj/item/spacepod_equipment/weaponry/taser
+// 	category = list(POD_FAB_CATEGORY_WEAPONRY)
+// 	materials = list(MAT_METAL = 15000)
+// 	locked = 1
 
-/datum/design/pod_gun_btaser
-	construction_time = 200
-	name = "Spacepod Equipment (Burst Disabler)"
-	desc = "Allows for the construction of a spacepod mounted disabler. This is the burst-fire model."
-	id = "podgun_btaser"
-	build_type = PODFAB
-	req_tech = list(RESEARCH_TREE_MATERIALS = 3, RESEARCH_TREE_COMBAT = 3)
-	build_path = /obj/item/spacepod_equipment/weaponry/burst_taser
-	category = list(POD_FAB_CATEGORY_WEAPONRY)
-	materials = list(MAT_METAL = 15000,MAT_PLASMA=2000)
-	locked = 1
+// /datum/design/pod_gun_btaser
+// 	construction_time = 200
+// 	name = "Spacepod Equipment (Burst Disabler)"
+// 	desc = "Allows for the construction of a spacepod mounted disabler. This is the burst-fire model."
+// 	id = "podgun_btaser"
+// 	build_type = PODFAB
+// 	req_tech = list(RESEARCH_TREE_MATERIALS = 3, RESEARCH_TREE_COMBAT = 3)
+// 	build_path = /obj/item/spacepod_equipment/weaponry/burst_taser
+// 	category = list(POD_FAB_CATEGORY_WEAPONRY)
+// 	materials = list(MAT_METAL = 15000,MAT_PLASMA=2000)
+// 	locked = 1
 
-/datum/design/pod_gun_laser
-	construction_time = 200
-	name = "Spacepod Equipment (Laser)"
-	desc = "Allows for the construction of a spacepod mounted laser."
-	id = "podgun_laser"
-	build_type = PODFAB
-	req_tech = list(RESEARCH_TREE_MATERIALS = 3, RESEARCH_TREE_COMBAT = 3, RESEARCH_TREE_PLASMA = 2)
-	build_path = /obj/item/spacepod_equipment/weaponry/laser
-	category = list(POD_FAB_CATEGORY_WEAPONRY)
-	materials = list(MAT_METAL=10000,MAT_GLASS=5000,MAT_GOLD=1000,MAT_SILVER=2000)
-	locked = 1
+// /datum/design/pod_gun_laser
+// 	construction_time = 200
+// 	name = "Spacepod Equipment (Laser)"
+// 	desc = "Allows for the construction of a spacepod mounted laser."
+// 	id = "podgun_laser"
+// 	build_type = PODFAB
+// 	req_tech = list(RESEARCH_TREE_MATERIALS = 3, RESEARCH_TREE_COMBAT = 3, RESEARCH_TREE_PLASMA = 2)
+// 	build_path = /obj/item/spacepod_equipment/weaponry/laser
+// 	category = list(POD_FAB_CATEGORY_WEAPONRY)
+// 	materials = list(MAT_METAL=10000,MAT_GLASS=5000,MAT_GOLD=1000,MAT_SILVER=2000)
+// 	locked = 1
 
-/datum/design/pod_gun_solaris
-	construction_time = 200
-	name = "Spacepod Equipment (Heavy laser)"
-	desc = "Allows for the construction of a spacepod mounted  heavy laser."
-	id = "podgun_solaris"
-	build_type = PODFAB
-	req_tech = list(RESEARCH_TREE_COMBAT = 4, RESEARCH_TREE_MAGNETS = 4, RESEARCH_TREE_ENGINEERING = 4)
-	build_path = /obj/item/spacepod_equipment/weaponry/solaris
-	category = list(POD_FAB_CATEGORY_WEAPONRY)
-	materials = list(MAT_METAL=20000,MAT_GLASS=10000,MAT_GOLD=2000,MAT_SILVER=4000)
-	locked = 1
+// /datum/design/pod_gun_solaris
+// 	construction_time = 200
+// 	name = "Spacepod Equipment (Heavy laser)"
+// 	desc = "Allows for the construction of a spacepod mounted  heavy laser."
+// 	id = "podgun_solaris"
+// 	build_type = PODFAB
+// 	req_tech = list(RESEARCH_TREE_COMBAT = 4, RESEARCH_TREE_MAGNETS = 4, RESEARCH_TREE_ENGINEERING = 4)
+// 	build_path = /obj/item/spacepod_equipment/weaponry/solaris
+// 	category = list(POD_FAB_CATEGORY_WEAPONRY)
+// 	materials = list(MAT_METAL=20000,MAT_GLASS=10000,MAT_GOLD=2000,MAT_SILVER=4000)
+// 	locked = 1
 
-/datum/design/pod_mining_laser_basic
-	construction_time = 200
-	name = "Spacepod Equipment (Kinetic Accelerator)"
-	desc = "Allows for the construction of a kinetic accelerator"
-	id = "pod_mining_laser_basic"
-	req_tech = list(RESEARCH_TREE_MATERIALS = 3, RESEARCH_TREE_POWERSTORAGE = 2, RESEARCH_TREE_ENGINEERING = 2, RESEARCH_TREE_MAGNETS = 3, RESEARCH_TREE_COMBAT = 2)
-	build_type = PODFAB
-	materials = list(MAT_METAL = 10000, MAT_GLASS = 5000, MAT_SILVER = 2000, MAT_URANIUM = 2000)
-	build_path = /obj/item/spacepod_equipment/weaponry/mining_laser_basic
-	category = list(POD_FAB_CATEGORY_WEAPONRY)
+// /datum/design/pod_mining_laser_basic
+// 	construction_time = 200
+// 	name = "Spacepod Equipment (Kinetic Accelerator)"
+// 	desc = "Allows for the construction of a kinetic accelerator"
+// 	id = "pod_mining_laser_basic"
+// 	req_tech = list(RESEARCH_TREE_MATERIALS = 3, RESEARCH_TREE_POWERSTORAGE = 2, RESEARCH_TREE_ENGINEERING = 2, RESEARCH_TREE_MAGNETS = 3, RESEARCH_TREE_COMBAT = 2)
+// 	build_type = PODFAB
+// 	materials = list(MAT_METAL = 10000, MAT_GLASS = 5000, MAT_SILVER = 2000, MAT_URANIUM = 2000)
+// 	build_path = /obj/item/spacepod_equipment/weaponry/mining_laser_basic
+// 	category = list(POD_FAB_CATEGORY_WEAPONRY)
 
-/datum/design/pod_mining_laser
-	construction_time = 200
-	name = "Spacepod Equipment (Industrial Kinetic Accelerator)"
-	desc = "Allows for the construction of a industrial kinetic accelerator."
-	id = "pod_mining_laser"
-	req_tech = list(RESEARCH_TREE_MATERIALS = 6, RESEARCH_TREE_POWERSTORAGE = 6, RESEARCH_TREE_ENGINEERING = 5, RESEARCH_TREE_MAGNETS = 6, RESEARCH_TREE_COMBAT = 4)
-	build_type = PODFAB
-	materials = list(MAT_METAL = 10000, MAT_GLASS = 5000, MAT_SILVER = 2000, MAT_GOLD = 2000, MAT_DIAMOND = 2000)
-	build_path = /obj/item/spacepod_equipment/weaponry/mining_laser
-	category = list(POD_FAB_CATEGORY_WEAPONRY)
-
-
-// MARK: Pacepod misc
-
-/datum/design/pod_misc_tracker
-	construction_time = 100
-	name = "Spacepod Tracking Module"
-	desc = "Allows for the construction of a Space Pod Tracking Module."
-	id = "podmisc_tracker"
-	req_tech = list(RESEARCH_TREE_MATERIALS = 2) //Materials 2: easy to get, no trackers with 0 science progress
-	build_type = PODFAB
-	materials = list(MAT_METAL=5000)
-	build_path = /obj/item/spacepod_equipment/misc/tracker
-	category = list(POD_FAB_CATEGORY_PARTS)
+// /datum/design/pod_mining_laser
+// 	construction_time = 200
+// 	name = "Spacepod Equipment (Industrial Kinetic Accelerator)"
+// 	desc = "Allows for the construction of a industrial kinetic accelerator."
+// 	id = "pod_mining_laser"
+// 	req_tech = list(RESEARCH_TREE_MATERIALS = 6, RESEARCH_TREE_POWERSTORAGE = 6, RESEARCH_TREE_ENGINEERING = 5, RESEARCH_TREE_MAGNETS = 6, RESEARCH_TREE_COMBAT = 4)
+// 	build_type = PODFAB
+// 	materials = list(MAT_METAL = 10000, MAT_GLASS = 5000, MAT_SILVER = 2000, MAT_GOLD = 2000, MAT_DIAMOND = 2000)
+// 	build_path = /obj/item/spacepod_equipment/weaponry/mining_laser
+// 	category = list(POD_FAB_CATEGORY_WEAPONRY)
 
 
-// MARK: Spacepod cargo
+// // MARK: Pacepod misc
 
-/datum/design/pod_cargo_ore
-	construction_time = 100
-	name = "Spacepod Ore Storage Module"
-	desc = "Allows for the construction of a Space Pod Ore Storage Module."
-	id = "podcargo_ore"
-	req_tech = list(RESEARCH_TREE_MATERIALS = 3, RESEARCH_TREE_ENGINEERING = 2)
-	build_type = PODFAB
-	materials = list(MAT_METAL=20000, MAT_GLASS=2000)
-	build_path = /obj/item/spacepod_equipment/cargo/ore
-	category = list(POD_FAB_CATEGORY_CARGO)
-
-/datum/design/pod_cargo_crate
-	construction_time = 100
-	name = "Spacepod Crate Storage Module"
-	desc = "Allows the construction of a Space Pod Crate Storage Module."
-	id = "podcargo_crate"
-	req_tech = list(RESEARCH_TREE_MATERIALS = 4, RESEARCH_TREE_ENGINEERING = 2) //hollowing out this much of the pod without compromising structural integrity is hard
-	build_type = PODFAB
-	materials = list(MAT_METAL=25000)
-	build_path = /obj/item/spacepod_equipment/cargo/crate
-	category = list(POD_FAB_CATEGORY_CARGO)
+// /datum/design/pod_misc_tracker
+// 	construction_time = 100
+// 	name = "Spacepod Tracking Module"
+// 	desc = "Allows for the construction of a Space Pod Tracking Module."
+// 	id = "podmisc_tracker"
+// 	req_tech = list(RESEARCH_TREE_MATERIALS = 2) //Materials 2: easy to get, no trackers with 0 science progress
+// 	build_type = PODFAB
+// 	materials = list(MAT_METAL=5000)
+// 	build_path = /obj/item/spacepod_equipment/misc/tracker
+// 	category = list(POD_FAB_CATEGORY_PARTS)
 
 
-// MARK: Sec spacepod cargo
+// // MARK: Spacepod cargo
 
-/datum/design/passenger_seat
-	construction_time = 100
-	name = "Spacepod Passenger Seat"
-	desc = "Allows the construction of a Space Pod Passenger Seat Module."
-	id = "podcargo_sec_seat"
-	req_tech = list(RESEARCH_TREE_MATERIALS = 1) // Because rule number one of refactoring
-	build_type = PODFAB
-	materials = list(MAT_METAL=7500, MAT_GLASS=2500)
-	build_path = /obj/item/spacepod_equipment/sec_cargo/chair
-	category = list(POD_FAB_CATEGORY_CARGO)
+// /datum/design/pod_cargo_ore
+// 	construction_time = 100
+// 	name = "Spacepod Ore Storage Module"
+// 	desc = "Allows for the construction of a Space Pod Ore Storage Module."
+// 	id = "podcargo_ore"
+// 	req_tech = list(RESEARCH_TREE_MATERIALS = 3, RESEARCH_TREE_ENGINEERING = 2)
+// 	build_type = PODFAB
+// 	materials = list(MAT_METAL=20000, MAT_GLASS=2000)
+// 	build_path = /obj/item/spacepod_equipment/cargo/ore
+// 	category = list(POD_FAB_CATEGORY_CARGO)
 
-/datum/design/loot_box
-	construction_time = 100
-	name = "Spacepod Loot Storage Module"
-	desc = "Allows the construction of a Space Pod Auxillary Cargo Module."
-	id = "podcargo_sec_lootbox"
-	req_tech = list(RESEARCH_TREE_MATERIALS = 1) //it's just a set of shelves, It's not that hard to make
-	build_type = PODFAB
-	materials = list(MAT_METAL=7500, MAT_GLASS=2500)
-	build_path = /obj/item/spacepod_equipment/sec_cargo/loot_box
-	category = list(POD_FAB_CATEGORY_CARGO)
+// /datum/design/pod_cargo_crate
+// 	construction_time = 100
+// 	name = "Spacepod Crate Storage Module"
+// 	desc = "Allows the construction of a Space Pod Crate Storage Module."
+// 	id = "podcargo_crate"
+// 	req_tech = list(RESEARCH_TREE_MATERIALS = 4, RESEARCH_TREE_ENGINEERING = 2) //hollowing out this much of the pod without compromising structural integrity is hard
+// 	build_type = PODFAB
+// 	materials = list(MAT_METAL=25000)
+// 	build_path = /obj/item/spacepod_equipment/cargo/crate
+// 	category = list(POD_FAB_CATEGORY_CARGO)
 
 
-// MARK: SPapceod lock
+// // MARK: Sec spacepod cargo
 
-/datum/design/pod_lock_keyed
-	construction_time = 100
-	name = "Spacepod Tumbler Lock"
-	desc = "Allows for the construction of a tumbler style podlock."
-	id = "podlock_keyed"
-	req_tech = list(RESEARCH_TREE_MATERIALS = 1) //The most basic kind of locking system
-	build_type = PODFAB
-	materials = list(MAT_METAL=4500)
-	build_path = /obj/item/spacepod_equipment/lock/keyed
-	category = list(POD_FAB_CATEGORY_PARTS)
+// /datum/design/passenger_seat
+// 	construction_time = 100
+// 	name = "Spacepod Passenger Seat"
+// 	desc = "Allows the construction of a Space Pod Passenger Seat Module."
+// 	id = "podcargo_sec_seat"
+// 	req_tech = list(RESEARCH_TREE_MATERIALS = 1) // Because rule number one of refactoring
+// 	build_type = PODFAB
+// 	materials = list(MAT_METAL=7500, MAT_GLASS=2500)
+// 	build_path = /obj/item/spacepod_equipment/sec_cargo/chair
+// 	category = list(POD_FAB_CATEGORY_CARGO)
 
-/datum/design/pod_key
-	construction_time = 100
-	name = "Spacepod Tumbler Lock Key"
-	desc = "Allows for the construction of a blank key for a podlock."
-	id = "podkey"
-	req_tech = list(RESEARCH_TREE_MATERIALS = 1) //The most basic kind of locking system
-	build_type = PODFAB
-	materials = list(MAT_METAL=500)
-	build_path = /obj/item/spacepod_equipment/key
-	category = list(POD_FAB_CATEGORY_PARTS)
-
+// /datum/design/loot_box
+// 	construction_time = 100
+// 	name = "Spacepod Loot Storage Module"
+// 	desc = "Allows the construction of a Space Pod Auxillary Cargo Module."
+// 	id = "podcargo_sec_lootbox"
+// 	req_tech = list(RESEARCH_TREE_MATERIALS = 1) //it's just a set of shelves, It's not that hard to make
+// 	build_type = PODFAB
+// 	materials = list(MAT_METAL=7500, MAT_GLASS=2500)
+// 	build_path = /obj/item/spacepod_equipment/sec_cargo/loot_box
+// 	category = list(POD_FAB_CATEGORY_CARGO)
 
 // MARK: Spacepod locators
 
@@ -317,11 +291,11 @@
 	build_path = /obj/item/spacepod_module/fuel_tank/engine
 	category = list(POD_FAB_CATEGORY_PARTS)
 
-/datum/design/pod_engine
+/datum/design/pod_engine_speedy
 	construction_time = 300
 	name = "Формажный двигатель челнока"
 	desc = "Плазменный реактивно-импульсный двигатель космического челнока. Двигатель с куда большей тягой, но и с большим расходом топлива."
-	id = "pod_engine"
+	id = "pod_engine_speedy"
 	req_tech = list(RESEARCH_TREE_MATERIALS = 3, RESEARCH_TREE_ENGINEERING = 4, RESEARCH_TREE_MAGNETS = 5, RESEARCH_TREE_PROGRAMMING = 3)
 	build_type = PODFAB
 	materials = list(MAT_METAL = 25000, MAT_GLASS = 5000, MAT_PLASMA = 10000)
@@ -392,7 +366,7 @@
 	build_type = PODFAB
 	materials = list(MAT_METAL = 7500, MAT_GLASS = 2500)
 	build_path = /obj/item/spacepod_module/passenger_seat
-	category = list(POD_FAB_CATEGORY_PARTS)
+	category = list(POD_FAB_CATEGORY_MISC)
 
 /datum/design/pod_extinguisher
 	construction_time = 100
@@ -403,4 +377,37 @@
 	build_type = PODFAB
 	materials = list(MAT_METAL = 10000, MAT_GLASS = 5000, MAT_GOLD = 1000)
 	build_path = /obj/item/spacepod_module/fire_extingusher
+	category = list(POD_FAB_CATEGORY_MISC)
+
+/datum/design/pod_key_lock
+	construction_time = 50
+	name = "Модуль замка челнока."
+	desc = "Модуль для запирания челнока ключом."
+	id = "pod_key_lock"
+	req_tech = list(RESEARCH_TREE_MATERIALS = 1, RESEARCH_TREE_ENGINEERING = 2)
+	build_type = PODFAB
+	materials = list(MAT_METAL = 2000, MAT_GLASS = 1000)
+	build_path = /obj/item/spacepod_module/key_lock/auto_id
+	category = list(POD_FAB_CATEGORY_MISC)
+
+/datum/design/pod_key
+	construction_time = 100
+	name = "Заготовка ключа от челнока"
+	desc = "Позволяет изготовить заготовку ключа для замка челнока."
+	id = "podkey"
+	req_tech = list(RESEARCH_TREE_MATERIALS = 1, RESEARCH_TREE_ENGINEERING = 2)
+	build_type = PODFAB
+	materials = list(MAT_METAL = 500)
+	build_path = /obj/item/spacepod_equipment/key
 	category = list(POD_FAB_CATEGORY_PARTS)
+
+/datum/design/pod_catapult
+	construction_time = 100
+	name = "Модуль экстренного катапультирования."
+	desc = "Модуль аварийного катапультирования из челнока в случае критических повреждений."
+	id = "pod_catapult"
+	req_tech = list(RESEARCH_TREE_MATERIALS = 2, RESEARCH_TREE_ENGINEERING = 4)
+	build_type = PODFAB
+	materials = list(MAT_METAL = 10000, MAT_GLASS = 2000)
+	build_path = /obj/item/spacepod_module/catapult_module
+	category = list(POD_FAB_CATEGORY_MISC)

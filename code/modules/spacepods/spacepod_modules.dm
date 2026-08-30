@@ -691,3 +691,10 @@
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 
 	return ..()
+
+/obj/item/spacepod_module/catapult_module
+	id = "catapult"
+	caption = "CAT"
+	name = "Модуль аварийного катапультирования"
+	hit_weight = POD_MODULE_HIT_CHANCE_SMALL
+	mass = 50
