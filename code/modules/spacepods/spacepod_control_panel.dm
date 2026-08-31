@@ -113,7 +113,7 @@
 			var/list/consumer = list()
 			consumer["id"] = module.id
 			consumer["caption"] = module.caption
-			consumer["name"] = module.name
+			consumer["name"] = module.module_name
 			consumer["link"] = module.connection_power_net
 			consumers += list(consumer)
 	panel["consumers"] = consumers
@@ -126,7 +126,7 @@
 		var/list/engine_data= list()
 		engine_data["id"] = engine.id
 		engine_data["caption"] = engine.caption
-		engine_data["name"] = engine.name
+		engine_data["name"] = engine.module_name
 		engine_data["enable"] = engine.enable
 		engine_data["rpm"] = engine.current_rpm
 		engine_data["rpm_percent"] = round(engine.current_rpm / engine.max_rpm * 100, 1)
@@ -136,13 +136,13 @@
 		if(istype(engine, /obj/item/spacepod_module/fuel_tank/engine/apu))
 			var/obj/item/spacepod_module/fuel_tank/engine/apu/apu_engine = engine
 			engine_data["power_link"] = apu_engine.connection_power_net
-			engine_data["selected_rpm_provide_engine"] = apu_engine.rpm_destination_engine ? apu_engine.rpm_destination_engine.name : NOT_SELECTED_RPM_PROVIDER
+			engine_data["selected_rpm_provide_engine"] = apu_engine.rpm_destination_engine ? apu_engine.rpm_destination_engine.module_name : NOT_SELECTED_RPM_PROVIDER
 			var/rpm_destinations = list()
 			rpm_destinations += NOT_SELECTED_RPM_PROVIDER
 			for(var/obj/item/spacepod_module/fuel_tank/engine/dest_engine in pod.systems.engines)
 				if(engine == dest_engine)
 					continue
-				rpm_destinations += dest_engine.name
+				rpm_destinations += dest_engine.module_name
 			engine_data["rpm_provide_engines"] = rpm_destinations
 		else
 			engine_data["power_link"] = null
@@ -158,7 +158,7 @@
 	if(pod.systems.gyroscope)
 		var/gyroscope_data = list()
 		gyroscope_data["id"] = pod.systems.gyroscope.id
-		gyroscope_data["name"] = pod.systems.gyroscope.name
+		gyroscope_data["name"] = pod.systems.gyroscope.module_name
 		gyroscope_data["power_link"] = pod.systems.gyroscope.connection_power_net
 		gyroscope_data["enable"] = pod.systems.gyroscope.enable
 		gyroscope_data["rpm"] = pod.systems.gyroscope.current_rpm
@@ -178,7 +178,7 @@
 	for(var/obj/item/spacepod_module/fuel_tank/fuel_tank in pod.systems.fuel_tanks)
 		var/tank_data = list()
 		tank_data["id"] = fuel_tank.id
-		tank_data["name"] = fuel_tank.name
+		tank_data["name"] = fuel_tank.module_name
 		tank_data["caption"] = fuel_tank.caption
 		tank_data["fuel_amount"] = fuel_tank.fuel_amount
 		tank_data["fuel_capacity"] = fuel_tank.fuel_capacity
@@ -189,7 +189,7 @@
 	for(var/obj/item/spacepod_module/fuel_pump/pump in pod.systems.fuel_pumps)
 		var/pump_data = list()
 		pump_data["id"] = pump.id
-		pump_data["name"] = pump.name
+		pump_data["name"] = pump.module_name
 		pump_data["caption"] = pump.caption
 		pump_data["enable"] = pump.enable
 		pump_data["power_link"] = pump.connection_power_net
@@ -209,7 +209,7 @@
 		return panel
 	var/module = list()
 	module["id"] = pod.systems.weapon.id
-	module["name"] = pod.systems.weapon.name
+	module["name"] = pod.systems.weapon.module_name
 	module["enable"] = pod.systems.weapon.enable
 	module["power_link"] = pod.systems.weapon.connection_power_net
 	module["error_text"] = pod.systems.weapon.error_text
@@ -295,7 +295,7 @@
 		var/module_data = list()
 		module_data["id"] = module.id
 		module_data["caption"] = module.caption
-		module_data["name"] = module.name
+		module_data["name"] = module.module_name
 		module_data["integrity"] = module.integrity
 		module_data["max_integrity"] = module.max_integrity
 		module_data["integrity_warn"] = module.integrity < 0.5 * module.max_integrity
@@ -446,7 +446,7 @@
 	for(var/obj/item/spacepod_module/fuel_tank/engine/engine in pod.systems.engines)
 		if(id == engine.id && istype(engine, /obj/item/spacepod_module/fuel_tank/engine/apu))
 			target_engine = engine
-		if(destination_engine_name == engine.name)
+		if(destination_engine_name == engine.module_name)
 			destination_engine = engine
 	if(!target_engine)
 		return

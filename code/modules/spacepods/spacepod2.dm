@@ -176,7 +176,7 @@
 			return
 		systems.remove_module(src, extracted_module)
 		extracted_module.forceMove(src.loc)
-		to_chat(user, span_notice("Модуль [extracted_module.name] извлечен."))
+		to_chat(user, span_notice("Модуль [extracted_module.module_name] извлечен."))
 
 	if(!unlocked)
 		balloon_alert(user, "Замок закрыт")
@@ -217,7 +217,7 @@
 			item.forceMove(src.loc)
 			return ..()
 		systems.add_module(src, module_obj)
-		to_chat(user, span_notice("Модуль [module_obj.name] установлен."))
+		to_chat(user, span_notice("Модуль [module_obj.module_name] установлен."))
 		update_icon(UPDATE_ICON_STATE)
 		return ATTACK_CHAIN_BLOCKED_ALL
 

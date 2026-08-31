@@ -47,18 +47,18 @@
 	var/obj/item/spacepod_module/fuel_tank/large/central_fuel_tank = new /obj/item/spacepod_module/fuel_tank/large/full(src)
 	central_fuel_tank.id = "central_fueltank"
 	central_fuel_tank.caption = "CENT TK"
-	central_fuel_tank.name = "Центральный топливный бак"
+	central_fuel_tank.module_name = "Центральный топливный бак"
 	systems.add_module(src, central_fuel_tank)
 	// engines
 	var/obj/item/spacepod_module/fuel_tank/engine/apu/apu = new(src)
 	var/obj/item/spacepod_module/fuel_tank/engine/central_engine = new("engine_central")
-	central_engine.name = "Центральный двигатель"
+	central_engine.module_name = "Центральный двигатель"
 	// Fuel pumps
 	// central fueltank - apu
 	var/obj/item/spacepod_module/fuel_pump/pump_apu = new(src)
 	pump_apu.id = "pump_central_fueltanktank_to_apu"
 	pump_apu.caption = "APU PUMP"
-	pump_apu.name = "Топливный насос из центрального бака в ВСУ"
+	pump_apu.module_name = "Топливный насос из центрального бака в ВСУ"
 	pump_apu.source_tank = central_fuel_tank
 	pump_apu.destination_tank = apu
 	systems.add_module(src, pump_apu)
@@ -66,7 +66,7 @@
 	var/obj/item/spacepod_module/fuel_pump/pump_central_engine = new(src)
 	pump_central_engine.id = "pump_central_fueltank_to_engine_central"
 	pump_central_engine.caption = "ENG PUMP"
-	pump_central_engine.name = "Топливный насос из центрального бака в центральный двигатель"
+	pump_central_engine.module_name = "Топливный насос из центрального бака в центральный двигатель"
 	pump_central_engine.source_tank = central_fuel_tank
 	pump_central_engine.destination_tank = central_engine
 	systems.add_module(src, pump_central_engine)
@@ -77,11 +77,11 @@
 /obj/spacepod2/template/one_engine/create_armor()
 	var/obj/item/spacepod_module/armor/fore_armor = new /obj/item/spacepod_module/armor/light(src)
 	fore_armor.id = "fore_armor"
-	fore_armor.name = "Носовая броня"
+	fore_armor.module_name = "Носовая броня"
 	systems.add_module(src, fore_armor)
 	var/obj/item/spacepod_module/armor/aft_armor = new /obj/item/spacepod_module/armor/light(src)
 	aft_armor.id = "aft_armor"
-	aft_armor.name = "Кормовая броня"
+	aft_armor.module_name = "Кормовая броня"
 	systems.add_module(src, aft_armor)
 
 
@@ -97,34 +97,34 @@
 	var/obj/item/spacepod_module/fuel_tank/large/fuel_tank_central = new /obj/item/spacepod_module/fuel_tank/large/full(src)
 	fuel_tank_central.id = "fueltank_center"
 	fuel_tank_central.caption = "CENT TK"
-	fuel_tank_central.name = "Центральный топливный бак"
+	fuel_tank_central.module_name = "Центральный топливный бак"
 	systems.add_module(src, fuel_tank_central)
 	var/obj/item/spacepod_module/fuel_tank/fuel_tank_right = new /obj/item/spacepod_module/fuel_tank/full(src)
 	fuel_tank_right.id = "fueltank_right"
 	fuel_tank_right.caption = "R TK"
-	fuel_tank_right.name = "Правый топливный бак"
+	fuel_tank_right.module_name = "Правый топливный бак"
 	systems.add_module(src, fuel_tank_right)
 	var/obj/item/spacepod_module/fuel_tank/fuel_tank_left = new /obj/item/spacepod_module/fuel_tank/full(src)
 	fuel_tank_left.id = "fueltank_left"
 	fuel_tank_left.caption = "L TK"
-	fuel_tank_left.name = "Левый топливный бак"
+	fuel_tank_left.module_name = "Левый топливный бак"
 	systems.add_module(src, fuel_tank_left)
 	// Engines
 	var/obj/item/spacepod_module/fuel_tank/engine/apu/apu = new(src)
 	var/obj/item/spacepod_module/fuel_tank/engine/engine_right = new /obj/item/spacepod_module/fuel_tank/engine/heavy(src)
 	engine_right.id = "engine_right"
 	engine_right.caption = "R ENG"
-	engine_right.name = "Правый двигатель"
+	engine_right.module_name = "Правый двигатель"
 	var/obj/item/spacepod_module/fuel_tank/engine/engine_left = new /obj/item/spacepod_module/fuel_tank/engine/heavy(src)
 	engine_left.id = "engine_left"
 	engine_left.caption = "L ENG"
-	engine_left.name = "Левый двигатель"
+	engine_left.module_name = "Левый двигатель"
 	// Fuel pumps
 	// central fueltank - apu
 	var/obj/item/spacepod_module/fuel_pump/pump_central_to_apu = new(src)
 	pump_central_to_apu.id = "pump_central_fueltanktank_to_apu"
 	pump_central_to_apu.caption = "APU PUMP"
-	pump_central_to_apu.name = "Топливный насос из центрального бака в ВСУ"
+	pump_central_to_apu.module_name = "Топливный насос из центрального бака в ВСУ"
 	pump_central_to_apu.source_tank = fuel_tank_central
 	pump_central_to_apu.destination_tank = apu
 	systems.add_module(src, pump_central_to_apu)
@@ -132,7 +132,7 @@
 	var/obj/item/spacepod_module/fuel_pump/pump_central_to_right_engine = new(src)
 	pump_central_to_right_engine.id = "pump_central_fueltank_to_engine_right"
 	pump_central_to_right_engine.caption = "CR ENG PUMP"
-	pump_central_to_right_engine.name = "Топливный насос из центрального бака в правый двигатель"
+	pump_central_to_right_engine.module_name = "Топливный насос из центрального бака в правый двигатель"
 	pump_central_to_right_engine.source_tank = fuel_tank_central
 	pump_central_to_right_engine.destination_tank = engine_right
 	systems.add_module(src, pump_central_to_right_engine)
@@ -140,7 +140,7 @@
 	var/obj/item/spacepod_module/fuel_pump/pump_central_to_left_engine = new(src)
 	pump_central_to_left_engine.id = "pump_central_fueltank_to_engine_left"
 	pump_central_to_left_engine.caption = "CL ENG PUMP"
-	pump_central_to_left_engine.name = "Топливный насос из центрального бака в левый двигатель"
+	pump_central_to_left_engine.module_name = "Топливный насос из центрального бака в левый двигатель"
 	pump_central_to_left_engine.source_tank = fuel_tank_central
 	pump_central_to_left_engine.destination_tank = engine_left
 	systems.add_module(src, pump_central_to_left_engine)
@@ -148,7 +148,7 @@
 	var/obj/item/spacepod_module/fuel_pump/pump_right_to_central = new(src)
 	pump_right_to_central.id = "pump_right_fueltank_to_central_fueltank"
 	pump_right_to_central.caption = "RC TK PUMP"
-	pump_right_to_central.name = "Топливный насос из правого бака в центральный бак"
+	pump_right_to_central.module_name = "Топливный насос из правого бака в центральный бак"
 	pump_right_to_central.source_tank = fuel_tank_right
 	pump_right_to_central.destination_tank = fuel_tank_central
 	systems.add_module(src, pump_right_to_central)
@@ -156,7 +156,7 @@
 	var/obj/item/spacepod_module/fuel_pump/pump_left_to_central = new(src)
 	pump_left_to_central.id = "pump_left_fueltank_to_central_fueltank"
 	pump_left_to_central.caption = "LC TK PUMP"
-	pump_left_to_central.name = "Топливный насос из левого бака в центральный бак"
+	pump_left_to_central.module_name = "Топливный насос из левого бака в центральный бак"
 	pump_left_to_central.source_tank = fuel_tank_left
 	pump_left_to_central.destination_tank = fuel_tank_central
 	systems.add_module(src, pump_left_to_central)
@@ -164,7 +164,7 @@
 	var/obj/item/spacepod_module/fuel_pump/pump_right_to_right_engine = new(src)
 	pump_right_to_right_engine.id = "pump_right_fueltank_to_right_engine"
 	pump_right_to_right_engine.caption = "R ENG PUMP"
-	pump_right_to_right_engine.name = "Топливный насос из правого бака в правый двигатель"
+	pump_right_to_right_engine.module_name = "Топливный насос из правого бака в правый двигатель"
 	pump_right_to_right_engine.source_tank = fuel_tank_right
 	pump_right_to_right_engine.destination_tank = engine_right
 	systems.add_module(src, pump_right_to_right_engine)
@@ -172,7 +172,7 @@
 	var/obj/item/spacepod_module/fuel_pump/pump_left_to_left_engine = new(src)
 	pump_left_to_left_engine.id = "pump_left_fueltank_to_left_engine"
 	pump_left_to_left_engine.caption = "L ENG PUMP"
-	pump_left_to_left_engine.name = "Топливный насос из левого бака в левый двигатель"
+	pump_left_to_left_engine.module_name = "Топливный насос из левого бака в левый двигатель"
 	pump_left_to_left_engine.source_tank = fuel_tank_left
 	pump_left_to_left_engine.destination_tank = engine_left
 	systems.add_module(src, pump_left_to_left_engine)
@@ -185,11 +185,11 @@
 /obj/spacepod2/template/two_engine/create_armor()
 	var/obj/item/spacepod_module/armor/fore_armor = new /obj/item/spacepod_module/armor/light(src)
 	fore_armor.id = "fore_armor"
-	fore_armor.name = "Носовая броня"
+	fore_armor.module_name = "Носовая броня"
 	systems.add_module(src, fore_armor)
 	var/obj/item/spacepod_module/armor/aft_armor = new /obj/item/spacepod_module/armor/light(src)
 	aft_armor.id = "aft_armor"
-	aft_armor.name = "Кормовая броня"
+	aft_armor.module_name = "Кормовая броня"
 	systems.add_module(src, aft_armor)
 
 
@@ -261,19 +261,19 @@
 /obj/spacepod2/template/two_engine/raptor/create_armor()
 	var/obj/item/spacepod_module/armor/fore_armor = new /obj/item/spacepod_module/armor/heavy(src)
 	fore_armor.id = "fore_armor"
-	fore_armor.name = "Носовая броня"
+	fore_armor.module_name = "Носовая броня"
 	systems.add_module(src, fore_armor)
 	var/obj/item/spacepod_module/armor/aft_armor = new /obj/item/spacepod_module/armor/heavy(src)
 	aft_armor.id = "aft_armor"
-	aft_armor.name = "Кормовая броня"
+	aft_armor.module_name = "Кормовая броня"
 	systems.add_module(src, aft_armor)
 	var/obj/item/spacepod_module/armor/port_side_armor = new /obj/item/spacepod_module/armor/heavy(src)
 	port_side_armor.id = "port_side_armor"
-	port_side_armor.name = "Броня левого борта"
+	port_side_armor.module_name = "Броня левого борта"
 	systems.add_module(src, port_side_armor)
 	var/obj/item/spacepod_module/armor/starboard_side_armor = new /obj/item/spacepod_module/armor/heavy(src)
 	starboard_side_armor.id = "starboard_side_armor"
-	starboard_side_armor.name = "Броня правого борта"
+	starboard_side_armor.module_name = "Броня правого борта"
 	systems.add_module(src, starboard_side_armor)
 
 
@@ -307,27 +307,27 @@
 /obj/spacepod2/template/two_engine/raptor/create_armor()
 	var/obj/item/spacepod_module/armor/fore_armor = new /obj/item/spacepod_module/armor/heavy(src)
 	fore_armor.id = "fore_armor"
-	fore_armor.name = "Носовая броня"
+	fore_armor.module_name = "Носовая броня"
 	systems.add_module(src, fore_armor)
 	var/obj/item/spacepod_module/armor/aft_armor = new /obj/item/spacepod_module/armor/heavy(src)
 	aft_armor.id = "aft_armor"
-	aft_armor.name = "Кормовая броня"
+	aft_armor.module_name = "Кормовая броня"
 	systems.add_module(src, aft_armor)
 	var/obj/item/spacepod_module/armor/port_side_armor = new /obj/item/spacepod_module/armor/heavy(src)
 	port_side_armor.id = "port_side_armor"
-	port_side_armor.name = "Броня левого борта"
+	port_side_armor.module_name = "Броня левого борта"
 	systems.add_module(src, port_side_armor)
 	var/obj/item/spacepod_module/armor/starboard_side_armor = new /obj/item/spacepod_module/armor/heavy(src)
 	starboard_side_armor.id = "starboard_side_armor"
-	starboard_side_armor.name = "Броня правого борта"
+	starboard_side_armor.module_name = "Броня правого борта"
 	systems.add_module(src, starboard_side_armor)
 	var/obj/item/spacepod_module/armor/top_side_armor = new /obj/item/spacepod_module/armor/heavy(src)
 	top_side_armor.id = "top_side_armor"
-	top_side_armor.name = "Броня крыши"
+	top_side_armor.module_name = "Броня крыши"
 	systems.add_module(src, top_side_armor)
 	var/obj/item/spacepod_module/armor/bottom_side_armor = new /obj/item/spacepod_module/armor/heavy(src)
 	bottom_side_armor.id = "bottom_side_armor"
-	bottom_side_armor.name = "Броня днища"
+	bottom_side_armor.module_name = "Броня днища"
 	systems.add_module(src, bottom_side_armor)
 
 /obj/spacepod2/template/two_engine/cobra/create_misc_modules()

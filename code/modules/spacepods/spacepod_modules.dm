@@ -1,11 +1,12 @@
 // MARK: Basic module
 /obj/item/spacepod_module
-	var/id = "unknown"
-	var/caption = "???"
-	name = "Модуль челнока"
+	desc = "Модуль космического челнока."
 	icon = 'icons/obj/spacepod.dmi'
 	icon_state = "weapon_burst_taser"
 	origin_tech = "programming=2;materials=2;engineering=2"
+	var/id = "unknown"
+	var/caption = "???"
+	var/module_name = "Модуль челнока"
 	var/datum/spacepod_systems/systems = null
 
 	/// Current module integrity
@@ -30,9 +31,21 @@
 	/// Error detail data
 	var/error_text = null
 
+
+/obj/item/spacepod_module/get_ru_names()
+	return alist(
+		NOMINATIVE = "модуль \"[module_name]\"",
+		GENITIVE = "модуля \"[module_name]\"",
+		DATIVE = "модулю \"[module_name]\"",
+		ACCUSATIVE = "модуль \"[module_name]\"",
+		INSTRUMENTAL = "модулем \"[module_name]\"",
+		PREPOSITIONAL = "модуле \"[module_name]\"",
+	)
+
 /obj/item/spacepod_module/Initialize(mapload)
 	. = ..()
 	integrity = max_integrity
+	name = "module \"[module_name]\""
 
 /obj/item/spacepod_module/proc/install_to(mob/living/user, obj/spacepod2/pod)
 	return FALSE
@@ -90,7 +103,8 @@
 /obj/item/spacepod_module/fuel_tank
 	id = "fuel_tank"
 	caption = "TK"
-	name = "Топливный бак"
+	module_name = "Топливный бак"
+	desc = "Стандартный топливный бак вместимостью 1000 литров. Обеспечивает челнок горючим для перелётов на средние расстояния."
 	max_integrity = 200
 	hit_weight = POD_MODULE_HIT_CHANCE_LARGE
 	fire_damage_mod = 2
@@ -113,7 +127,8 @@
 	fuel_amount = fuel_capacity
 
 /obj/item/spacepod_module/fuel_tank/large
-	name = "Большой топливный бак"
+	module_name = "Большой топливный бак"
+	desc = "Увеличенный топливный бак вместимостью 2000 литров. Для дальних перелётов и тяжёлых челноков с высоким расходом топлива."
 	max_integrity = 300
 	hit_weight = POD_MODULE_HIT_CHANCE_EXTRA_LARGE
 	mass = 250
@@ -136,7 +151,7 @@
 		return FALSE
 	src.id = fueltank_id
 	src.caption = caption
-	src.name = fueltank_name
+	src.module_name = fueltank_name
 	return TRUE
 
 
@@ -144,7 +159,8 @@
 /obj/item/spacepod_module/battery
 	id = "battery"
 	caption = "BATT"
-	name = "Аккумуляторная батарея"
+	module_name = "Аккумуляторная батарея"
+	desc = "Аккумулирует электроэнергию от генераторов и питает электросеть для бортовых систем челнока."
 	max_integrity = 200
 	fire_on_hit_chance = 10
 	mass = 80
@@ -182,7 +198,8 @@
 /obj/item/spacepod_module/fuel_pump
 	id = "fuel_pump"
 	caption = "PUMP"
-	name = "Топливный насос"
+	module_name = "Топливный насос"
+	desc = "Перекачивает топливо из бака к двигателю. Несколько насосов повышают пропускную способность и стабильность подачи."
 	max_integrity = 50
 	hit_weight = POD_MODULE_HIT_CHANCE_SMALL
 	fire_damage_mod = 5
@@ -210,7 +227,7 @@
 		return FALSE
 	src.id = pump_id
 	src.caption = caption
-	src.name = pump_name
+	src.module_name = pump_name
 	src.source_tank = source_fueltank
 	src.destination_tank = destination_fueltank
 	return TRUE
@@ -245,7 +262,8 @@
 // MARK: Engines
 /obj/item/spacepod_module/fuel_tank/engine
 	id = "engine"
-	name = "Двигатель"
+	module_name = "Двигатель челнока"
+	desc = "Базовый маршевый двигатель челнока. Обеспечивает тягу для перемещения в космосе. Требуется вспомогательная силовая установка для запуска данного двигателя."
 	caption = "ENG"
 	hit_weight = POD_MODULE_HIT_CHANCE_LARGE
 	max_integrity = 300
@@ -270,7 +288,6 @@
 	/// Receiving external rotation
 	var/external_rotation = FALSE
 
-
 /obj/item/spacepod_module/fuel_tank/engine/install_to(mob/living/user, obj/spacepod2/pod)
 	if(length(pod.systems.engines) >= POD_MAX_ENGINES)
 		return FALSE
@@ -284,7 +301,7 @@
 		return FALSE
 	src.id = engine_id
 	src.caption = caption
-	src.name = engine_name
+	src.module_name = engine_name
 	return TRUE
 
 /obj/item/spacepod_module/fuel_tank/engine/proc/get_rpm_percent()
@@ -334,16 +351,19 @@
 	current_rpm = min(current_rpm + ignition_acceleration * seconds_per_tick, max_rpm)
 
 /obj/item/spacepod_module/fuel_tank/engine/heavy
-	name = "Форсажный двигатель"
+	module_name = "Форсажный двигатель челнока"
+	desc = "Двигатель челнока повышенной тяги. Значительно мощнее базового, но быстрее расходует топливо. Требуется вспомогательная силовая установка для запуска данного двигателя."
 	thrust = 6000
 	fuel_consume_amount = 2
 	mass = 170
+
 
 // MARK: APU
 /obj/item/spacepod_module/fuel_tank/engine/apu
 	id = "apu"
 	caption = "APU"
-	name = "Вспомогательная силовая установка"
+	module_name = "Вспомогательная силовая установка"
+	desc = "Вспомогательная силовая установка обеспечивает челнок электроэнергией при выключенном маршевом двигателе и выдает крутящий момент для запуска основных двигателей челнока."
 	thrust = 0
 	mass = 100
 	consume_power = 1000
@@ -352,7 +372,6 @@
 
 /obj/item/spacepod_module/fuel_tank/engine/apu/is_apu()
 	return TRUE
-
 
 /obj/item/spacepod_module/fuel_tank/engine/apu/install_to(mob/living/user, obj/spacepod2/pod)
 	if(pod.systems.apu != null)
@@ -403,7 +422,8 @@
 // MARK: Gyroscope
 /obj/item/spacepod_module/gyroscope
 	id = "gyroscope"
-	name = "Гироскопический стабилизатор"
+	module_name = "Гироскопический стабилизатор"
+	desc = "Генерирует крутящий момент для маневрирования челнока в открытом космосе, компенсирует вращение и раскачку челнока."
 	caption = "GYRO"
 	hit_weight = POD_MODULE_HIT_CHANCE_LARGE
 	max_integrity = 250
@@ -446,7 +466,8 @@
 // MARK: Weapon
 /obj/item/spacepod_module/weapon
 	id = "weapon"
-	name = "Модуль вооружения"
+	module_name = "Модуль вооружения"
+	desc = "Оружейная установка с двумя слотами для стрелкового оружия. Позволяет пилоту вести огонь из орудий, установленных на челноке."
 	caption = "WPN"
 	hit_weight = POD_MODULE_HIT_CHANCE_LARGE
 	max_integrity = 250
@@ -551,20 +572,33 @@
 
 /obj/item/spacepod_module/weapon/course
 	id = "weapon_course"
-	name = "Модуль курсового вооружения"
+	module_name = "Модуль курсового вооружения"
+	desc = "Оружейная установка курсового огня с двумя слотами для стрелкового оружия. Позволяет пилоту вести огонь из орудий, установленных на челноке."
 	only_course_fire = TRUE
+
+/obj/item/spacepod_module/weapon/course/get_ru_names()
+	return alist(
+		NOMINATIVE = "модуль курсового вооружения",
+		GENITIVE = "модуля курсового вооружения",
+		DATIVE = "модулю курсового вооружения",
+		ACCUSATIVE = "модуль курсового вооружения",
+		INSTRUMENTAL = "модулем курсового вооружения",
+		PREPOSITIONAL = "модуле курсового вооружения",
+	)
 
 /obj/item/spacepod_module/weapon/turret
 	id = "weapon_turret"
-	name = "Модуль турельного вооружения"
+	module_name = "Модуль турельного вооружения"
+	desc = "Турельная установка с двумя слотами для стрелкового оружия. Позволяет пилоту вести огонь из орудий, установленных на челноке."
 
 
 // MARK: Armor
 /obj/item/spacepod_module/armor
 	id = "armor"
 	caption = "ARM"
+	module_name = "модуль брони"
 	hit_weight = POD_MODULE_HIT_CHANCE_EXTRA_LARGE
-	max_integrity = 200
+	max_integrity = 100
 	mass = 60
 
 /obj/item/spacepod_module/armor/install_to(mob/living/user, obj/spacepod2/pod)
@@ -582,12 +616,14 @@
 
 /obj/item/spacepod_module/armor/light
 	id = "armor_light"
-	name = "Модуль лёгкой брони"
+	module_name = "Модуль лёгкой брони"
+	desc = "Лёгкая бронепластина для защиты корпуса челнока. Небольшой вес, но ограниченная прочность."
 
 /obj/item/spacepod_module/armor/heavy
 	id = "armor_heavy"
-	name = "Модуль тяжёлой брони"
-	max_integrity = 350
+	module_name = "Модуль тяжёлой брони"
+	desc = "Усиленная бронепластина с высоким сопротивлением урону. Значительно тяжелее лёгкой, но выдерживает прямые попадания."
+	max_integrity = 300
 	mass = 150
 
 
@@ -595,7 +631,8 @@
 /obj/item/spacepod_module/life_support
 	id = "life_support"
 	caption = "AIR"
-	name = "Модуль жизнеобеспечения"
+	module_name = "Модуль жизнеобеспечения"
+	desc = "Поддерживает пригодную для дыхания атмосферу и температуру в кабине шаттла."
 	hit_weight = POD_MODULE_HIT_CHANCE_NORMAL
 	max_integrity = 100
 	mass = 40
@@ -624,7 +661,8 @@
 /obj/item/spacepod_module/passenger_seat
 	id = "passenger_seat"
 	caption = "SEAT"
-	name = "Пассажирское сиденье"
+	module_name = "Пассажирское сиденье"
+	desc = "Дополнительное место для пассажира. Позволяет взять на борт ещё одного человека, но не даёт ему управления челноком."
 	hit_weight = 0
 	mass = 220
 
@@ -644,7 +682,8 @@
 /obj/item/spacepod_module/fire_extingusher
 	id = "fire_extinguisher"
 	caption = "FIRE"
-	name = "Модуль пожаротушения"
+	module_name = "модуль пожаротушения"
+	desc = "Система тушения пожара. Распыляет огнетушащий состав при обнаружении возгорания."
 	hit_weight = 0
 	var/charges = 3
 	mass = 180
@@ -661,7 +700,8 @@
 /obj/item/spacepod_module/key_lock
 	id = "key_lock"
 	caption = "LOCK"
-	name = "Модуль замка"
+	module_name = "Модуль замка"
+	desc = "Электронный замок, блокирующий доступ к челноку. Для посадки требуется специальный ключ изготовленный из заготовки."
 	hit_weight = POD_MODULE_HIT_CHANCE_SMALL
 	mass = 30
 	var/key_id
@@ -695,6 +735,7 @@
 /obj/item/spacepod_module/catapult_module
 	id = "catapult"
 	caption = "CAT"
-	name = "Модуль аварийного катапультирования"
+	module_name = "Модуль аварийного катапультирования"
+	desc = "Система экстренной эвакуации пилота. Автоматически выбрасывает пилота в направлении, противоположном курсу челнока в случае критического повреждения корпуса."
 	hit_weight = POD_MODULE_HIT_CHANCE_SMALL
 	mass = 50
