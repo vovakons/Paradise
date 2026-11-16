@@ -200,6 +200,8 @@ log transactions
 			else if(transfer_amount <= authenticated_account.money)
 				var/target_account_number = text2num(params["target_acc_number"])
 				var/transfer_purpose = params["purpose"]
+				if(transfer_purpose)
+					transfer_purpose = sanitize(copytext_char(transfer_purpose, 1, MAX_MESSAGE_LEN))
 				if(linked_db.charge_to_account(target_account_number, authenticated_account, transfer_purpose, machine_id, transfer_amount))
 					to_chat(usr, "[get_examine_icon(usr)][span_notice("Funds transfer successful.")]")
 				else

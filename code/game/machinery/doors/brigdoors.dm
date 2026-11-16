@@ -381,12 +381,12 @@
 	switch(action)
 		if("prisoner_name")
 			if(params["prisoner_name"])
-				prisoner_name = params["prisoner_name"]
+				prisoner_name = sanitize(copytext_char(params["prisoner_name"], 1, MAX_NAME_LEN))
 			else
 				var/new_name = tgui_input_text(usr, "Prisoner Name:", name, prisoner_name, MAX_NAME_LEN, encode = FALSE)
 				if(isnull(new_name))
 					return
-				prisoner_name = new_name
+				prisoner_name = sanitize(copytext_char(new_name, 1, MAX_NAME_LEN))
 			if(prisoner_name)
 				var/datum/data/record/R = find_security_record("name", prisoner_name)
 				if(istype(R))
@@ -397,7 +397,7 @@
 			var/new_charge = tgui_input_text(usr, "Prisoner Charge:", name, prisoner_charge, encode = FALSE)
 			if(isnull(new_charge))
 				return
-			prisoner_charge = new_charge
+			prisoner_charge = sanitize(copytext_char(new_charge, 1, MAX_MESSAGE_LEN))
 		if("prisoner_time")
 			var/new_time = tgui_input_number(usr, "Prisoner Time (in minutes):", name, prisoner_time, PERMABRIG_TIME)
 			if(isnull(new_time))

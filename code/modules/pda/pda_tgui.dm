@@ -125,7 +125,8 @@
 		if("Authenticate") //Checks for ID
 			id_check(ui.user, in_pda_usage = TRUE)
 		if("Available_Ringtones")
-			ttone = params["selected_ringtone"]
+			if(params["selected_ringtone"] in ttone_sound)
+				ttone = params["selected_ringtone"]
 		if("Ringtone")
 			if(!silent)
 				playsound(src, 'sound/machines/terminal_select.ogg', 15, TRUE)

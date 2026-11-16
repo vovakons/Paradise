@@ -254,11 +254,17 @@ GLOBAL_VAR_INIT(captain_auth_access, ACCESS_CAPTAIN)
 			setMenuState(ui.user, COMM_SCREEN_STAT)
 
 		if("setmsg1")
-			stat_msg1 = tgui_input_text(ui.user, "Строка 1", stat_msg1, "Введите текст сообщения", encode = FALSE)
+			var/new_message = tgui_input_text(ui.user, "Строка 1", stat_msg1, "Введите текст сообщения", encode = FALSE)
+			if(isnull(new_message))
+				return
+			stat_msg1 = sanitize(new_message)
 			setMenuState(ui.user, COMM_SCREEN_STAT)
 
 		if("setmsg2")
-			stat_msg2 = tgui_input_text(ui.user, "Строка 2", stat_msg2, "Введите текст сообщения", encode = FALSE)
+			var/new_message = tgui_input_text(ui.user, "Строка 2", stat_msg2, "Введите текст сообщения", encode = FALSE)
+			if(isnull(new_message))
+				return
+			stat_msg2 = sanitize(new_message)
 			setMenuState(ui.user, COMM_SCREEN_STAT)
 
 		if("nukerequest")

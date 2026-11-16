@@ -537,7 +537,7 @@ GAME_VERB_SRC(/obj/item/pda, verb_remove_pen, usr, "Извлечь ручку", 
 	if(HAS_TRAIT(SSstation, STATION_TRAIT_PDA_GLITCHED))
 		sound_file = SFX_GLITCHED_PDA_RINGTONE
 	playsound(loc, sound_file, 50, TRUE)
-	var/ring_message = "*[ttone]*"
+	var/ring_message = "*[html_encode(ttone)]*"
 	audible_message(ring_message)
 	for(var/mob/living/alertee in balloon_alertees)
 		alertee.balloon_alert(alertee, ring_message)

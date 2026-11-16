@@ -83,6 +83,7 @@
 	var/str = tgui_input_text(usr, "New area name:", "Blueprint Editing", prevname, MAX_NAME_LEN, encode = FALSE)
 	if(!str || !length(str) || str == prevname) // Cancel
 		return
+	str = sanitize(str)
 	rename_area(user_area, str)
 	to_chat(user, span_notice("You rename the '[prevname]' to '[str]'."))
 	add_game_logs("has renamed [prevname] to [str]", user)

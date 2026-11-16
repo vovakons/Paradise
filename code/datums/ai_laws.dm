@@ -263,9 +263,9 @@
 		if(law == zeroth_law_borg)
 			continue
 		if(law == zeroth_law)
-			to_chat(who, span_danger("[law.get_index()]. [law.law]"))
+			to_chat(who, span_danger("[law.get_index()]. [html_encode(law.law)]"))
 		else
-			to_chat(who, "[law.get_index()]. [law.law]")
+			to_chat(who, "[law.get_index()]. [html_encode(law.law)]")
 
 /datum/ai_laws/proc/return_laws_text()
 	. = list()
@@ -274,9 +274,9 @@
 		if(law == zeroth_law_borg)
 			continue
 		if(law == zeroth_law)
-			. += span_danger("[law.get_index()]. [law.law]")
+			. += span_danger("[law.get_index()]. [html_encode(law.law)]")
 		else
-			. += "[law.get_index()]. [law.law]"
+			. += "[law.get_index()]. [html_encode(law.law)]"
 
 /********************
 * Stating Laws *

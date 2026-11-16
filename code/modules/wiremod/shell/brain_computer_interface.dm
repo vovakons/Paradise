@@ -36,9 +36,9 @@
 	// Organs are put in nullspace, but this breaks circuit interactions
 	forceMove(target)
 
-/obj/item/organ/internal/cyberimp/brain/bci/atom_say(message)
+/obj/item/organ/internal/cyberimp/brain/bci/atom_say(message, use_tts = TRUE, sanitize_message = FALSE)
 	if(!owner)
-		return ..()
+		return ..(message, use_tts, sanitize_message)
 
 	// Otherwise say_dead will be called.
 	// It's intentional that a circuit for a dead person does not speak from the shell.

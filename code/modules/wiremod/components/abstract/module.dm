@@ -34,15 +34,15 @@
 
 /obj/item/integrated_circuit/module/set_display_name(new_name)
 	. = ..()
-	attached_module.display_name = new_name
-	attached_module.name = "module ([new_name])"
+	attached_module.display_name = display_name
+	attached_module.name = "module ([display_name])"
 	attached_module.ru_names = alist(
-		NOMINATIVE = "модуль ([new_name])",
-		GENITIVE = "модуля ([new_name])",
-		DATIVE = "модулю ([new_name])",
-		ACCUSATIVE = "модуль ([new_name])",
-		INSTRUMENTAL = "модулем ([new_name])",
-		PREPOSITIONAL = "модуле ([new_name])"
+		NOMINATIVE = "модуль ([display_name])",
+		GENITIVE = "модуля ([display_name])",
+		DATIVE = "модулю ([display_name])",
+		ACCUSATIVE = "модуль ([display_name])",
+		INSTRUMENTAL = "модулем ([display_name])",
+		PREPOSITIONAL = "модуле ([display_name])"
 	)
 
 

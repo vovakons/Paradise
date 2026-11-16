@@ -211,7 +211,7 @@
 			var/purpose = tgui_input_text(user, "Enter reason for EFTPOS transaction", "Transaction purpose", transaction_purpose, encode = FALSE)
 			if(!Adjacent(user) || isnull(purpose))
 				return
-			transaction_purpose = purpose
+			transaction_purpose = sanitize(copytext_char(purpose, 1, MAX_MESSAGE_LEN))
 			playsound(src, 'sound/machines/terminal_prompt_confirm.ogg', 30, FALSE)
 		if("trans_value")
 			var/try_num = tgui_input_number(user, "Enter amount for EFTPOS transaction", "Transaction amount", transaction_amount)

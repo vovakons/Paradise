@@ -1181,10 +1181,12 @@ GLOBAL_LIST_EMPTY(blood_splatter_icons)
 /atom/proc/handle_atom_del(atom/A)
 	return
 
-/atom/proc/atom_say(message, use_tts = TRUE)
+/atom/proc/atom_say(message, use_tts = TRUE, sanitize_message = FALSE)
 	if(!message)
 		return
 	var/message_tts = message
+	if(sanitize_message)
+		message = html_encode(message)
 	message = replace_characters(message, list("+"))
 
 	var/list/speech_bubble_hearers = list()

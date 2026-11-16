@@ -102,6 +102,7 @@
 		var/str = tgui_input_text(usr, "New area name:", "Blueprint Editing", max_length = MAX_NAME_LEN, encode = FALSE)
 		if(!str)
 			return
+		str = sanitize(str)
 		newA = new area_choice
 		newA.name = str
 		newA.power_equip = FALSE

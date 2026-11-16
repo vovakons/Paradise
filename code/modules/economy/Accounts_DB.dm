@@ -151,6 +151,8 @@ GLOBAL_VAR(current_date_string)
 
 		if("finalise_create_account")
 			var/account_name = params["holder_name"]
+			if(account_name)
+				account_name = sanitize(copytext_char(account_name, 1, MAX_NAME_LEN))
 			var/starting_funds = max(text2num(params["starting_funds"]), 0)
 			if(!account_name || !starting_funds)
 				return

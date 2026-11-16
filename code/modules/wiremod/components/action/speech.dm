@@ -38,5 +38,5 @@
 
 	var/atom/movable/shell = parent.shell
 	log_circuit("[key_name_log(usr)] trigger speech component with [message.value] value.")
-	shell.atom_say(message.value)
+	shell.atom_say(message.value, sanitize_message = TRUE)
 	TIMER_COOLDOWN_START(shell, COOLDOWN_CIRCUIT_SPEECH, speech_cooldown)

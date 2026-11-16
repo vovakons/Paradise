@@ -110,6 +110,8 @@
 			var/target = params["target"]
 			var/amount = params["amount"]
 			var/purpose = params["purpose"]
+			if(purpose)
+				purpose = sanitize(copytext_char(purpose, 1, MAX_MESSAGE_LEN))
 
 			var/datum/money_account/recipient_user = get_account_with_name(target)
 			var/datum/money_account/sender_user = get_account_with_name(pda.owner)
