@@ -261,6 +261,20 @@
 
 	reagents.clear_reagents()
 
+/obj/item/reagent_containers/proc/burst_on_heat(mob/user)
+	if(QDELETED(src))
+		return
+	visible_message(span_danger("[DECLENT_RU_CAP(src, NOMINATIVE)] лопа[PLUR_ET_YUT(src)]ся от нагрева!"))
+	var/atom/splash_target = user || get_turf(src)
+	if(!splash_target)
+		qdel(src)
+		return
+	var/previous_container_type = container_type
+	container_type &= ~NO_SPLASH
+	splash_reagents(splash_target, user, allow_closed_splash = TRUE)
+	container_type = previous_container_type
+	qdel(src)
+
 /obj/item/reagent_containers/update_overlays()
 	. = ..()
 	if(!fill_icon_thresholds)

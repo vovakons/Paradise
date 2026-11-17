@@ -584,6 +584,13 @@
 	desc = "Пластиковая бутылка, подходящая для напитков."
 	icon_state = "plastic_bottle"
 	is_plastic = 1
+	heatable = FALSE
+
+/obj/item/reagent_containers/cup/soda_cans/bottler/plastic_bottle/heat_reagents(temperature, mob/user, divisor = 35, change_cap = 15)
+	if(reagents && temperature > reagents.chem_temp)
+		burst_on_heat(user)
+		return FALSE
+	return ..(temperature, user, divisor, change_cap)
 
 /obj/item/reagent_containers/cup/soda_cans/bottler/plastic_bottle/get_ru_names()
 	return alist(

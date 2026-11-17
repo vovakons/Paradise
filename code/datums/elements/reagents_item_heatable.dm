@@ -19,8 +19,8 @@
 
 	var/hotness = tool.get_temperature()
 	if(hotness)
-		source.reagents.temperature_reagents(hotness)
-		source.balloon_alert(user, "heated [source]")
+		if(source.heat_reagents(hotness, user))
+			source.balloon_alert(user, "heated [source]")
 		return ITEM_INTERACT_SUCCESS
 
 	//Cooling method

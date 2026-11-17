@@ -719,8 +719,13 @@
 
 /atom/proc/fire_act(exposed_temperature, exposed_volume)
 	SEND_SIGNAL(src, COMSIG_ATOM_FIRE_ACT, exposed_temperature, exposed_volume)
-	if(reagents)
-		reagents.temperature_reagents(exposed_temperature)
+	heat_reagents(exposed_temperature)
+
+/atom/proc/heat_reagents(temperature, mob/user, divisor = 35, change_cap = 15)
+	if(!reagents)
+		return FALSE
+	reagents.temperature_reagents(temperature, divisor, change_cap)
+	return TRUE
 
 /atom/proc/emag_act(mob/user)
 	SEND_SIGNAL(src, COMSIG_ATOM_EMAG_ACT, user)

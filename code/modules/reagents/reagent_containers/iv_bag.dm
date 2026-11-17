@@ -218,6 +218,12 @@
 		return ATTACK_CHAIN_PROCEED_SUCCESS
 	return ..()
 
+/obj/item/reagent_containers/iv_bag/heat_reagents(temperature, mob/user, divisor = 35, change_cap = 15)
+	if(reagents && temperature > reagents.chem_temp)
+		burst_on_heat(user)
+		return FALSE
+	return ..(temperature, user, divisor, change_cap)
+
 // MARK: Pre-filled IV Bags
 /obj/item/reagent_containers/iv_bag/salglu
 	list_reagents = list(/datum/reagent/medicine/salglu_solution = 200)

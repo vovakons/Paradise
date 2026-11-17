@@ -52,7 +52,12 @@
 			if(!beaker.reagents.total_volume)
 				on = FALSE
 				return
-			beaker.reagents.temperature_reagents(desired_temp, max(1, 35 - speed_increase))
+			if(!beaker.heat_reagents(desired_temp, divisor = max(1, 35 - speed_increase)))
+				beaker = null
+				on = FALSE
+				update_icon(UPDATE_ICON_STATE)
+				SStgui.update_uis(src)
+				return
 			if(round(beaker.reagents.chem_temp) == round(desired_temp))
 				playsound(loc, 'sound/machines/ding.ogg', 50, TRUE)
 				on = FALSE

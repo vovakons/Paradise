@@ -146,8 +146,10 @@
 		return .|ATTACK_CHAIN_BLOCKED
 	var/temperature = get_temperature()
 	if(temperature && target.reagents && !ismob(target) && !istype(target, /obj/item/clothing/mask/cigarette))
-		to_chat(user, span_notice("Вы нагрели [target.declent_ru(ACCUSATIVE)] с помощью [declent_ru(GENITIVE)]."))
-		target.reagents.temperature_reagents(temperature)
+		if(target.heat_reagents(temperature, user))
+			to_chat(user, span_notice("Вы нагрели [target.declent_ru(ACCUSATIVE)] с помощью [declent_ru(GENITIVE)]."))
+		else
+			return .|ATTACK_CHAIN_BLOCKED|ATTACK_CHAIN_SUCCESS
 
 /**
  * Called on the item before it hits something, when right clicking.
